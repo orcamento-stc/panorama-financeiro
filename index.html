@@ -1517,10 +1517,12 @@ function parseImport() {
 ];
 
 const hasRegionalColumn = validRegionais.includes(possibleRegional);
-    if (cols.length < 3) {
-      parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
-      return;
-    }
+    const minCols = hasRegionalColumn ? 4 : 3;
+
+if (cols.length < minCols) {
+  parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
+  return;
+}
 
     // col 0: package id — strip "Pac", "Pacote", spaces
     const rawId = cols[0].replace(/pac(ote)?\.?\s*/i,'').replace(/\D/g,'').padStart(2,'0');
