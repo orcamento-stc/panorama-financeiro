@@ -651,13 +651,14 @@
 
           <div class="import-instructions">
             <strong>Formato esperado:</strong> cada linha deve ter:<br>
-            <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
+            <code>Regional</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
+           <strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
             <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
             <strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
             <strong>Valores:</strong> podem usar vírgula ou ponto como decimal. Ex: <code>1234,56</code> ou <code>1234.56</code>
           </div>
 
-          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo:&#10;07	Planejado	100000	110000	95000	...&#10;07	Realizado	98000	105000	92000	...&#10;08	P	50000	52000	48000	..."></textarea>
+          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo:&#10;Goiânia	07	Planejado	100000	110000	95000	...&#10;Goiânia	07	Realizado	98000	105000	92000	...&#10;Anápolis	08	P	50000	52000	48000	..."></textarea>
 
           <div class="import-actions">
             <button class="btn-import primary" onclick="parseImport()">🔍 Pré-visualizar</button>
