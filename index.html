@@ -1492,34 +1492,117 @@ function parseImport() {
   }
 
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
-  const result = []; // { pkgId, type, values[12], errors[] }
+  const result = [];
   const parseErrors = [];
 
+  const validRegionais = [
+    'Anápolis',
+    'Formosa',
+    'Goiânia',
+    'Iporá',
+    'Luziânia',
+    'Metropolitana',
+    'Montes Belos',
+    'Morrinhos',
+    'Rio Verde',
+    'Uruaçu'
+  ];
+
   lines.forEach((line, li) => {
-    // detect separator: tab preferred, then semicolon, then comma
     let sep = '\t';
     if (!line.includes('\t')) {
       sep = line.includes(';') ? ';' : ',';
     }
+
     const cols = line.split(sep).map(c => c.trim());
     const possibleRegional = cols[0];
-    const validRegionais = [
-  'Anápolis',
-  'Formosa',
-  'Goiânia',
-  'Iporá',
-  'Luziânia',
-  'Metropolitana',
-  'Montes Belos',
-  'Morrinhos',
-  'Rio Verde',
-  'Uruaçu'
-];
+    const hasRegionalColumn = validRegionais.includes(possibleRegional);
+    const minCols = hasRegionalColumn ? 15 : 14;
 
-const hasRegionalColumn = validRegionais.includes(possibleRegional);
-    if (cols.length < 3) {
-  parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
-  return;
+    if (cols.length < minCols) {
+      parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
+      return;
+    }
+
+    const regional = hasRegionalColumn ? cols[0] : null;
+    const pkgColIndex = hasRegionalColumn ? 1 : 0;
+    const typeColIndex = hasRegionalColumn ? 2 : 1;
+    const valuesStartIndex = hasRegionalColumn ? 3 : 2;
+
+    const rawId = cols[pkgColIndex]
+      .replace(/pac(ote)?\.?\s*/i,'')
+      .replace(/\D/g,'')
+      .padStart(2,'0');
+
+    const pkg = PACKAGES.find(p => p.id === rawId);
+    if (!pkg) {
+      parseErrors.push(`Linha ${li+1}: pacote "${cols[pkgColIndex]}" não reconhecido.`);
+      return;
+    }
+
+    const rawType = cols[typeColIndex]
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'');
+
+    let type;
+    if (/^p(lan)?/.test(rawType)) type = 'plan';
+    else if (/^r(eal)?/.test(rawType)) type = 'real';
+    else {
+      parseErrors.push(`Linha ${li+1}: tipo "${cols[typeColIndex]}" inválido. Use "Planejado" ou "Realizado".`);
+      return;
+    }
+
+    const values = [];
+    const errs = [];
+
+    for (let m = 0; m < 12; m++) {
+      const rawVal = (cols[valuesStartIndex + m] ?? '')
+        .replace(/R\$\s*/g,'')
+        .replace(/\s/g,'');
+
+      if (rawVal === '' || rawVal === '-' || rawVal.toLowerCase() === 'null') {
+        values.push(null);
+      } else {
+        let norm = rawVal;
+
+        if (norm.includes(',') && norm.includes('.')) {
+          norm = norm.replace(/\./g,'').replace(',','.');
+        } else if (norm.includes(',')) {
+          norm = norm.replace(',','.');
+        }
+
+        const n = parseFloat(norm);
+        if (isNaN(n)) {
+          errs.push(m);
+          values.push(null);
+        } else {
+          values.push(n);
+        }
+      }
+    }
+
+    result.push({
+      regional,
+      hasRegionalColumn,
+      pkgId: pkg.id,
+      pkgName: pkg.name,
+      type,
+      values,
+      errs
+    });
+  });
+
+  if (result.length === 0) {
+    const msg = parseErrors.length > 0
+      ? 'Nenhuma linha válida encontrada.<br>' + parseErrors.map(e => `• ${e}`).join('<br>')
+      : 'Nenhuma linha válida encontrada.';
+    showFeedback('error', msg);
+    return;
+  }
+
+  parsedImportData = result;
+  renderPreview(result, parseErrors);
 }
 
     // col 0: package id — strip "Pac", "Pacote", spaces
@@ -1584,9 +1667,11 @@ function renderPreview(result, parseErrors) {
   count.textContent = `${result.length} linha(s)${parseErrors.length>0?' · ⚠️ '+parseErrors.length+' aviso(s)':''}`;
 
   tbl.innerHTML = '';
-  // header
+  const hasAnyRegional = result.some(row => row.hasRegionalColumn);
+
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
+    ${hasAnyRegional ? '<th>Regional</th>' : ''}
     <th>Pacote</th><th>Tipo</th>
     ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
   </tr>`;
@@ -1597,7 +1682,13 @@ function renderPreview(result, parseErrors) {
     const tr = document.createElement('tr');
     tr.className = row.type==='plan'?'prev-plan':'prev-real';
     const typeLabel = row.type==='plan'?'Planejado':'Realizado';
-    tr.innerHTML = `<td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
+
+    tr.innerHTML = `
+      ${hasAnyRegional ? `<td>${row.regional ?? '—'}</td>` : ''}
+      <td>${row.pkgId} · ${row.pkgName}</td>
+      <td class="ttype">${typeLabel}</td>
+    `;
+
     row.values.forEach((v, i) => {
       const td = document.createElement('td');
       if (v === null) {
@@ -1625,14 +1716,15 @@ function renderPreview(result, parseErrors) {
 
 function confirmImport() {
   if (!parsedImportData) return;
+
   parsedImportData.forEach(row => {
     if (!appData[row.pkgId]) appData[row.pkgId] = MONTHS.map(()=>({plan:null,real:null}));
     row.values.forEach((v, mi) => {
       if (v !== null) appData[row.pkgId][mi][row.type] = v;
     });
   });
+
   saveData();
-  // refresh manual table if it was rendered
   renderDataTable();
   if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
@@ -1654,17 +1746,18 @@ function showFeedback(type, msg) {
 }
 
 function downloadTemplate() {
-  const header = ['Pacote','Tipo',...MONTHS].join(';');
+  const header = ['Regional','Pacote','Tipo',...MONTHS].join(';');
   const rows = [];
+  const regionalModelo = 'Goiânia';
   PACKAGES.forEach(p => {
-    rows.push([p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
-    rows.push([p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push([regionalModelo,p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push([regionalModelo,p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
   });
   const csv = [header, ...rows].join('\r\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'template_stc_gyn.csv';
+  a.download = 'template_stc_gyn_regionais.csv';
   a.click();
 }
 
