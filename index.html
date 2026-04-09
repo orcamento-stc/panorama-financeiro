@@ -326,29 +326,27 @@
   .dre-leg-real { background:rgba(40,86,212,0.2);  color:#93c5fd; }
   .dre-leg-var  { background:rgba(255,255,255,0.07); color:var(--eq-gray); }
   .dre-scroll { overflow-x:auto; border-radius:10px; border:1px solid rgba(255,255,255,0.08); }
-  table.dre-table { width:100%; border-collapse:collapse; font-size:.78rem; min-width:900px; }
+  table.dre-table { width:100%; border-collapse:collapse; font-size:.74rem; min-width:1080px; }
   table.dre-table thead tr { background:rgba(40,86,212,0.18); }
-  table.dre-table th { padding:.55rem .8rem; text-align:right; font-family:var(--font-head); font-weight:700; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--eq-gray); white-space:nowrap; border-bottom:1px solid rgba(255,255,255,0.08); }
-  table.dre-table th.dre-pkg { text-align:left; position:sticky; left:0; background:rgba(12,24,72,.98); z-index:3; min-width:200px; }
-  table.dre-table th.dre-row-type { text-align:left; min-width:90px; position:sticky; left:200px; background:rgba(12,24,72,.98); z-index:3; }
+  table.dre-table th { padding:.45rem .55rem; text-align:right; font-family:var(--font-head); font-weight:700; font-size:.64rem; text-transform:uppercase; letter-spacing:.06em; color:var(--eq-gray); white-space:nowrap; border-bottom:1px solid rgba(255,255,255,0.08); }
+  table.dre-table th.dre-pkg { text-align:left; position:sticky; left:0; background:rgba(12,24,72,.98); z-index:3; min-width:170px; }
+  table.dre-table th.dre-row-type { text-align:left; min-width:84px; position:sticky; left:170px; background:rgba(12,24,72,.98); z-index:3; }
   /* package group rows */
   table.dre-table tr.dre-pkg-header td { background:rgba(40,86,212,0.12); font-family:var(--font-head); font-weight:700; font-size:.78rem; padding:.5rem .8rem; border-top:2px solid rgba(40,86,212,0.3); }
   table.dre-table tr.dre-pkg-header td.dre-pkg { position:sticky; left:0; z-index:2; }
-  table.dre-table td { padding:.4rem .8rem; border-top:1px solid rgba(255,255,255,0.04); text-align:right; white-space:nowrap; }
+  table.dre-table td { padding:.32rem .55rem; border-top:1px solid rgba(255,255,255,0.04); text-align:right; white-space:nowrap; }
   table.dre-table td.dre-pkg { text-align:left; position:sticky; left:0; background:rgba(10,20,65,.97); z-index:2; font-weight:600; }
-  table.dre-table td.dre-row-type { text-align:left; position:sticky; left:200px; background:rgba(10,20,65,.97); z-index:2; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding-left:1rem; }
+  table.dre-table td.dre-row-type { text-align:left; position:sticky; left:170px; background:rgba(10,20,65,.97); z-index:2; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding-left:.8rem; }
   table.dre-table td.dre-row-type.rt-plan { color:#f47920; }
   table.dre-table td.dre-row-type.rt-real { color:#93c5fd; }
   table.dre-table td.dre-row-type.rt-var  { color:var(--eq-gray); font-style:italic; }
   /* value cells */
-  table.dre-table td.dv-plan { color:rgba(244,121,32,0.85); }
-  table.dre-table td.dv-real-g { color:var(--green); }
-  table.dre-table td.dv-real-r { color:var(--red); }
-  table.dre-table td.dv-real-y { color:var(--yellow); }
+  table.dre-table td.dv-plan { color:rgba(244,121,32,0.9); }
+  table.dre-table td.dv-real { color:#7dd3fc; }
   table.dre-table td.dv-real-n { color:var(--eq-gray); }
-  table.dre-table td.dv-var-g  { color:var(--green); font-weight:600; font-size:.72rem; line-height:1.4; }
-  table.dre-table td.dv-var-r  { color:var(--red);   font-weight:600; font-size:.72rem; line-height:1.4; }
-  table.dre-table td.dv-var-y  { color:var(--yellow); font-weight:600; font-size:.72rem; line-height:1.4; }
+  table.dre-table td.dv-var-g  { color:var(--green); font-weight:700; font-size:.72rem; line-height:1.35; background:rgba(34,197,94,0.08); }
+  table.dre-table td.dv-var-r  { color:var(--red);   font-weight:700; font-size:.72rem; line-height:1.35; background:rgba(239,68,68,0.08); }
+  table.dre-table td.dv-var-y  { color:var(--eq-gray); font-weight:700; font-size:.72rem; line-height:1.35; background:rgba(255,255,255,0.04); }
   table.dre-table td.dv-var-n  { color:var(--eq-gray); font-size:.72rem; }
   /* total row */
   table.dre-table tr.dre-total td { background:rgba(244,121,32,0.08); border-top:2px solid rgba(244,121,32,0.25); }
@@ -365,7 +363,7 @@
   .table-outer  { overflow-x: auto; border-radius: 14px; border: 1px solid var(--card-border); }
   table.dt { width: 100%; border-collapse: collapse; font-size: .8rem; }
   table.dt thead tr { background: rgba(40,86,212,0.22); }
-  table.dt th { padding: .6rem .7rem; text-align: center; font-family: var(--font-head); font-weight: 700; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--eq-gray); white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  table.dt th { padding: .52rem .55rem; text-align: center; font-family: var(--font-head); font-weight: 700; font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; color: var(--eq-gray); white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,0.08); }
   table.dt th.hpkg  { text-align: left; min-width: 175px; position: sticky; left: 0; background: rgba(12,24,72,.98); z-index: 3; }
   table.dt th.htype { min-width: 90px; }
   table.dt td { border-top: 1px solid rgba(255,255,255,0.045); }
@@ -373,10 +371,12 @@
   table.dt td.ttype { padding: .3rem .7rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   table.dt tr.sep td { height: 3px; background: rgba(255,255,255,0.04); padding: 0; }
   table.dt td.tcell { padding: .28rem .35rem; }
-  table.dt input[type=number] { width: 100px; padding: .32rem .5rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--eq-white); font-size: .8rem; font-family: var(--font-body); outline: none; text-align: right; transition: border .15s; -moz-appearance: textfield; }
+  table.dt input[type=number] { width: 84px; padding: .28rem .45rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--eq-white); font-size: .78rem; font-family: var(--font-body); outline: none; text-align: right; transition: border .15s, background .15s; -moz-appearance: textfield; }
   table.dt input[type=number]::-webkit-inner-spin-button,
   table.dt input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
   table.dt input[type=number]:focus { border-color: var(--eq-orange); background: rgba(244,121,32,0.08); }
+  table.dt tr.row-real td.tcell input { background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.28); color: #dbeafe; }
+  table.dt tr.row-real td.tcell input:focus { border-color: #60a5fa; background: rgba(96,165,250,0.18); }
 
   .save-bar { position: sticky; bottom: 0; z-index: 10; background: rgba(8,18,55,0.96); backdrop-filter: blur(14px); border-top: 1px solid rgba(255,255,255,0.08); padding: .8rem 2rem; display: flex; align-items: center; gap: 1rem; }
   .save-info { font-size: .8rem; color: var(--eq-gray); flex: 1; }
@@ -421,9 +421,9 @@
   table.preview-table { width:100%; border-collapse:collapse; font-size:.76rem; }
   table.preview-table thead tr { background:rgba(40,86,212,0.2); position:sticky; top:0; z-index:2; }
   table.preview-table th { padding:.45rem .6rem; text-align:center; font-family:var(--font-head); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--eq-gray); white-space:nowrap; }
-  table.preview-table th:first-child,table.preview-table th:nth-child(2) { text-align:left; }
+  table.preview-table th:first-child,table.preview-table th:nth-child(2),table.preview-table th:nth-child(3) { text-align:left; }
   table.preview-table td { padding:.35rem .6rem; border-top:1px solid rgba(255,255,255,0.04); text-align:center; white-space:nowrap; }
-  table.preview-table td:first-child { text-align:left; font-weight:600; color:var(--eq-orange); }
+  table.preview-table td:first-child, table.preview-table td:nth-child(2) { text-align:left; font-weight:600; color:var(--eq-orange); }
   table.preview-table tr.prev-plan td.ttype { color:#f47920; font-size:.7rem; font-weight:700; }
   table.preview-table tr.prev-real td.ttype { color:#60a5fa; font-size:.7rem; font-weight:700; }
   table.preview-table td.val-ok  { color:#86efac; }
@@ -944,9 +944,9 @@ document.getElementById('month-dropdown').addEventListener('click', e => e.stopP
 document.getElementById('regional-dropdown').addEventListener('click', e => e.stopPropagation());
 
 function getVisiblePkgs() {
-  if (cardFilter==='card')   return PACKAGES.filter(p=>p.card);
-  if (cardFilter==='nocard') return PACKAGES.filter(p=>!p.card);
-  return PACKAGES;
+  if (cardFilter==='card')   return PACKAGES.filter(p => ['07','08','09','15','20'].includes(p.id));
+  if (cardFilter==='nocard') return PACKAGES.filter(p => ['10','11'].includes(p.id));
+  return PACKAGES.filter(p => ['07','08','09','10','11','15','20'].includes(p.id));
 }
 
 /* ── AGGREGATION ── */
@@ -999,7 +999,7 @@ function renderCards() {
   const totAgg = aggForFilter(totMon);
   const tSt = getStatus(totAgg.plan, totAgg.real, false);
   const tCol = SC[tSt];
-  const fn = cardFilter==='card'?'Pacotes CARD':cardFilter==='nocard'?'Pacotes Não CARD':'Todos os Pacotes';
+  const fn = cardFilter==='card'?'Pacotes CARD':cardFilter==='nocard'?'Pacotes Operacionais':'Todos os Pacotes';
   const totPct = (totAgg.plan && totAgg.real!=null)
     ? ((totAgg.real-totAgg.plan)/totAgg.plan*100).toFixed(1) : null;
 
@@ -1323,8 +1323,7 @@ function renderDRE(pkgIds, hibTotal) {
           return `<td class="dre-proj-cell">~${fmtShort(avgReal)}</td>`;
         }
         if (m.real == null) return `<td class="dv-real-n">—</td>`;
-        const st = getStatus(m.plan, m.real, hib);
-        return `<td class="dv-real-${st[0]}">${fmtBRL(m.real)}</td>`;
+        return `<td class="dv-real">${fmtBRL(m.real)}</td>`;
       }).join('')}
       <td style="font-weight:700; color:var(--eq-gray)">${lastRealIdx>=0?fmtBRL(realsSum):'—'}</td>`;
 
@@ -1344,7 +1343,7 @@ function renderDRE(pkgIds, hibTotal) {
         const sign = diff>0?'+':'';
         return `<td class="dv-var-${st[0]}">${sign}${fmtShort(diff)}<br>${sign}${pct.toFixed(1)}%</td>`;
       }).join('')}
-      <td class="dv-var-${annualVar!=null?(hib?annualVar>0?'g':'r':annualVar<0?'g':'r'):'n'}" style="font-weight:700">
+      <td class="dv-var-${annualVar==null?'n':(hib ? (annualVar>0?'g':annualVar<0?'r':'y') : (annualVar<0?'g':annualVar>0?'r':'y'))}" style="font-weight:700">
         ${annualVar!=null?`${annualVar>0?'+':''}${fmtShort(annualVar)}<br>${annualPct>0?'+':''}${annualPct.toFixed(1)}%`:'—'}
       </td>`;
 
@@ -1397,6 +1396,7 @@ function renderDataTable() {
   PACKAGES.forEach(p => {
     ['plan','real'].forEach(type => {
       const tr = document.createElement('tr');
+      tr.classList.add(type==='plan' ? 'row-plan' : 'row-real');
       if (type==='plan') {
         const tdP = document.createElement('td');
         tdP.className='tpkg'; tdP.rowSpan=2;
@@ -1495,90 +1495,71 @@ function parseImport() {
   const result = [];
   const parseErrors = [];
 
-  const validRegionais = [
-    'Anápolis',
-    'Formosa',
-    'Goiânia',
-    'Iporá',
-    'Luziânia',
-    'Metropolitana',
-    'Montes Belos',
-    'Morrinhos',
-    'Rio Verde',
-    'Uruaçu'
-  ];
-
   lines.forEach((line, li) => {
     let sep = '\t';
-    if (!line.includes('\t')) {
-      sep = line.includes(';') ? ';' : ',';
-    }
+    if (!line.includes('\t')) sep = line.includes(';') ? ';' : ',';
 
-    const cols = line.split(sep).map(c => c.trim());
-    if (cols.length === 0) return;
+    const cols = line.split(sep).map(c => c.trim()).filter((_, idx, arr) => !(idx === arr.length - 1 && arr[idx] === ''));
 
-    const firstColNorm = (cols[0] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    const secondColNorm = (cols[1] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    const isHeaderRow =
-      firstColNorm === 'regional' ||
-      firstColNorm === 'pacote' ||
-      secondColNorm === 'pacote' ||
-      secondColNorm === 'tipo';
+    if (!cols.length) return;
 
-    if (isHeaderRow) return;
-
-    const possibleRegional = cols[0];
-    const hasRegionalColumn = validRegionais.includes(possibleRegional);
-    const minCols = hasRegionalColumn ? 15 : 14;
-
-    if (cols.length < minCols) {
-      parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
+    // Ignora cabeçalho copiado do Excel
+    const normalizedFirst = (cols[0] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const normalizedSecond = (cols[1] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if ((normalizedFirst === 'regional' && normalizedSecond === 'pacote') || (normalizedFirst === 'pacote' && normalizedSecond === 'tipo')) {
       return;
     }
 
-    const pkgColIndex   = hasRegionalColumn ? 1 : 0;
-    const typeColIndex  = hasRegionalColumn ? 2 : 1;
-    const monthStartIdx = hasRegionalColumn ? 3 : 2;
-    const regionalValue = hasRegionalColumn ? possibleRegional : 'Geral';
+    const hasRegionalColumn = REGIONALS.includes(cols[0]);
+    const regional = hasRegionalColumn ? cols[0] : null;
+    const pkgCol = hasRegionalColumn ? 1 : 0;
+    const typeCol = hasRegionalColumn ? 2 : 1;
+    const valueStartCol = hasRegionalColumn ? 3 : 2;
 
-    const rawId = cols[pkgColIndex].replace(/pac(ote)?\.?\s*/i,'').replace(/\D/g,'').padStart(2,'0');
+    const minCols = valueStartCol + 12;
+    if (cols.length < minCols) {
+      parseErrors.push(`Linha ${li+1}: esperado pelo menos ${minCols} colunas, mas vieram ${cols.length}.`);
+      return;
+    }
+
+    const rawId = (cols[pkgCol] || '').replace(/pac(ote)?\.?\s*/i,'').replace(/\D/g,'').padStart(2,'0');
     const pkg = PACKAGES.find(p => p.id === rawId);
     if (!pkg) {
-      parseErrors.push(`Linha ${li+1}: pacote "${cols[pkgColIndex]}" não reconhecido.`);
+      parseErrors.push(`Linha ${li+1}: pacote "${cols[pkgCol]}" não reconhecido.`);
       return;
     }
 
-    const rawType = cols[typeColIndex].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const rawType = (cols[typeCol] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     let type;
     if (/^p(lan)?/.test(rawType)) type = 'plan';
     else if (/^r(eal)?/.test(rawType)) type = 'real';
     else {
-      parseErrors.push(`Linha ${li+1}: tipo "${cols[typeColIndex]}" inválido. Use "Planejado" ou "Realizado".`);
+      parseErrors.push(`Linha ${li+1}: tipo "${cols[typeCol]}" inválido. Use "Planejado" ou "Realizado".`);
       return;
     }
 
     const values = [];
     const errs = [];
     for (let m = 0; m < 12; m++) {
-      const rawVal = (cols[monthStartIdx + m] ?? '').replace(/R\$\s*/g,'').replace(/\s/g,'');
+      const rawVal = (cols[valueStartCol + m] ?? '').replace(/R\$\s*/g,'').replace(/\s/g,'');
       if (rawVal === '' || rawVal === '-' || rawVal.toLowerCase() === 'null') {
         values.push(null);
       } else {
         let norm = rawVal;
-        if (norm.includes(',') && norm.includes('.')) {
-          norm = norm.replace(/\./g,'').replace(',','.');
-        } else if (norm.includes(',')) {
-          norm = norm.replace(',','.');
-        }
+        if (norm.includes(',') && norm.includes('.')) norm = norm.replace(/\./g,'').replace(',','.');
+        else if (norm.includes(',')) norm = norm.replace(',','.');
         const n = parseFloat(norm);
-        if (isNaN(n)) { errs.push(m); values.push(null); }
-        else values.push(n);
+        if (isNaN(n)) {
+          errs.push(m);
+          values.push(null);
+        } else {
+          values.push(n);
+        }
       }
     }
 
     result.push({
-      regional: regionalValue,
-      hasRegionalColumn,
+      regional,
       pkgId: pkg.id,
       pkgName: pkg.name,
       type,
@@ -1588,7 +1569,7 @@ function parseImport() {
   });
 
   if (result.length === 0) {
-    const msg = parseErrors.length>0
+    const msg = parseErrors.length > 0
       ? 'Nenhuma linha válida encontrada.<br>' + parseErrors.map(e=>`• ${e}`).join('<br>')
       : 'Nenhuma linha válida encontrada.';
     showFeedback('error', msg);
@@ -1599,7 +1580,6 @@ function parseImport() {
   renderPreview(result, parseErrors);
 }
 
-
 function renderPreview(result, parseErrors) {
   const wrap  = document.getElementById('preview-wrap');
   const count = document.getElementById('preview-count');
@@ -1608,12 +1588,9 @@ function renderPreview(result, parseErrors) {
   count.textContent = `${result.length} linha(s)${parseErrors.length>0?' · ⚠️ '+parseErrors.length+' aviso(s)':''}`;
 
   tbl.innerHTML = '';
-  const hasAnyRegional = result.some(r => r.hasRegionalColumn);
-
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
-    ${hasAnyRegional ? '<th>Regional</th>' : ''}
-    <th>Pacote</th><th>Tipo</th>
+    <th>Regional</th><th>Pacote</th><th>Tipo</th>
     ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
   </tr>`;
   tbl.appendChild(thead);
@@ -1621,13 +1598,9 @@ function renderPreview(result, parseErrors) {
   const tbody = document.createElement('tbody');
   result.forEach(row => {
     const tr = document.createElement('tr');
-    tr.className = row.type==='plan'?'prev-plan':'prev-real';
-    const typeLabel = row.type==='plan'?'Planejado':'Realizado';
-    tr.innerHTML = `
-      ${hasAnyRegional ? `<td>${row.regional}</td>` : ''}
-      <td>${row.pkgId} · ${row.pkgName}</td>
-      <td class="ttype">${typeLabel}</td>
-    `;
+    tr.className = row.type==='plan' ? 'prev-plan' : 'prev-real';
+    const typeLabel = row.type==='plan' ? 'Planejado' : 'Realizado';
+    tr.innerHTML = `<td>${row.regional ?? '—'}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
     row.values.forEach((v, i) => {
       const td = document.createElement('td');
       if (v === null) {
@@ -1653,7 +1626,6 @@ function renderPreview(result, parseErrors) {
   }
 }
 
-
 function confirmImport() {
   if (!parsedImportData) return;
   parsedImportData.forEach(row => {
@@ -1663,12 +1635,11 @@ function confirmImport() {
     });
   });
   saveData();
-  // refresh manual table if it was rendered
   renderDataTable();
   if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
   document.getElementById('paste-area').value = '';
-  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso.`);
+  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso. A regional foi validada e exibida na prévia; a consolidação por regional fica preparada para a próxima etapa.`);
   parsedImportData = null;
 }
 
@@ -1687,11 +1658,9 @@ function showFeedback(type, msg) {
 function downloadTemplate() {
   const header = ['Regional','Pacote','Tipo',...MONTHS].join(';');
   const rows = [];
-  REGIONALS.forEach(regional => {
-    PACKAGES.forEach(p => {
-      rows.push([regional,p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
-      rows.push([regional,p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
-    });
+  PACKAGES.forEach(p => {
+    rows.push(['Goiânia',p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push(['Goiânia',p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
   });
   const csv = [header, ...rows].join('\r\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
@@ -1700,7 +1669,6 @@ function downloadTemplate() {
   a.download = 'template_stc_gyn_regionais.csv';
   a.click();
 }
-
 
 /* ── INIT ── */
 initData();
