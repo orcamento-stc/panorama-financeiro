@@ -1517,9 +1517,7 @@ function parseImport() {
 ];
 
 const hasRegionalColumn = validRegionais.includes(possibleRegional);
-    const minCols = hasRegionalColumn ? 4 : 3;
-
-if (cols.length < minCols) {
+    if (cols.length < 3) {
   parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
   return;
 }
