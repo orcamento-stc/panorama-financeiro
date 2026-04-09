@@ -612,14 +612,13 @@
 
           <div class="import-instructions">
             <strong>Formato esperado:</strong> cada linha deve ter:<br>
-<code>Regional</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
-<strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
-<strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
-<strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
-<strong>Valores:</strong> podem usar vírgula ou ponto como decimal. Ex: <code>1234,56</code> ou <code>1234.56</code>
+            <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
+            <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
+            <strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
+            <strong>Valores:</strong> podem usar vírgula ou ponto como decimal. Ex: <code>1234,56</code> ou <code>1234.56</code>
           </div>
 
-         <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo:&#10;Goiânia	07	Planejado	100000	110000	95000	...&#10;Goiânia	07	Realizado	98000	105000	92000	...&#10;Anápolis	08	P	50000	52000	48000	..."></textarea>
+          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo:&#10;07	Planejado	100000	110000	95000	...&#10;07	Realizado	98000	105000	92000	...&#10;08	P	50000	52000	48000	..."></textarea>
 
           <div class="import-actions">
             <button class="btn-import primary" onclick="parseImport()">🔍 Pré-visualizar</button>
@@ -1433,7 +1432,6 @@ function buildTemplatePkgList() {
 }
 
 function parseImport() {
- function parseImport() {
   const raw = document.getElementById('paste-area').value.trim();
   const fb  = document.getElementById('import-feedback');
   fb.style.display = 'none';
@@ -1446,111 +1444,66 @@ function parseImport() {
   }
 
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
-  const result = [];
+  const result = []; // { pkgId, type, values[12], errors[] }
   const parseErrors = [];
 
-  const validRegionais = [
-    'Morrinhos',
-    'Formosa',
-    'Montes Belos',
-    'Rio Verde',
-    'Goiânia',
-    'Anápolis',
-    'Metropolitana',
-    'Luziânia',
-    'Iporá',
-    'Uruaçu'
-  ];
-
   lines.forEach((line, li) => {
+    // detect separator: tab preferred, then semicolon, then comma
     let sep = '\t';
     if (!line.includes('\t')) {
       sep = line.includes(';') ? ';' : ',';
     }
-
     const cols = line.split(sep).map(c => c.trim());
-
-    if (cols.length < 4) {
+    if (cols.length < 3) {
       parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
       return;
     }
 
-    // Coluna 0 = Regional
-    const regional = cols[0];
-    if (!validRegionais.includes(regional)) {
-      parseErrors.push(`Linha ${li+1}: regional "${cols[0]}" não reconhecida.`);
-      return;
-    }
-
-    // Coluna 1 = Pacote
-    const rawId = cols[1]
-      .replace(/pac(ote)?\.?\s*/i,'')
-      .replace(/\D/g,'')
-      .padStart(2,'0');
-
+    // col 0: package id — strip "Pac", "Pacote", spaces
+    const rawId = cols[0].replace(/pac(ote)?\.?\s*/i,'').replace(/\D/g,'').padStart(2,'0');
     const pkg = PACKAGES.find(p => p.id === rawId);
     if (!pkg) {
-      parseErrors.push(`Linha ${li+1}: pacote "${cols[1]}" não reconhecido.`);
+      parseErrors.push(`Linha ${li+1}: pacote "${cols[0]}" não reconhecido.`);
       return;
     }
 
-    // Coluna 2 = Tipo
-    const rawType = cols[2]
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g,'');
-
+    // col 1: type
+    const rawType = cols[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     let type;
-    if (/^p(lan)?/.test(rawType)) type = 'plan';
+    if (/^p(lan)?/.test(rawType))    type = 'plan';
     else if (/^r(eal)?/.test(rawType)) type = 'real';
     else {
-      parseErrors.push(`Linha ${li+1}: tipo "${cols[2]}" inválido. Use "Planejado" ou "Realizado".`);
+      parseErrors.push(`Linha ${li+1}: tipo "${cols[1]}" inválido. Use "Planejado" ou "Realizado".`);
       return;
     }
 
-    // Colunas 3..14 = meses
+    // cols 2..13: values (accept comma or dot decimal, ignore R$, spaces, dots as thousands)
     const values = [];
-    const errs = [];
-
+    const errs   = [];
     for (let m = 0; m < 12; m++) {
-      const rawVal = (cols[3+m] ?? '')
-        .replace(/R\$\s*/g,'')
-        .replace(/\s/g,'');
-
-      if (rawVal === '' || rawVal === '-' || rawVal.toLowerCase() === 'null') {
+      const raw = (cols[2+m] ?? '').replace(/R\$\s*/g,'').replace(/\s/g,'');
+      if (raw === '' || raw === '-' || raw.toLowerCase() === 'null') {
         values.push(null);
       } else {
-        let norm = rawVal;
-
+        // handle Brazilian number format: 1.234.567,89 → 1234567.89
+        let norm = raw;
+        // if contains comma AND dot: comma is decimal separator (BR format)
         if (norm.includes(',') && norm.includes('.')) {
           norm = norm.replace(/\./g,'').replace(',','.');
         } else if (norm.includes(',')) {
           norm = norm.replace(',','.');
         }
-
         const n = parseFloat(norm);
-        if (isNaN(n)) {
-          errs.push(m);
-          values.push(null);
-        } else {
-          values.push(n);
-        }
+        if (isNaN(n)) { errs.push(m); values.push(null); }
+        else values.push(n);
       }
     }
-
-    result.push({
-      regional,
-      pkgId: pkg.id,
-      pkgName: pkg.name,
-      type,
-      values,
-      errs
-    });
+    result.push({ pkgId: pkg.id, pkgName: pkg.name, type, values, errs });
   });
 
   if (result.length === 0) {
-    const msg = parseErrors.length > 0
-      ? 'Nenhuma linha válida encontrada.<br>' + parseErrors.map(e => `• ${e}`).join('<br>')
+    const msg = parseErrors.length>0
+      ? 'Nenhuma linha válida encontrada.<br>' + parseErrors.map(e=>`• ${e}`).join('<br>')
       : 'Nenhuma linha válida encontrada.';
     showFeedback('error', msg);
     return;
@@ -1559,6 +1512,7 @@ function parseImport() {
   parsedImportData = result;
   renderPreview(result, parseErrors);
 }
+
 function renderPreview(result, parseErrors) {
   const wrap  = document.getElementById('preview-wrap');
   const count = document.getElementById('preview-count');
@@ -1570,9 +1524,9 @@ function renderPreview(result, parseErrors) {
   // header
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
-  <th>Regional</th><th>Pacote</th><th>Tipo</th>
-  ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
-</tr>`;
+    <th>Pacote</th><th>Tipo</th>
+    ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
+  </tr>`;
   tbl.appendChild(thead);
 
   const tbody = document.createElement('tbody');
@@ -1580,7 +1534,7 @@ function renderPreview(result, parseErrors) {
     const tr = document.createElement('tr');
     tr.className = row.type==='plan'?'prev-plan':'prev-real';
     const typeLabel = row.type==='plan'?'Planejado':'Realizado';
-    tr.innerHTML = `<td>${row.regional}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
+    tr.innerHTML = `<td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
     row.values.forEach((v, i) => {
       const td = document.createElement('td');
       if (v === null) {
@@ -1608,21 +1562,16 @@ function renderPreview(result, parseErrors) {
 
 function confirmImport() {
   if (!parsedImportData) return;
-
   parsedImportData.forEach(row => {
     if (!appData[row.pkgId]) appData[row.pkgId] = MONTHS.map(()=>({plan:null,real:null}));
-
     row.values.forEach((v, mi) => {
-      if (v !== null) {
-        appData[row.pkgId][mi][row.type] = v;
-      }
+      if (v !== null) appData[row.pkgId][mi][row.type] = v;
     });
   });
-
   saveData();
+  // refresh manual table if it was rendered
   renderDataTable();
-  if (currentScreen === 'panorama') renderPanorama();
-
+  if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
   document.getElementById('paste-area').value = '';
   showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso.`);
