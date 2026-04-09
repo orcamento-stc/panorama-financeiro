@@ -148,12 +148,19 @@
   .month-picker-btn:hover { border-color: rgba(255,255,255,0.3); }
   .month-picker-btn .chevron { margin-left: auto; font-size: .65rem; opacity: .6; }
   .month-dropdown {
-    display: none; position: absolute; top: calc(100% + 6px); right: 0;
-    background: #0f2060; border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 12px; padding: .5rem;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-    z-index: 200; min-width: 200px;
-  }
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #0f2060;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: .6rem;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  z-index: 200;
+  min-width: 240px;
+  max-width: 280px;
+}
   .month-dropdown.open { display: block; }
   .month-dropdown-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -164,19 +171,51 @@
   .month-dropdown-header button {
     font-size: .72rem; color: var(--eq-orange); background: none; border: none; cursor: pointer; font-weight: 600;
   }
-  .month-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .3rem; }
+  .month-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .35rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: .2rem;
+}
   .month-opt {
-    padding: .38rem .3rem; border-radius: 7px; text-align: center;
-    font-size: .8rem; cursor: pointer; color: var(--eq-gray);
-    border: 1px solid transparent; transition: all .15s; user-select: none;
-  }
-  .month-opt:hover { background: rgba(255,255,255,0.08); color: var(--eq-white); }
-  .month-opt.sel { background: var(--eq-blue-bright); color: #fff; border-color: var(--eq-blue-bright); font-weight: 600; }
+  padding: .55rem .75rem;
+  border-radius: 8px;
+  text-align: left;
+  font-size: .84rem;
+  cursor: pointer;
+  color: var(--eq-gray);
+  border: 1px solid transparent;
+  transition: all .15s;
+  user-select: none;
+  background: rgba(255,255,255,0.03);
+}
+  .month-opt:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--eq-white);
+}
+
+.month-opt.sel {
+  background: var(--eq-blue-bright);
+  color: #fff;
+  border-color: var(--eq-blue-bright);
+  font-weight: 600;
+}
   .month-opt-all {
-    grid-column: 1/-1; padding: .38rem; border-radius: 7px; text-align: center;
-    font-size: .78rem; cursor: pointer; color: var(--eq-gray);
-    border: 1px solid transparent; transition: all .15s; margin-bottom: .2rem;
-  }
+  grid-column: 1/-1;
+  padding: .6rem .75rem;
+  border-radius: 8px;
+  text-align: left;
+  font-size: .84rem;
+  cursor: pointer;
+  color: var(--eq-gray);
+  border: 1px solid transparent;
+  transition: all .15s;
+  margin-bottom: .35rem;
+  background: rgba(255,255,255,0.04);
+  font-weight: 600;
+}
   .month-opt-all:hover { background: rgba(255,255,255,0.08); color: var(--eq-white); }
   .month-opt-all.sel { background: rgba(40,86,212,0.35); color: #fff; border-color: rgba(40,86,212,0.5); font-weight: 600; }
 
@@ -675,8 +714,16 @@ const PACKAGES = [
 ];
 const SK = 'eq_stcgyn_v4';
 const REGIONALS = [
-  'Morrinhos','Formosa','Montes Belos','Rio Verde','Goiânia',
-  'Anápolis','Metropolitana','Luziânia','Iporá','Uruaçu'
+  'Anápolis',
+  'Formosa',
+  'Goiânia',
+  'Iporá',
+  'Luziânia',
+  'Metropolitana',
+  'Montes Belos',
+  'Morrinhos',
+  'Rio Verde',
+  'Uruaçu'
 ];
 let selectedRegionals = [];      // panorama: visual/estrutura pronta
 let dataSelectedRegional = null; // dados: visual/estrutura pronta
