@@ -1503,6 +1503,20 @@ function parseImport() {
     }
     const cols = line.split(sep).map(c => c.trim());
     const possibleRegional = cols[0];
+    const validRegionais = [
+  'Anápolis',
+  'Formosa',
+  'Goiânia',
+  'Iporá',
+  'Luziânia',
+  'Metropolitana',
+  'Montes Belos',
+  'Morrinhos',
+  'Rio Verde',
+  'Uruaçu'
+];
+
+const hasRegionalColumn = validRegionais.includes(possibleRegional);
     if (cols.length < 3) {
       parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
       return;
