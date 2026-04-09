@@ -1501,6 +1501,7 @@ function parseImport() {
       sep = line.includes(';') ? ';' : ',';
     }
     const cols = line.split(sep).map(c => c.trim());
+    const possibleRegional = cols[0];
     if (cols.length < 3) {
       parseErrors.push(`Linha ${li+1}: colunas insuficientes (${cols.length}).`);
       return;
