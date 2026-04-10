@@ -437,6 +437,57 @@
   .template-pkg-item span { color:var(--eq-gray); }
   .csv-preview-box { background:rgba(0,0,0,0.25); border-radius:8px; padding:.7rem .9rem; font-family:monospace; font-size:.72rem; color:#86efac; line-height:1.7; overflow-x:auto; white-space:pre; margin-bottom:.8rem; border:1px solid rgba(34,197,94,0.15); }
 
+
+  /* EXEC SUMMARY */
+  .exec-summary { margin-bottom: 1.15rem; }
+  .exec-summary-title {
+    font-family: var(--font-head); font-size: .78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em; color: var(--eq-gray);
+    margin-bottom: .7rem;
+  }
+  .exec-summary-grid {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
+    gap:.8rem; margin-bottom:1.1rem;
+  }
+  .exec-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 14px; padding: .95rem 1rem;
+    min-height: 92px;
+  }
+  .exec-card .k {
+    font-size:.66rem; text-transform:uppercase; letter-spacing:.08em;
+    color: var(--eq-gray); margin-bottom:.32rem; font-weight:600;
+  }
+  .exec-card .v {
+    font-family: var(--font-head); font-size: 1rem; font-weight: 800;
+    color: var(--eq-white); line-height:1.15;
+  }
+  .exec-card .s {
+    font-size:.72rem; color: var(--eq-gray); margin-top:.25rem;
+  }
+  .exec-card.good .v, .exec-card.good .s { color: var(--green); }
+  .exec-card.bad .v, .exec-card.bad .s { color: #f87171; }
+  .exec-card.neutral .v, .exec-card.neutral .s { color: var(--eq-white); }
+
+  .card-var-row {
+    display:flex; justify-content:space-between; gap:.45rem; margin-top:.45rem; min-width:0;
+    align-items:flex-end;
+  }
+  .card-var-box { min-width:0; }
+  .card-var-label {
+    font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--eq-gray);
+    margin-bottom:.12rem;
+  }
+  .card-var-value {
+    font-family:var(--font-head); font-size:.78rem; font-weight:700; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  .card-var-value.good { color: var(--green); }
+  .card-var-value.bad { color: #f87171; }
+  .card-var-value.neutral { color: var(--eq-gray); }
+
+
   @media(max-width:640px){
     .topbar-eq { display:none; }
     .section-wrap, .data-wrap { padding: 1rem; }
@@ -529,6 +580,12 @@
           <div class="month-grid" id="month-grid"></div>
         </div>
       </div>
+    </div>
+
+
+    <div class="exec-summary">
+      <div class="exec-summary-title">Resumo Executivo</div>
+      <div class="exec-summary-grid" id="exec-summary-grid"></div>
     </div>
 
     <div class="cards-section-title">Pacotes</div>
@@ -1038,8 +1095,59 @@ function badge(st,hib) {
   return `<span class="status-badge ${C[st]}">${L[st]}</span>`;
 }
 
+
+function getVarianceMeta(plan, real, hib=false) {
+  if (plan==null || real==null) return { diff:null, pct:null, cls:'neutral', text:'Sem dados' };
+  const diff = real - plan;
+  const pct = plan !== 0 ? (diff / plan * 100) : null;
+  const positiveIsGood = !!hib;
+  let cls = 'neutral';
+  if (diff !== 0) {
+    const good = positiveIsGood ? diff > 0 : diff < 0;
+    cls = good ? 'good' : 'bad';
+  }
+  return { diff, pct, cls, text: diff === 0 ? 'Na meta' : (cls === 'good' ? (hib ? 'Acima' : 'Abaixo') : (hib ? 'Abaixo' : 'Acima')) };
+}
+
+function renderExecutiveSummary(visiblePkgs) {
+  const grid = document.getElementById('exec-summary-grid');
+  if (!grid) return;
+  const monthly = monthlyForPkgs(visiblePkgs.map(p=>p.id));
+  const agg = aggForFilter(monthly);
+  const variance = getVarianceMeta(agg.plan, agg.real, false);
+  const attainment = (agg.plan!=null && agg.plan!==0 && agg.real!=null) ? (agg.real / agg.plan) * 100 : null;
+  const regionText = selectedRegionals.length===0 ? 'Todas as regionais' : selectedRegionals.map(i=>REGIONALS[i]).join(', ');
+  const periodText = selectedMonths.length===0 ? 'Todos os meses' : selectedMonths.map(i=>MONTHS[i]).join(', ');
+  const cardScope = cardFilter==='card' ? 'Somente CARD' : cardFilter==='nocard' ? 'Pacotes Operacionais' : 'Todos os pacotes';
+
+  const items = [
+    { k:'Planejado', v: fmtBRL(agg.plan), s: cardScope, cls:'neutral' },
+    { k:'Realizado', v: fmtBRL(agg.real), s: variance.text, cls:variance.cls },
+    { k:'Variação R$', v: variance.diff!=null ? `${variance.diff>0?'+':''}${fmtBRL(variance.diff)}` : '—', s:'Diferença vs plan.', cls:variance.cls },
+    { k:'Variação %', v: variance.pct!=null ? `${variance.pct>0?'+':''}${variance.pct.toFixed(1)}%` : '—', s:'Percentual', cls:variance.cls },
+    { k:'Atingimento', v: attainment!=null ? `${attainment.toFixed(1)}%` : '—', s:'Realizado / Planejado', cls: attainment==null ? 'neutral' : (attainment<=100 ? 'good' : 'bad') },
+    { k:'Filtro aplicado', v: regionText, s: periodText, cls:'neutral' },
+  ];
+
+  grid.innerHTML = items.map(item => `
+    <div class="exec-card ${item.cls}">
+      <div class="k">${item.k}</div>
+      <div class="v">${item.v}</div>
+      <div class="s">${item.s}</div>
+    </div>
+  `).join('');
+}
+
 /* ── RENDER PANORAMA ── */
-function renderPanorama() { buildRegionalPicker(); buildMonthPicker(); renderCards(); renderChart(); }
+function renderPanorama() { 
+  buildRegionalPicker(); 
+  buildMonthPicker(); 
+  const visible = getVisiblePkgs();
+  renderExecutiveSummary(visible);
+  renderCards(); 
+  renderChart(); 
+}
+
 
 function renderCards() {
   const grid = document.getElementById('cards-grid');
@@ -1052,8 +1160,8 @@ function renderCards() {
   const tSt = getStatus(totAgg.plan, totAgg.real, false);
   const tCol = SC[tSt];
   const fn = cardFilter==='card'?'Pacotes CARD':cardFilter==='nocard'?'Pacotes Operacionais':'Todos os Pacotes';
-  const totPct = (totAgg.plan && totAgg.real!=null)
-    ? ((totAgg.real-totAgg.plan)/totAgg.plan*100).toFixed(1) : null;
+  const totVar = getVarianceMeta(totAgg.plan, totAgg.real, false);
+  const totPct = totVar.pct!=null ? totVar.pct.toFixed(1) : null;
 
   const tc = document.createElement('div');
   tc.className = 'pkg-card total-card'+(selectedPkg==='total'?' selected':'');
@@ -1073,6 +1181,16 @@ function renderCards() {
       <div class="card-val-label">Realizado</div>
       <div class="card-val-num" style="color:${tCol}">${fmtShort(totAgg.real)??'—'}</div>
       ${totPct!==null?`<div class="card-pct">${totPct>0?'+':''}${totPct}% vs plan.</div>`:''}
+    </div>
+    <div class="card-var-row">
+      <div class="card-var-box">
+        <div class="card-var-label">Variação R$</div>
+        <div class="card-var-value ${totVar.cls}">${totVar.diff!=null?`${totVar.diff>0?'+':''}${fmtShort(totVar.diff)}`:'—'}</div>
+      </div>
+      <div class="card-var-box" style="text-align:right">
+        <div class="card-var-label">Variação %</div>
+        <div class="card-var-value ${totVar.cls}">${totPct!==null?`${Number(totPct)>0?'+':''}${totPct}%`:'—'}</div>
+      </div>
     </div>`;
 
   // detail button click → modal, card click → filter
@@ -1092,8 +1210,8 @@ function renderCards() {
     const agg = aggForFilter(mon);
     const st  = getStatus(agg.plan, agg.real, p.hib);
     const col = SC[st];
-    const pct = (agg.plan && agg.real!=null)
-      ? ((agg.real-agg.plan)/agg.plan*100).toFixed(1) : null;
+    const variance = getVarianceMeta(agg.plan, agg.real, p.hib);
+    const pct = variance.pct!=null ? variance.pct.toFixed(1) : null;
 
     const card = document.createElement('div');
     card.className = 'pkg-card'+(selectedPkg===p.id?' selected':'');
@@ -1110,6 +1228,16 @@ function renderCards() {
         <div>
           <div class="card-val-label">Realizado</div>
           <div class="card-val-num" style="color:${col}">${fmtShort(agg.real)??'—'}</div>
+        </div>
+      </div>
+      <div class="card-var-row">
+        <div class="card-var-box">
+          <div class="card-var-label">Variação R$</div>
+          <div class="card-var-value ${variance.cls}">${variance.diff!=null?`${variance.diff>0?'+':''}${fmtShort(variance.diff)}`:'—'}</div>
+        </div>
+        <div class="card-var-box" style="text-align:right">
+          <div class="card-var-label">Variação %</div>
+          <div class="card-var-value ${variance.cls}">${pct!==null?`${Number(pct)>0?'+':''}${pct}%`:'—'}</div>
         </div>
       </div>
       ${badge(st,p.hib)}
