@@ -438,55 +438,6 @@
   .csv-preview-box { background:rgba(0,0,0,0.25); border-radius:8px; padding:.7rem .9rem; font-family:monospace; font-size:.72rem; color:#86efac; line-height:1.7; overflow-x:auto; white-space:pre; margin-bottom:.8rem; border:1px solid rgba(34,197,94,0.15); }
 
 
-  /* EXEC SUMMARY */
-  .exec-summary { margin-bottom: 1.15rem; }
-  .exec-summary-title {
-    font-family: var(--font-head); font-size: .78rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .1em; color: var(--eq-gray);
-    margin-bottom: .7rem;
-  }
-  .exec-summary-grid {
-    display:grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
-    gap:.8rem; margin-bottom:1.1rem;
-  }
-  .exec-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--card-border);
-    border-radius: 14px; padding: .95rem 1rem;
-    min-height: 92px;
-  }
-  .exec-card .k {
-    font-size:.66rem; text-transform:uppercase; letter-spacing:.08em;
-    color: var(--eq-gray); margin-bottom:.32rem; font-weight:600;
-  }
-  .exec-card .v {
-    font-family: var(--font-head); font-size: 1rem; font-weight: 800;
-    color: var(--eq-white); line-height:1.15;
-  }
-  .exec-card .s {
-    font-size:.72rem; color: var(--eq-gray); margin-top:.25rem;
-  }
-  .exec-card.good .v, .exec-card.good .s { color: var(--green); }
-  .exec-card.bad .v, .exec-card.bad .s { color: #f87171; }
-  .exec-card.neutral .v, .exec-card.neutral .s { color: var(--eq-white); }
-
-  .card-var-row {
-    display:flex; justify-content:space-between; gap:.45rem; margin-top:.45rem; min-width:0;
-    align-items:flex-end;
-  }
-  .card-var-box { min-width:0; }
-  .card-var-label {
-    font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--eq-gray);
-    margin-bottom:.12rem;
-  }
-  .card-var-value {
-    font-family:var(--font-head); font-size:.78rem; font-weight:700; white-space:nowrap;
-    overflow:hidden; text-overflow:ellipsis;
-  }
-  .card-var-value.good { color: var(--green); }
-  .card-var-value.bad { color: #f87171; }
-  .card-var-value.neutral { color: var(--eq-gray); }
-
 
   @media(max-width:640px){
     .topbar-eq { display:none; }
@@ -582,11 +533,6 @@
       </div>
     </div>
 
-
-    <div class="exec-summary">
-      <div class="exec-summary-title">Resumo Executivo</div>
-      <div class="exec-summary-grid" id="exec-summary-grid"></div>
-    </div>
 
     <div class="cards-section-title">Pacotes</div>
     <div class="cards-grid" id="cards-grid"></div>
