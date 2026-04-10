@@ -794,6 +794,11 @@ function fmtShort(v) {
   return s;
 }
 
+function fmtSignedShort(v) {
+  if (v == null || isNaN(v)) return '—';
+  return `${v>0?'+':''}${fmtShort(v)}`;
+}
+
 /* ── AUTH ── */
 const PWD = 'Equatorial2026#';
 function togglePwd() {
@@ -1072,7 +1077,10 @@ function renderCards() {
     <div>
       <div class="card-val-label">Realizado</div>
       <div class="card-val-num" style="color:${tCol}">${fmtShort(totAgg.real)??'—'}</div>
-      ${totPct!==null?`<div class="card-pct">${totPct>0?'+':''}${totPct}% vs plan.</div>`:''}
+      ${(totAgg.plan!=null && totAgg.real!=null)?`
+        <div class="card-pct" style="color:${tCol}">Variação R$: ${fmtSignedShort(totAgg.real-totAgg.plan)}</div>
+        <div class="card-pct" style="color:${tCol}">Variação %: ${totPct>0?'+':''}${totPct}%</div>
+      `:''}
     </div>`;
 
   // detail button click → modal, card click → filter
@@ -1113,7 +1121,10 @@ function renderCards() {
         </div>
       </div>
       ${badge(st,p.hib)}
-      ${pct!==null?`<div class="card-pct">${pct>0?'+':''}${pct}% vs plan.</div>`:''}`;
+      ${(agg.plan!=null && agg.real!=null)?`
+        <div class="card-pct" style="color:${col}">Variação R$: ${fmtSignedShort(agg.real-agg.plan)}</div>
+        <div class="card-pct" style="color:${col}">Variação %: ${pct>0?'+':''}${pct}%</div>
+      `:''}`;
 
     card.querySelector('.card-detail-btn').addEventListener('click', e => {
       e.stopPropagation();
