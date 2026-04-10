@@ -599,7 +599,7 @@
     <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha.</p>
 
     <div class="filter-bar" style="margin-bottom:1rem">
-      <span class="filter-label">Regional (estrutura pronta):</span>
+      <span class="filter-label">Regional:</span>
       <div class="month-picker" id="data-regional-picker">
         <button class="month-picker-btn" id="data-regional-picker-btn" onclick="toggleDataRegionalDropdown(event)">
           <span id="data-regional-picker-label">Selecionar regional</span>
@@ -607,13 +607,13 @@
         </button>
         <div class="month-dropdown" id="data-regional-dropdown">
           <div class="month-dropdown-header">
-            <span>Estrutura visual pronta</span>
+            <span>Selecione a regional</span>
             <button onclick="clearDataRegionalSel()">Limpar</button>
           </div>
           <div class="month-grid" id="data-regional-grid"></div>
         </div>
       </div>
-      <span class="filter-label" style="font-size:.72rem; opacity:.85">Nesta versão, o filtro regional da tela de dados está preparado visualmente para a próxima etapa.</span>
+      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados manualmente serão gravados na regional selecionada.</span>
     </div>
 
     <!-- TABS -->
@@ -726,15 +726,50 @@ const REGIONALS = [
   'Rio Verde',
   'Uruaçu'
 ];
-let selectedRegionals = [];      // panorama: visual/estrutura pronta
-let dataSelectedRegional = null; // dados: visual/estrutura pronta
+let selectedRegionals = [];      // panorama: vazio = todas
+let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
 
 let appData = {};
 
+function ensureRegionalStructure(regionName) {
+  if (!appData[regionName] || Array.isArray(appData[regionName])) appData[regionName] = {};
+  PACKAGES.forEach(p => {
+    if (!appData[regionName][p.id] || !Array.isArray(appData[regionName][p.id])) {
+      appData[regionName][p.id] = MONTHS.map(() => ({plan:null,real:null}));
+    }
+  });
+}
+
+function normalizeLegacyData() {
+  const looksLegacy = PACKAGES.some(p => Array.isArray(appData[p.id]));
+  if (looksLegacy) {
+    const legacy = appData;
+    appData = {};
+    REGIONALS.forEach(r => ensureRegionalStructure(r));
+    PACKAGES.forEach(p => {
+      const arr = legacy[p.id];
+      if (Array.isArray(arr)) {
+        appData['Goiânia'][p.id] = arr.map(m => ({
+          plan: m?.plan ?? null,
+          real: m?.real ?? null
+        }));
+      }
+    });
+  }
+  REGIONALS.forEach(r => ensureRegionalStructure(r));
+}
+
 function initData() {
-  try { const s = localStorage.getItem(SK); if (s) { appData = JSON.parse(s); return; } } catch(e) {}
+  try {
+    const s = localStorage.getItem(SK);
+    if (s) {
+      appData = JSON.parse(s);
+      normalizeLegacyData();
+      return;
+    }
+  } catch(e) {}
   appData = {};
-  PACKAGES.forEach(p => { appData[p.id] = MONTHS.map(() => ({plan:null,real:null})); });
+  REGIONALS.forEach(r => ensureRegionalStructure(r));
 }
 function saveData() { localStorage.setItem(SK, JSON.stringify(appData)); flashToast(); }
 function flashToast() {
@@ -852,6 +887,7 @@ function toggleRegionalOpt(idx, multi) {
     selectedRegionals.sort((a,b)=>a-b);
   }
   buildRegionalPicker();
+  renderPanorama();
 }
 
 function clearRegionalSel() {
@@ -949,14 +985,30 @@ function getVisiblePkgs() {
   return PACKAGES.filter(p => ['07','08','09','10','11','15','20'].includes(p.id));
 }
 
+function getSelectedRegionalNames() {
+  return selectedRegionals.length ? selectedRegionals.map(i => REGIONALS[i]) : [...REGIONALS];
+}
+
+function getDataEntryRegionalName() {
+  return dataSelectedRegional == null ? 'Goiânia' : REGIONALS[dataSelectedRegional];
+}
+
+function getCell(regionName, pkgId, monthIndex) {
+  ensureRegionalStructure(regionName);
+  return appData[regionName][pkgId][monthIndex];
+}
+
 /* ── AGGREGATION ── */
 function monthlyForPkgs(ids) {
+  const regions = getSelectedRegionalNames();
   return MONTHS.map((_,mi) => {
     let plan=0,real=0,hp=false,hr=false;
-    ids.forEach(id => {
-      const d = appData[id]?.[mi];
-      if (d?.plan!=null) { plan+=d.plan; hp=true; }
-      if (d?.real!=null) { real+=d.real; hr=true; }
+    regions.forEach(regionName => {
+      ids.forEach(id => {
+        const d = getCell(regionName, id, mi);
+        if (d?.plan!=null) { plan+=d.plan; hp=true; }
+        if (d?.real!=null) { real+=d.real; hr=true; }
+      });
     });
     return { plan:hp?plan:null, real:hr?real:null };
   });
@@ -1131,15 +1183,17 @@ function getProjectionData(pkgIds) {
   // We check raw appData to avoid counting zero-defaults as filled.
   let lastRealIdx = -1;
   MONTHS.forEach((_, mi) => {
-    const anyReal = pkgIds.some(id => {
-      const v = appData[id]?.[mi]?.real;
+    const regions = getSelectedRegionalNames();
+    const anyReal = regions.some(regionName => pkgIds.some(id => {
+      const v = getCell(regionName, id, mi)?.real;
       return v != null && v !== 0;
-    });
+    }));
     // also allow genuine zero if the package had non-zero in prior months
-    const anyRealZero = lastRealIdx >= 0 && pkgIds.some(id => {
-      const v = appData[id]?.[mi]?.real;
-      return v === 0 && appData[id]?.[mi]?.plan != null;
-    });
+    const anyRealZero = lastRealIdx >= 0 && regions.some(regionName => pkgIds.some(id => {
+      const c = getCell(regionName, id, mi);
+      const v = c?.real;
+      return v === 0 && c?.plan != null;
+    }));
     if (anyReal || anyRealZero) lastRealIdx = mi;
   });
 
@@ -1412,12 +1466,14 @@ function renderDataTable() {
         const td = document.createElement('td'); td.className='tcell';
         const inp = document.createElement('input');
         inp.type='number'; inp.step='0.01'; inp.placeholder='0';
-        const val = appData[p.id]?.[mi]?.[type];
+        const regionName = getDataEntryRegionalName();
+        const val = getCell(regionName, p.id, mi)?.[type];
         if (val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
-          if(!appData[p.id]) appData[p.id]=MONTHS.map(()=>({plan:null,real:null}));
+          const activeRegion = getDataEntryRegionalName();
+          ensureRegionalStructure(activeRegion);
           const n=parseFloat(inp.value);
-          appData[p.id][mi][type]=isNaN(n)?null:n;
+          appData[activeRegion][p.id][mi][type]=isNaN(n)?null:n;
           localStorage.setItem(SK,JSON.stringify(appData));
           flashToast();
           if(currentScreen==='panorama') renderPanorama();
@@ -1444,6 +1500,7 @@ function buildDataRegionalPicker() {
     el.onclick = () => {
       dataSelectedRegional = (dataSelectedRegional===i ? null : i);
       buildDataRegionalPicker();
+      renderDataTable();
     };
     grid.appendChild(el);
   });
@@ -1461,8 +1518,9 @@ function toggleDataRegionalDropdown(e) {
   document.getElementById('data-regional-dropdown').classList.toggle('open');
 }
 function clearDataRegionalSel() {
-  dataSelectedRegional = null;
+  dataSelectedRegional = REGIONALS.indexOf('Goiânia');
   buildDataRegionalPicker();
+  renderDataTable();
 }
 
 /* ── IMPORT MASSIVA ── */
@@ -1629,9 +1687,10 @@ function renderPreview(result, parseErrors) {
 function confirmImport() {
   if (!parsedImportData) return;
   parsedImportData.forEach(row => {
-    if (!appData[row.pkgId]) appData[row.pkgId] = MONTHS.map(()=>({plan:null,real:null}));
+    const regionName = row.regional || getDataEntryRegionalName();
+    ensureRegionalStructure(regionName);
     row.values.forEach((v, mi) => {
-      if (v !== null) appData[row.pkgId][mi][row.type] = v;
+      if (v !== null) appData[regionName][row.pkgId][mi][row.type] = v;
     });
   });
   saveData();
@@ -1639,7 +1698,7 @@ function confirmImport() {
   if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
   document.getElementById('paste-area').value = '';
-  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso. A regional foi validada e exibida na prévia; a consolidação por regional fica preparada para a próxima etapa.`);
+  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso por regional.`);
   parsedImportData = null;
 }
 
