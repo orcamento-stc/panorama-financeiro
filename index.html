@@ -1312,7 +1312,7 @@ function renderCards() {
     card.style.setProperty('--c-accent', col);
     card.innerHTML = `
       <button class="card-detail-btn" title="Ver valores completos">🔍</button>
-      <div class="card-pkg-id">PAC. ${p.id}${p.card?' · <span style="color:var(--eq-orange)">CARD</span>':''}${(['10','11'].includes(p.id)?' · <span style="color:var(--eq-orange);font-size:.58rem">Pacotes Operacionais</span>':'')}${p.hib?' · <span style="color:#60a5fa;font-size:.6rem">RECEITA</span>':''}</div>
+      <div class="card-pkg-id">PAC. ${p.id}${p.card?' · <span style="color:var(--eq-orange)">CARD</span>':''}${(['10','11'].includes(p.id)?' · <span style="color:var(--eq-orange);font-size:.58rem">PAC. OPERACIONAIS</span>':'')}${p.hib?' · <span style="color:#60a5fa;font-size:.6rem">RECEITA</span>':''}</div>
       <div class="card-pkg-name">${p.name}</div>
       <div class="card-row">
         <div>
@@ -2193,7 +2193,7 @@ function renderPac10Cards() {
     <button class="card-detail-btn" title="Ver valores completos">🔍 Detalhes</button>
     <div class="total-card-main">
       <div>
-        <div class="card-pkg-id">▣ TOTAL</div>
+        <div class="card-pkg-id">▣ TOTAL GERAL</div>
         <div class="card-pkg-name">Serviços</div>
         ${badge(tSt,false)}
       </div>
@@ -2290,7 +2290,7 @@ function renderPac10DRE(selectedServices) {
     return [trP,trR,trV];
   }
 
-  buildRows(selectedServices, '<strong style="color:var(--eq-orange)">TOTAL</strong>', true).forEach(r=>tbody.appendChild(r));
+  buildRows(selectedServices, '<strong style="color:var(--eq-orange)">TOTAL GERAL</strong>', true).forEach(r=>tbody.appendChild(r));
   const sep = document.createElement('tr'); sep.innerHTML = `<td colspan="16" style="height:6px;background:rgba(40,86,212,.15);padding:0"></td>`; tbody.appendChild(sep);
   if (pac10SelectedCard === 'total') {
     [...selectedServices].sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach((svc, idx, arr)=>{
