@@ -848,13 +848,20 @@
           <h3>📋 Colar dados da planilha</h3>
           <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo para os serviços do PAC.10.</p>
           <div class="import-instructions">
-            <strong>Formato esperado:</strong> cada linha deve ter:<br>
-            <code>Regional</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br><br>
+            <strong>Formato esperado:</strong> cada linha deve ter um destes formatos:<br>
+            <code>Regional</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
+            <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
             <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code> ou <code>Ligação ou Miscelânea Não Executada STC</code>.
           </div>
-          <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo:
+          <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo sem pacote:
 Goiânia	Atend. Emerg. Miscelânea Técnica	Planejado	1000	1200	...
-Goiânia	Ligação ou Miscelânea Não Executada STC	Realizado	900	1100	..."></textarea>
+Goiânia	Ligação ou Miscelânea Não Executada STC	Realizado	900	1100	...
+
+Exemplo com pacote:
+Goiânia	PAC.10	Planejado	Atend. Emerg. Miscelânea Técnica	1000	1200	...
+Goiânia	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	..."></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parsePac10Import()">🔍 Pré-visualizar</button>
             <button class="btn-import ghost" onclick="document.getElementById('paste-pac10-area').value=''">Limpar</button>
@@ -2365,31 +2372,96 @@ function parsePac10Import() {
   const fb = document.getElementById('import-pac10-feedback'); fb.style.display='none';
   document.getElementById('preview-pac10-wrap').style.display='none'; parsedPac10ImportData=null;
   if (!raw) { showPac10Feedback('error','Cole os dados antes de pré-visualizar.'); return; }
+
+  const normTxt = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const isPac10Token = s => {
+    const t = normTxt(s).replace(/\s+/g,'');
+    return t === 'pac10' || t === 'pac.10' || t === 'pacote10';
+  };
+
   const lines = raw.split(/\r?\n/).filter(l=>l.trim());
   const result=[]; const parseErrors=[];
+
   lines.forEach((line, li) => {
     let sep='\t'; if(!line.includes('\t')) sep = line.includes(';')?';':',';
     const cols = line.split(sep).map(c=>c.trim()).filter((_,idx,arr)=>!(idx===arr.length-1&&arr[idx]===''));
     if(!cols.length) return;
-    const nf=(cols[0]||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    const ns=(cols[1]||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    if ((nf==='regional'&&ns==='servico') || (nf==='regional'&&ns==='serviço')) return;
-    if (cols.length < 15) { parseErrors.push(`Linha ${li+1}: esperado pelo menos 15 colunas, mas vieram ${cols.length}.`); return; }
-    const regional = REGIONALS.includes(cols[0]) ? cols[0] : null;
-    const serviceRaw = cols[1] || '';
-    const typeRaw = (cols[2]||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    let service = PAC10_SERVICES.find(s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') === serviceRaw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+
+    const n0 = normTxt(cols[0]);
+    const n1 = normTxt(cols[1]);
+    const n2 = normTxt(cols[2]);
+    const n3 = normTxt(cols[3]);
+
+    // Cabeçalhos aceitos:
+    // Regional | Serviço | Tipo | ...
+    // Regional | Pacote | Tipo | Serviço | ...
+    if ((n0==='regional' && (n1==='servico' || n1==='serviço')) ||
+        (n0==='regional' && n1==='pacote' && n2==='tipo' && (n3==='servico' || n3==='serviço'))) {
+      return;
+    }
+
+    let regional = cols[0] || '';
+    let serviceRaw = '';
+    let typeRaw = '';
+    let valueStart = 0;
+
+    if (!REGIONALS.includes(regional)) {
+      parseErrors.push(`Linha ${li+1}: regional "${regional}" não reconhecida.`);
+      return;
+    }
+
+    // Formato A: Regional | Serviço | Tipo | 12 meses
+    if (cols.length >= 15 && !isPac10Token(cols[1])) {
+      serviceRaw = cols[1] || '';
+      typeRaw = cols[2] || '';
+      valueStart = 3;
+    }
+    // Formato B: Regional | Pacote | Tipo | Serviço | 12 meses
+    else if (cols.length >= 16 && isPac10Token(cols[1])) {
+      serviceRaw = cols[3] || '';
+      typeRaw = cols[2] || '';
+      valueStart = 4;
+    } else {
+      parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Serviço + Tipo + 12 meses, ou Regional + PAC.10 + Tipo + Serviço + 12 meses.`);
+      return;
+    }
+
+    const normServiceRaw = normTxt(serviceRaw);
+    let service = PAC10_SERVICES.find(s => normTxt(s) === normServiceRaw);
     if (!service) { parseErrors.push(`Linha ${li+1}: serviço "${serviceRaw}" não reconhecido.`); return; }
-    let type; if(/^p(lan)?/.test(typeRaw)) type='plan'; else if(/^r(eal)?/.test(typeRaw)) type='real'; else { parseErrors.push(`Linha ${li+1}: tipo inválido.`); return; }
+
+    const typeNorm = normTxt(typeRaw);
+    let type;
+    if(/^p(lan)?/.test(typeNorm)) type='plan';
+    else if(/^r(eal)?/.test(typeNorm)) type='real';
+    else { parseErrors.push(`Linha ${li+1}: tipo "${typeRaw}" inválido.`); return; }
+
+    const minCols = valueStart + 12;
+    if (cols.length < minCols) {
+      parseErrors.push(`Linha ${li+1}: esperado pelo menos ${minCols} colunas, mas vieram ${cols.length}.`);
+      return;
+    }
+
     const values=[]; const errs=[];
     for(let m=0;m<12;m++) {
-      const rawVal=(cols[3+m]??'').replace(/R\$\s*/g,'').replace(/\s/g,'');
+      const rawVal=(cols[valueStart+m]??'').replace(/R\$\s*/g,'').replace(/\s/g,'');
       if(rawVal===''||rawVal==='-'||rawVal.toLowerCase()==='null') values.push(null);
-      else { let norm=rawVal; if(norm.includes(',')&&norm.includes('.')) norm=norm.replace(/\./g,'').replace(',','.'); else if(norm.includes(',')) norm=norm.replace(',','.'); const n=parseFloat(norm); if(isNaN(n)){errs.push(m); values.push(null);} else values.push(n); }
+      else {
+        let norm=rawVal;
+        if(norm.includes(',')&&norm.includes('.')) norm=norm.replace(/\./g,'').replace(',','.');
+        else if(norm.includes(',')) norm=norm.replace(',','.');
+        const n=parseFloat(norm);
+        if(isNaN(n)){ errs.push(m); values.push(null); }
+        else values.push(n);
+      }
     }
     result.push({ regional, service, type, values, errs });
   });
-  if (!result.length) { showPac10Feedback('error', parseErrors.length?('Nenhuma linha válida encontrada.<br>'+parseErrors.map(e=>'• '+e).join('<br>')):'Nenhuma linha válida encontrada.'); return; }
+
+  if (!result.length) {
+    showPac10Feedback('error', parseErrors.length?('Nenhuma linha válida encontrada.<br>'+parseErrors.map(e=>'• '+e).join('<br>')):'Nenhuma linha válida encontrada.');
+    return;
+  }
   parsedPac10ImportData=result; renderPac10Preview(result, parseErrors);
 }
 function renderPac10Preview(result, parseErrors) {
