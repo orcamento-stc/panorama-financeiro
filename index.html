@@ -1372,11 +1372,13 @@ function openModal({ id, name, plan, real, hib }) {
   document.getElementById('modal-badge').innerHTML = badge(st, hib);
 
   // period label
-  const mLabel = selectedMonths.length === 0 ? 'Acumulado anual'
-    : selectedMonths.length === 1 ? `Mês: ${MONTHS[selectedMonths[0]]}`
-    : `Meses: ${selectedMonths.map(i=>MONTHS[i]).join(', ')}`;
-  const rLabel = selectedRegionals.length === 0 ? 'Todas as regionais'
-    : selectedRegionals.map(i=>REGIONALS[i]).join(', ');
+  const modalMonths = currentScreen === 'pac10' ? pac10SelectedMonths : selectedMonths;
+  const modalRegionals = currentScreen === 'pac10' ? pac10SelectedRegionals : selectedRegionals;
+  const mLabel = modalMonths.length === 0 ? 'Acumulado anual'
+    : modalMonths.length === 1 ? `Mês: ${MONTHS[modalMonths[0]]}`
+    : `Meses: ${modalMonths.map(i=>MONTHS[i]).join(', ')}`;
+  const rLabel = modalRegionals.length === 0 ? 'Todas as regionais'
+    : modalRegionals.map(i=>REGIONALS[i]).join(', ');
   document.getElementById('modal-period').textContent = `${mLabel} · Regional: ${rLabel}`;
 
   document.getElementById('card-modal').classList.add('open');
