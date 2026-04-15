@@ -853,11 +853,12 @@
             ou<br>
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
             <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
-            <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code> ou <code>Ligação ou Miscelânea Não Executada STC</code>.
+            <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.
           </div>
           <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo sem pacote:
 Goiânia	Atend. Emerg. Miscelânea Técnica	Planejado	1000	1200	...
 Goiânia	Ligação ou Miscelânea Não Executada STC	Realizado	900	1100	...
+Goiânia	MBX	Planejado	700	800	...
 
 Exemplo com pacote:
 Goiânia	PAC.10	Planejado	Atend. Emerg. Miscelânea Técnica	1000	1200	...
@@ -870,7 +871,7 @@ Goiânia	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	.
         </div>
         <div class="import-box">
           <h3>📌 Referência dos Serviços</h3>
-          <p>Use exatamente os nomes abaixo na coluna Serviço.</p>
+          <p>Use exatamente os nomes abaixo na coluna Serviço. Para adicionar ou remover serviços no futuro, basta atualizar a lista central de serviços no código.</p>
           <div class="template-pkg-list" id="template-pac10-service-list"></div>
           <button class="btn-import ghost" style="width:100%;margin-bottom:1.2rem" onclick="downloadPac10Template()">⬇️ Baixar template CSV</button>
           <div class="preview-wrap" id="preview-pac10-wrap" style="display:none">
@@ -1952,9 +1953,12 @@ function downloadTemplate() {
 
 /* ── PAC10 DATA MODEL ── */
 const SK_PAC10 = 'eq_stcgyn_pac10_v1';
+// Serviços da DRE PAC.10
+// Para incluir ou remover serviços no futuro, altere somente esta lista.
 const PAC10_SERVICES = [
   'Atend. Emerg. Miscelânea Técnica',
-  'Ligação ou Miscelânea Não Executada STC'
+  'Ligação ou Miscelânea Não Executada STC',
+  'MBX'
 ].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 let pac10Data = {};
 let pac10SelectedRegionals = [];
