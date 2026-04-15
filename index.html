@@ -611,7 +611,7 @@
 <div id="screen-data">
   <div class="data-wrap">
     <h2>✏️ Inserção de Dados</h2>
-    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A digitação manual agora aceita valores com vírgula decimal, como no orçamento da empresa.</p>
+    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A entrada de dados aceita formatos como <code>2443173,62</code>, <code>1.139.545,89</code> e <code>R$ 1.139.545,89</code>.</p>
 
     <div class="filter-bar" style="margin-bottom:1rem">
       <span class="filter-label">Regional:</span>
@@ -670,7 +670,7 @@
            <strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
             <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
             <strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
-            <strong>Valores:</strong> podem usar vírgula ou ponto como decimal. Ex: <code>1234,56</code> ou <code>1234.56</code>
+            <strong>Valores:</strong> podem usar vírgula ou ponto como decimal, com ou sem milhar e até com moeda. Ex: <code>1234,56</code>, <code>1234.56</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>
           </div>
 
           <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo:&#10;Goiânia	07	Planejado	100000	110000	95000	...&#10;Goiânia	07	Realizado	98000	105000	92000	...&#10;Anápolis	08	P	50000	52000	48000	..."></textarea>
@@ -802,7 +802,7 @@
 <div id="screen-data_pac10">
   <div class="data-wrap">
     <h2>📝 Inserção de Dados DRE PAC10</h2>
-    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A digitação manual agora aceita valores com vírgula decimal, como no orçamento da empresa.</p>
+    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A entrada de dados aceita formatos como <code>2443173,62</code>, <code>1.139.545,89</code> e <code>R$ 1.139.545,89</code>.</p>
 
     <div class="filter-bar" style="margin-bottom:1rem">
       <span class="filter-label">Regional:</span>
@@ -853,7 +853,7 @@
             ou<br>
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
             <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
-            <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.
+            <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
           </div>
           <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo sem pacote:
 Goiânia	Atend. Emerg. Miscelânea Técnica	Planejado	1000	1200	...
@@ -1000,13 +1000,41 @@ function normalizeManualNumber(raw) {
   if (raw == null) return null;
   let s = String(raw).trim();
   if (!s) return null;
-  s = s.replace(/\s/g, '').replace(/R\$/gi, '');
-  // padrão brasileiro: remove separador de milhar e converte vírgula decimal para ponto
-  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
-  else if (s.includes(',')) s = s.replace(',', '.');
-  const n = parseFloat(s);
+
+  // remove moeda, espaços e caracteres invisíveis
+  s = s.replace(/R\$\s*/gi, '').replace(/\s+/g, '');
+
+  // preserva sinal negativo se existir
+  let negative = false;
+  if (s.startsWith('-')) {
+    negative = true;
+    s = s.slice(1);
+  }
+
+  // aceita:
+  // 2443173,62
+  // 1007076,50683853
+  // 1.139.545,89
+  // R$ 1.139.545,89
+  // 1139545.89
+  if (s.includes(',') && s.includes('.')) {
+    // assume formato brasileiro com ponto de milhar e vírgula decimal
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else if (s.includes(',')) {
+    // vírgula decimal
+    s = s.replace(',', '.');
+  } else {
+    // sem vírgula; remove eventuais milhares residuais
+    const parts = s.split('.');
+    if (parts.length > 2) {
+      s = parts.join('');
+    }
+  }
+
+  const n = parseFloat((negative ? '-' : '') + s);
   return Number.isNaN(n) ? null : n;
 }
+
 
 /* ── AUTH ── */
 const PWD = 'Equatorial2026#';
@@ -1705,7 +1733,7 @@ function renderDataTable() {
           const activeRegion = getDataEntryRegionalName();
           ensureRegionalStructure(activeRegion);
           const n = normalizeManualNumber(inp.value);
-          appData[activeRegion][p.id][mi][type] = n;
+          appData[activeRegion][p.id][mi][type]=n;
           localStorage.setItem(SK,JSON.stringify(appData));
           flashToast();
           if(currentScreen==='panorama') renderPanorama();
@@ -1839,11 +1867,8 @@ function parseImport() {
       if (rawVal === '' || rawVal === '-' || rawVal.toLowerCase() === 'null') {
         values.push(null);
       } else {
-        let norm = rawVal;
-        if (norm.includes(',') && norm.includes('.')) norm = norm.replace(/\./g,'').replace(',','.');
-        else if (norm.includes(',')) norm = norm.replace(',','.');
-        const n = parseFloat(norm);
-        if (isNaN(n)) {
+        const n = normalizeManualNumber(rawVal);
+        if (n == null) {
           errs.push(m);
           values.push(null);
         } else {
