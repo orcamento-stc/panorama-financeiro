@@ -611,7 +611,7 @@
 <div id="screen-data">
   <div class="data-wrap">
     <h2>✏️ Inserção de Dados</h2>
-    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha.</p>
+    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A digitação manual agora aceita valores com vírgula decimal, como no orçamento da empresa.</p>
 
     <div class="filter-bar" style="margin-bottom:1rem">
       <span class="filter-label">Regional:</span>
@@ -802,7 +802,7 @@
 <div id="screen-data_pac10">
   <div class="data-wrap">
     <h2>📝 Inserção de Dados DRE PAC10</h2>
-    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha.</p>
+    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A digitação manual agora aceita valores com vírgula decimal, como no orçamento da empresa.</p>
 
     <div class="filter-bar" style="margin-bottom:1rem">
       <span class="filter-label">Regional:</span>
@@ -994,6 +994,18 @@ function fmtShort(v) {
 function fmtSignedShort(v) {
   if (v == null || isNaN(v)) return '—';
   return `${v>0?'+':''}${fmtShort(v)}`;
+}
+
+function normalizeManualNumber(raw) {
+  if (raw == null) return null;
+  let s = String(raw).trim();
+  if (!s) return null;
+  s = s.replace(/\s/g, '').replace(/R\$/gi, '');
+  // padrão brasileiro: remove separador de milhar e converte vírgula decimal para ponto
+  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (s.includes(',')) s = s.replace(',', '.');
+  const n = parseFloat(s);
+  return Number.isNaN(n) ? null : n;
 }
 
 /* ── AUTH ── */
@@ -1685,18 +1697,22 @@ function renderDataTable() {
       MONTHS.forEach((_,mi)=>{
         const td = document.createElement('td'); td.className='tcell';
         const inp = document.createElement('input');
-        inp.type='number'; inp.step='0.01'; inp.placeholder='0';
+        inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
         const regionName = getDataEntryRegionalName();
         const val = getCell(regionName, p.id, mi)?.[type];
         if (val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
           const activeRegion = getDataEntryRegionalName();
           ensureRegionalStructure(activeRegion);
-          const n=parseFloat(inp.value);
-          appData[activeRegion][p.id][mi][type]=isNaN(n)?null:n;
+          const n = normalizeManualNumber(inp.value);
+          appData[activeRegion][p.id][mi][type] = n;
           localStorage.setItem(SK,JSON.stringify(appData));
           flashToast();
           if(currentScreen==='panorama') renderPanorama();
+        });
+        inp.addEventListener('blur', ()=>{
+          const n = normalizeManualNumber(inp.value);
+          inp.value = n == null ? '' : String(n);
         });
         td.appendChild(inp); tr.appendChild(td);
       });
@@ -2346,14 +2362,18 @@ function renderPac10DataTable() {
       const tdT = document.createElement('td'); tdT.className='ttype'; tdT.textContent = type==='plan'?'Planejado':'Realizado'; tdT.style.color = type==='plan'?'#f47920':'#60a5fa'; tr.appendChild(tdT);
       MONTHS.forEach((_,mi)=>{
         const td=document.createElement('td'); td.className='tcell';
-        const inp=document.createElement('input'); inp.type='number'; inp.step='0.01'; inp.placeholder='0';
+        const inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
         const region=getPac10DataEntryRegionalName();
         const val=getPac10Cell(region, svc, mi)?.[type]; if(val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
           const activeRegion=getPac10DataEntryRegionalName(); ensurePac10RegionalStructure(activeRegion);
-          const n=parseFloat(inp.value); pac10Data[activeRegion][svc][mi][type]=isNaN(n)?null:n;
+          const n = normalizeManualNumber(inp.value); pac10Data[activeRegion][svc][mi][type]=n;
           localStorage.setItem(SK_PAC10, JSON.stringify(pac10Data)); savePac10Data();
           if(currentScreen==='pac10') renderPac10();
+        });
+        inp.addEventListener('blur', ()=>{
+          const n = normalizeManualNumber(inp.value);
+          inp.value = n == null ? '' : String(n);
         });
         td.appendChild(inp); tr.appendChild(td);
       });
