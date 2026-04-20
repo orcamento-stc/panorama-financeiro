@@ -56,11 +56,11 @@
       var(--eq-blue-deep);
   }
   #screen-login.active { display: flex; }
-  #screen-panorama, #screen-data, #screen-pac10, #screen-data_pac10 {
+  #screen-panorama, #screen-data, #screen-pac10, #screen-data_pac10, #screen-comparativo_anual {
     display: none; position: relative; z-index: 1;
     min-height: calc(100vh - 56px); padding-bottom: 4rem;
   }
-  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-data_pac10.active { display: block; }
+  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-data_pac10.active, #screen-comparativo_anual.active { display: block; }
 
   /* LOGIN */
   .login-box {
@@ -398,6 +398,113 @@
   .btn-save { padding: .55rem 1.6rem; background: linear-gradient(135deg, var(--eq-orange), #c45c0a); border: none; border-radius: 9px; color: #fff; font-family: var(--font-head); font-size: .9rem; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 18px rgba(244,121,32,0.38); }
   .btn-save:hover { transform: translateY(-2px); box-shadow: 0 7px 24px rgba(244,121,32,0.52); }
 
+
+  /* COMPARATIVO ANUAL */
+  #screen-comparativo_anual .ca-wrap{
+    max-width:1450px; margin:0 auto; padding:1.4rem 1.8rem 3rem; position:relative; z-index:1;
+  }
+  #screen-comparativo_anual .ca-page-title{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;
+  }
+  #screen-comparativo_anual .ca-page-title h1{ font-family:var(--font-head); font-size:1.5rem; font-weight:800; }
+  #screen-comparativo_anual .ca-page-title p{ color:var(--eq-gray); font-size:.88rem; }
+  #screen-comparativo_anual .ca-filter-bar{
+    display:flex; flex-wrap:wrap; gap:.9rem; align-items:center;
+    padding:.95rem 1.2rem; background:rgba(255,255,255,.04);
+    border:1px solid var(--card-border); border-radius:14px; margin-bottom:1.1rem;
+  }
+  #screen-comparativo_anual .ca-filter-label{ font-size:.78rem; color:var(--eq-gray); font-weight:500; }
+  #screen-comparativo_anual .ca-picker{
+    min-width:185px; padding:.46rem .9rem; border-radius:8px; border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.07); color:var(--eq-white); font-size:.84rem;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  #screen-comparativo_anual .ca-picker .ca-chev{ margin-left:auto; opacity:.65; font-size:.66rem; }
+  #screen-comparativo_anual .ca-filter-gap{ flex:1; }
+  #screen-comparativo_anual .ca-hero-grid{ display:grid; grid-template-columns:2fr 1.1fr; gap:1rem; margin-bottom:1rem; }
+  #screen-comparativo_anual .ca-card{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:16px; box-shadow:0 18px 42px rgba(0,0,0,.28);
+  }
+  #screen-comparativo_anual .ca-hero-card{
+    padding:1.25rem 1.3rem; display:grid; grid-template-columns:1.25fr .75fr; gap:1rem; min-height:220px;
+  }
+  #screen-comparativo_anual .ca-hero-card h2,
+  #screen-comparativo_anual .ca-reading-card h3,
+  #screen-comparativo_anual .ca-panel-head h3,
+  #screen-comparativo_anual .ca-callout h3{ font-family:var(--font-head); }
+  #screen-comparativo_anual .ca-hero-card h2{ font-size:1.15rem; font-weight:800; margin-bottom:.35rem; }
+  #screen-comparativo_anual .ca-hero-card p{ font-size:.86rem; color:var(--eq-gray); line-height:1.65; }
+  #screen-comparativo_anual .ca-hero-badges{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1rem; }
+  #screen-comparativo_anual .ca-hero-badges span{
+    font-size:.72rem; font-weight:700; border-radius:999px; padding:.3rem .65rem;
+    background:rgba(255,255,255,.07); color:var(--eq-gray);
+  }
+  #screen-comparativo_anual .ca-hero-side{ display:flex; flex-direction:column; justify-content:center; gap:.8rem; }
+  #screen-comparativo_anual .ca-mini{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:.8rem .95rem;
+  }
+  #screen-comparativo_anual .ca-mini .ca-kicker{
+    font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--eq-gray); margin-bottom:.3rem;
+  }
+  #screen-comparativo_anual .ca-mini .ca-num{ font-family:var(--font-head); font-size:1.15rem; font-weight:800; }
+  #screen-comparativo_anual .ca-reading-card{ padding:1.15rem 1.2rem; }
+  #screen-comparativo_anual .ca-reading-list{ display:flex; flex-direction:column; gap:.7rem; }
+  #screen-comparativo_anual .ca-reading-item{
+    padding:.8rem .9rem; border-radius:12px; background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.07); line-height:1.55; font-size:.84rem;
+  }
+  #screen-comparativo_anual .ca-reading-item strong{ color:#fff; }
+  #screen-comparativo_anual .ca-pos{ color:var(--green); font-weight:700; }
+  #screen-comparativo_anual .ca-neg{ color:var(--red); font-weight:700; }
+  #screen-comparativo_anual .ca-warn{ color:var(--yellow); font-weight:700; }
+  #screen-comparativo_anual .ca-kpi-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin-bottom:1.1rem; }
+  #screen-comparativo_anual .ca-kpi{ padding:1rem 1rem 1.05rem; position:relative; overflow:hidden; }
+  #screen-comparativo_anual .ca-kpi::before{ content:""; position:absolute; top:0; left:0; right:0; height:3px; background:var(--ca-accent, rgba(255,255,255,.15)); }
+  #screen-comparativo_anual .ca-kpi .ca-label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--eq-gray); margin-bottom:.45rem; }
+  #screen-comparativo_anual .ca-kpi .ca-value{ font-family:var(--font-head); font-size:1.35rem; font-weight:800; margin-bottom:.3rem; }
+  #screen-comparativo_anual .ca-kpi .ca-sub{ font-size:.8rem; color:var(--eq-gray); }
+  #screen-comparativo_anual .ca-main-grid{ display:grid; grid-template-columns:1.65fr 1fr; gap:1rem; margin-bottom:1rem; }
+  #screen-comparativo_anual .ca-panel{ padding:1.15rem 1.2rem; }
+  #screen-comparativo_anual .ca-panel-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; flex-wrap:wrap; margin-bottom:.85rem;
+  }
+  #screen-comparativo_anual .ca-panel-head h3{ font-size:1rem; font-weight:800; }
+  #screen-comparativo_anual .ca-panel-head p{ color:var(--eq-gray); font-size:.78rem; }
+  #screen-comparativo_anual .ca-legend{ display:flex; gap:.8rem; flex-wrap:wrap; }
+  #screen-comparativo_anual .ca-leg{ display:flex; align-items:center; gap:.35rem; color:var(--eq-gray); font-size:.76rem; }
+  #screen-comparativo_anual .ca-line{ width:18px; height:0; border-top:2px solid; }
+  #screen-comparativo_anual .ca-chart-wrap{ height:340px; }
+  #screen-comparativo_anual .ca-rank-list{ display:flex; flex-direction:column; gap:.65rem; }
+  #screen-comparativo_anual .ca-rank-row{
+    display:grid; grid-template-columns:auto 1fr auto auto; gap:.7rem; align-items:center;
+    padding:.72rem .85rem; border-radius:12px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.07);
+  }
+  #screen-comparativo_anual .ca-rank-bullet{ width:9px; height:9px; border-radius:50%; }
+  #screen-comparativo_anual .ca-rank-name{ font-size:.84rem; font-weight:600; }
+  #screen-comparativo_anual .ca-rank-num{ font-family:var(--font-head); font-size:.88rem; font-weight:700; }
+  #screen-comparativo_anual .ca-rank-var{ font-size:.8rem; font-weight:700; }
+  #screen-comparativo_anual .ca-bottom-grid{ display:grid; grid-template-columns:1.1fr 1.1fr .9fr; gap:1rem; }
+  #screen-comparativo_anual .ca-mini-chart{ height:220px; }
+  #screen-comparativo_anual .ca-callout{ padding:1.15rem 1.1rem; }
+  #screen-comparativo_anual .ca-callout ul{ list-style:none; display:flex; flex-direction:column; gap:.65rem; }
+  #screen-comparativo_anual .ca-callout li{
+    padding:.72rem .8rem; border-radius:12px; background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.07); color:var(--eq-gray); font-size:.83rem; line-height:1.55;
+  }
+  #screen-comparativo_anual .ca-callout li strong{ color:#fff; }
+  #screen-comparativo_anual .ca-callout-note{ margin-top:.75rem; color:var(--eq-gray); font-size:.76rem; line-height:1.5; }
+  @media (max-width: 1180px){
+    #screen-comparativo_anual .ca-hero-grid,
+    #screen-comparativo_anual .ca-main-grid,
+    #screen-comparativo_anual .ca-bottom-grid{ grid-template-columns:1fr; }
+    #screen-comparativo_anual .ca-kpi-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width: 720px){
+    #screen-comparativo_anual .ca-kpi-grid{ grid-template-columns:1fr; }
+    #screen-comparativo_anual .ca-hero-card{ grid-template-columns:1fr; }
+    #screen-comparativo_anual .ca-wrap{ padding:1rem .9rem 2rem; }
+  }
+
   @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
   hr.sep { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 1.4rem 0; }
 
@@ -497,6 +604,7 @@
     <button class="btn-nav" id="nav-data" onclick="showScreen('data')">✏️ Inserir Dados</button>
     <button class="btn-nav" id="nav-pac10" onclick="showScreen('pac10')">📈 DRE PAC.10</button>
     <button class="btn-nav" id="nav-data_pac10" onclick="showScreen('data_pac10')">📝 Inserir dados DRE PAC10</button>
+    <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
   </div>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
 </nav>
@@ -896,6 +1004,210 @@ Goiânia	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	.
   </div>
 </div>
 
+<!-- COMPARATIVO ANUAL -->
+<div id="screen-comparativo_anual">
+  <div class="ca-wrap">
+    <div class="ca-page-title">
+      <div>
+        <h1>Comparativo Anual · Visão Executiva</h1>
+        <p>Versão refinada da V1, preservando sofisticação, clareza e leitura executiva em nível corporativo.</p>
+      </div>
+    </div>
+
+    <div class="ca-filter-bar">
+      <span class="ca-filter-label">Regional:</span>
+      <div class="ca-picker">Goiânia <span class="ca-chev">▼</span></div>
+
+      <span class="ca-filter-label">Ano base:</span>
+      <div class="ca-picker">2025 <span class="ca-chev">▼</span></div>
+
+      <span class="ca-filter-label">Ano comparativo:</span>
+      <div class="ca-picker">2026 <span class="ca-chev">▼</span></div>
+
+      <div class="ca-filter-gap"></div>
+
+      <span class="ca-filter-label">Pacote:</span>
+      <div class="ca-picker">Todos os pacotes <span class="ca-chev">▼</span></div>
+    </div>
+
+    <div class="ca-hero-grid">
+      <div class="ca-card ca-hero-card">
+        <div>
+          <h2>Resumo Executivo</h2>
+          <p>
+            Considerando a seleção de <strong>Goiânia</strong>, <strong>2025</strong> como ano base,
+            <strong>2026</strong> como ano comparativo e <strong>todos os pacotes</strong>, observa-se
+            crescimento do realizado acumulado, com melhora de aderência ao planejado no segundo semestre
+            e maior pressão concentrada nos pacotes operacionais.
+          </p>
+          <div class="ca-hero-badges">
+            <span>Comparativo anual</span>
+            <span>Regional sensível ao filtro</span>
+            <span>Pacote sensível ao filtro</span>
+            <span>Leitura executiva</span>
+          </div>
+        </div>
+        <div class="ca-hero-side">
+          <div class="ca-mini">
+            <div class="ca-kicker">Ano base</div>
+            <div class="ca-num">2025</div>
+          </div>
+          <div class="ca-mini">
+            <div class="ca-kicker">Ano comparativo</div>
+            <div class="ca-num">2026</div>
+          </div>
+          <div style="margin-top:.35rem;">
+            <div style="font-size:.74rem; color:var(--eq-gray); line-height:1.5;">
+              <strong style="color:var(--eq-gray); font-weight:700;">Escopo analisado:</strong> Regional + Pacotes<br>
+              O resumo responde aos filtros do topo: regional, ano base, ano comparativo e pacotes.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ca-card ca-reading-card">
+        <h3>Leitura Executiva</h3>
+        <div class="ca-reading-list">
+          <div class="ca-reading-item">
+            O realizado acumulado de <strong>2026</strong> está <span class="ca-pos">+8,4%</span> acima de 2025.
+          </div>
+          <div class="ca-reading-item">
+            O desvio acumulado contra o planejado em 2026 está em <span class="ca-neg">-2,1%</span>, com melhora no 4º trimestre.
+          </div>
+          <div class="ca-reading-item">
+            <strong>PAC.10</strong> e <strong>PAC.11</strong> concentram a maior diferença absoluta no comparativo anual.
+          </div>
+          <div class="ca-reading-item">
+            <strong>Maior problema identificado:</strong> pressão em <span class="ca-warn">setembro</span>, no <span class="ca-warn">PAC.10</span>, com maior criticidade na regional <span class="ca-warn">Goiânia</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ca-kpi-grid">
+      <div class="ca-card ca-kpi" style="--ca-accent:#60a5fa">
+        <div class="ca-label">Realizado 2025</div>
+        <div class="ca-value">R$ 14,8MM</div>
+        <div class="ca-sub">Base histórica do comparativo</div>
+      </div>
+      <div class="ca-card ca-kpi" style="--ca-accent:#22c55e">
+        <div class="ca-label">Realizado 2026</div>
+        <div class="ca-value">R$ 16,0MM</div>
+        <div class="ca-sub">Ano corrente analisado</div>
+      </div>
+      <div class="ca-card ca-kpi" style="--ca-accent:#f47920">
+        <div class="ca-label">Diferença Absoluta</div>
+        <div class="ca-value">+R$ 1,2MM</div>
+        <div class="ca-sub">2026 vs 2025</div>
+      </div>
+      <div class="ca-card ca-kpi" style="--ca-accent:#a78bfa">
+        <div class="ca-label">Crescimento</div>
+        <div class="ca-value">+8,4%</div>
+        <div class="ca-sub">Evolução anual consolidada</div>
+      </div>
+    </div>
+
+    <div class="ca-main-grid">
+      <div class="ca-card ca-panel">
+        <div class="ca-panel-head">
+          <div>
+            <h3>Comparativo Mensal · Realizado</h3>
+            <p>Comparação direta mês a mês entre os anos selecionados.</p>
+          </div>
+          <div class="ca-legend">
+            <div class="ca-leg"><span class="ca-line" style="border-color:#60a5fa"></span>2025</div>
+            <div class="ca-leg"><span class="ca-line" style="border-color:#f47920"></span>2026</div>
+          </div>
+        </div>
+        <div class="ca-chart-wrap"><canvas id="ca-chartCompare"></canvas></div>
+        <div style="margin-top:.7rem; color:var(--eq-gray); font-size:.78rem; line-height:1.5;">
+          <strong>Leitura objetiva:</strong> o maior afastamento entre os anos ocorre entre agosto e outubro, indicando aceleração do realizado em 2026.
+        </div>
+      </div>
+
+      <div class="ca-card ca-panel">
+        <div class="ca-panel-head">
+          <div>
+            <h3>Ranking de Crescimento</h3>
+            <p>Comparativo resumido por regional.</p>
+          </div>
+        </div>
+        <div class="ca-rank-list">
+          <div class="ca-rank-row">
+            <span class="ca-rank-bullet" style="background:#22c55e"></span>
+            <span class="ca-rank-name">Goiânia</span>
+            <span class="ca-rank-num">R$ 16,0MM</span>
+            <span class="ca-rank-var" style="color:#22c55e">+8,4%</span>
+          </div>
+          <div class="ca-rank-row">
+            <span class="ca-rank-bullet" style="background:#22c55e"></span>
+            <span class="ca-rank-name">Rio Verde</span>
+            <span class="ca-rank-num">R$ 11,9MM</span>
+            <span class="ca-rank-var" style="color:#22c55e">+6,1%</span>
+          </div>
+          <div class="ca-rank-row">
+            <span class="ca-rank-bullet" style="background:#eab308"></span>
+            <span class="ca-rank-name">Anápolis</span>
+            <span class="ca-rank-num">R$ 9,8MM</span>
+            <span class="ca-rank-var" style="color:#eab308">+1,3%</span>
+          </div>
+          <div class="ca-rank-row">
+            <span class="ca-rank-bullet" style="background:#ef4444"></span>
+            <span class="ca-rank-name">Luziânia</span>
+            <span class="ca-rank-num">R$ 8,7MM</span>
+            <span class="ca-rank-var" style="color:#ef4444">-2,0%</span>
+          </div>
+        </div>
+        <div style="margin-top:.75rem; color:var(--eq-gray); font-size:.78rem; line-height:1.55;">
+          <strong>Base do ranking:</strong> realizado acumulado anual por regional, comparado entre o ano base e o ano comparativo dentro do escopo filtrado.
+        </div>
+      </div>
+    </div>
+
+    <div class="ca-bottom-grid">
+      <div class="ca-card ca-panel">
+        <div class="ca-panel-head">
+          <div>
+            <h3>Acumulado no Ano</h3>
+            <p>Leitura de tendência e fechamento.</p>
+          </div>
+        </div>
+        <div class="ca-mini-chart"><canvas id="ca-chartAccum"></canvas></div>
+        <div style="margin-top:.7rem; color:var(--eq-gray); font-size:.75rem; line-height:1.5;">
+          <strong>Leitura objetiva:</strong> 2026 mantém trajetória acima de 2025 ao longo de todo o ano, com ampliação do diferencial no segundo semestre.
+        </div>
+      </div>
+
+      <div class="ca-card ca-panel">
+        <div class="ca-panel-head">
+          <div>
+            <h3>Planejado vs Realizado 2026</h3>
+            <p>Visão rápida de aderência.</p>
+          </div>
+        </div>
+        <div class="ca-mini-chart"><canvas id="ca-chartPlanReal"></canvas></div>
+        <div style="margin-top:.7rem; color:var(--eq-gray); font-size:.75rem; line-height:1.5;">
+          <strong>Leitura objetiva:</strong> o realizado de 2026 permanece próximo do planejado, mas ainda com maior pressão concentrada em pacotes operacionais.
+        </div>
+      </div>
+
+      <div class="ca-card ca-callout">
+        <h3>Destaques</h3>
+        <ul>
+          <li><strong>Maior avanço:</strong> crescimento concentrado entre maio e outubro.</li>
+          <li><strong>Melhor aderência:</strong> 2026 se aproxima do planejado no 4º tri.</li>
+          <li><strong>Maior estouro:</strong> PAC.10 na regional Goiânia em setembro.</li>
+          <li><strong>Próxima evolução:</strong> incluir comparativo por pacote e filtros de serviço.</li>
+        </ul>
+        <div class="ca-callout-note">
+          Insights gerados a partir do acumulado anual e da aderência ao planejado apresentados neste bloco inferior.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
 Chart.register(ChartDataLabels);
 
@@ -1076,7 +1388,7 @@ function doLogout() {
 let currentScreen = '';
 function showScreen(name) {
   currentScreen = name;
-  ['panorama','data','pac10','data_pac10'].forEach(n => {
+  ['panorama','data','pac10','data_pac10','comparativo_anual'].forEach(n => {
     const s = document.getElementById('screen-'+n);
     const b = document.getElementById('nav-'+n);
     if (s) s.classList.toggle('active', n===name);
@@ -1086,6 +1398,7 @@ function showScreen(name) {
   if (name==='data') renderDataTable();
   if (name==='pac10') renderPac10();
   if (name==='data_pac10') renderPac10DataTable();
+  if (name==='comparativo_anual') renderComparativoAnual();
 }
 
 /* ── FILTERS ── */
@@ -2540,6 +2853,124 @@ function downloadPac10Template() {
   const rows=[];
   PAC10_SERVICES.forEach(svc=>{ rows.push(['Goiânia',svc,'Planejado',...MONTHS.map(()=> '0')].join(';')); rows.push(['Goiânia',svc,'Realizado',...MONTHS.map(()=> '0')].join(';')); });
   const csv=[header,...rows].join('\r\n'); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='template_dre_pac10.csv'; a.click();
+}
+
+
+/* ── COMPARATIVO ANUAL ── */
+let comparativoCharts = { compare:null, accum:null, planReal:null };
+
+function destroyComparativoCharts(){
+  Object.keys(comparativoCharts).forEach(k => {
+    if (comparativoCharts[k]) {
+      comparativoCharts[k].destroy();
+      comparativoCharts[k] = null;
+    }
+  });
+}
+
+function renderComparativoAnual(){
+  destroyComparativoCharts();
+
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  comparativoCharts.compare = new Chart(document.getElementById('ca-chartCompare'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: '2025',
+          data: [980,1020,1080,1110,1180,1200,1240,1260,1280,1310,1350,1390],
+          backgroundColor: 'rgba(96,165,250,0.55)',
+          borderColor: '#60a5fa',
+          borderWidth: 1.5,
+          borderRadius: 6
+        },
+        {
+          label: '2026',
+          data: [1010,1050,1100,1150,1230,1270,1310,1340,1385,1420,1460,1510],
+          backgroundColor: 'rgba(244,121,32,0.55)',
+          borderColor: '#f47920',
+          borderWidth: 1.5,
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ labels:{ color:'#c8d4f0', font:{ family:'DM Sans', size:12 } } },
+        tooltip:{ backgroundColor:'rgba(8,18,55,.96)', titleColor:'#f8faff', bodyColor:'#c8d4f0' },
+        datalabels:{ display:false }
+      },
+      scales:{
+        x:{ ticks:{ color:'#c8d4f0' }, grid:{ color:'rgba(255,255,255,.05)' } },
+        y:{ ticks:{ color:'#c8d4f0', callback:v=>'R$ '+v+'K' }, grid:{ color:'rgba(255,255,255,.06)' } }
+      }
+    }
+  });
+
+  comparativoCharts.accum = new Chart(document.getElementById('ca-chartAccum'), {
+    type:'line',
+    data:{
+      labels: months,
+      datasets:[
+        {
+          label:'2025 Acum.',
+          data:[980,2000,3080,4190,5370,6570,7810,9070,10350,11660,13010,14400],
+          borderColor:'#60a5fa',
+          backgroundColor:'rgba(96,165,250,.15)',
+          fill:false,
+          tension:.35,
+          pointRadius:3
+        },
+        {
+          label:'2026 Acum.',
+          data:[1010,2060,3160,4310,5540,6810,8120,9460,10845,12265,13725,15235],
+          borderColor:'#22c55e',
+          backgroundColor:'rgba(34,197,94,.15)',
+          fill:false,
+          tension:.35,
+          pointRadius:3
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ labels:{ color:'#c8d4f0', font:{ family:'DM Sans', size:11 } } },
+        datalabels:{ display:false }
+      },
+      scales:{
+        x:{ ticks:{ color:'#c8d4f0' }, grid:{ color:'rgba(255,255,255,.05)' } },
+        y:{ ticks:{ color:'#c8d4f0', callback:v=>'R$ '+(v/1000).toFixed(1)+'MM' }, grid:{ color:'rgba(255,255,255,.06)' } }
+      }
+    }
+  });
+
+  comparativoCharts.planReal = new Chart(document.getElementById('ca-chartPlanReal'), {
+    type:'doughnut',
+    data:{
+      labels:['Planejado','Realizado'],
+      datasets:[{
+        data:[16.4,16.0],
+        backgroundColor:['rgba(244,121,32,.8)','rgba(34,197,94,.8)'],
+        borderColor:['#f47920','#22c55e'],
+        borderWidth:1.2
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:'#c8d4f0', font:{ family:'DM Sans', size:11 } } },
+        tooltip:{ backgroundColor:'rgba(8,18,55,.96)', titleColor:'#f8faff', bodyColor:'#c8d4f0' },
+        datalabels:{ display:false }
+      }
+    }
+  });
 }
 
 /* ── INIT ── */
