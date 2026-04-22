@@ -804,15 +804,18 @@
           <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo. O sistema detecta automaticamente.</p>
 
           <div class="import-instructions">
-            <strong>Formato esperado:</strong> cada linha deve ter:<br>
+            <strong>Formato esperado:</strong> cada linha pode ter um destes formatos:<br>
+            <code>Regional</code> &nbsp;→&nbsp; <code>Ano</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br>
+            ou<br>
             <code>Regional</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
-           <strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
+            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, assume automaticamente o ano vigente.<br>
+            <strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
             <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
             <strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
             <strong>Valores:</strong> podem usar vírgula ou ponto como decimal, com ou sem milhar e até com moeda. Ex: <code>1234,56</code>, <code>1234.56</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>
           </div>
 
-          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo:&#10;Goiânia	07	Planejado	100000	110000	95000	...&#10;Goiânia	07	Realizado	98000	105000	92000	...&#10;Anápolis	08	P	50000	52000	48000	..."></textarea>
+          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo com ano:&#10;Goiânia	2026	07	Planejado	100000	110000	95000	...&#10;Goiânia	2026	07	Realizado	98000	105000	92000	...&#10;&#10;Exemplo sem ano:&#10;Anápolis	08	P	50000	52000	48000	..."></textarea>
 
           <div class="import-actions">
             <button class="btn-import primary" onclick="parseImport()">🔍 Pré-visualizar</button>
@@ -2340,6 +2343,7 @@ function parseImport() {
     return;
   }
 
+  const normTxt = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
   const result = [];
   const parseErrors = [];
@@ -2352,18 +2356,31 @@ function parseImport() {
 
     if (!cols.length) return;
 
-    // Ignora cabeçalho copiado do Excel
-    const normalizedFirst = (cols[0] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    const normalizedSecond = (cols[1] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    if ((normalizedFirst === 'regional' && normalizedSecond === 'pacote') || (normalizedFirst === 'pacote' && normalizedSecond === 'tipo')) {
+    const c0 = normTxt(cols[0]);
+    const c1 = normTxt(cols[1]);
+    const c2 = normTxt(cols[2]);
+    if (
+      (c0 === 'regional' && c1 === 'pacote') ||
+      (c0 === 'regional' && c1 === 'ano' && c2 === 'pacote') ||
+      (c0 === 'pacote' && c1 === 'tipo')
+    ) {
       return;
     }
 
     const hasRegionalColumn = REGIONALS.includes(cols[0]);
-    const regional = hasRegionalColumn ? cols[0] : null;
-    const pkgCol = hasRegionalColumn ? 1 : 0;
-    const typeCol = hasRegionalColumn ? 2 : 1;
-    const valueStartCol = hasRegionalColumn ? 3 : 2;
+    if (!hasRegionalColumn) {
+      parseErrors.push(`Linha ${li+1}: regional "${cols[0] || ''}" não reconhecida.`);
+      return;
+    }
+
+    const regional = cols[0];
+    const maybeYear = cols[1] || '';
+    const hasYearColumn = /^\d{4}$/.test(maybeYear);
+    const year = hasYearColumn ? maybeYear : getDefaultYear();
+
+    const pkgCol = hasYearColumn ? 2 : 1;
+    const typeCol = hasYearColumn ? 3 : 2;
+    const valueStartCol = hasYearColumn ? 4 : 3;
 
     const minCols = valueStartCol + 12;
     if (cols.length < minCols) {
@@ -2378,7 +2395,7 @@ function parseImport() {
       return;
     }
 
-    const rawType = (cols[typeCol] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const rawType = normTxt(cols[typeCol]);
     let type;
     if (/^p(lan)?/.test(rawType)) type = 'plan';
     else if (/^r(eal)?/.test(rawType)) type = 'real';
@@ -2406,6 +2423,7 @@ function parseImport() {
 
     result.push({
       regional,
+      year,
       pkgId: pkg.id,
       pkgName: pkg.name,
       type,
@@ -2436,7 +2454,7 @@ function renderPreview(result, parseErrors) {
   tbl.innerHTML = '';
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
-    <th>Regional</th><th>Pacote</th><th>Tipo</th>
+    <th>Regional</th><th>Ano</th><th>Pacote</th><th>Tipo</th>
     ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
   </tr>`;
   tbl.appendChild(thead);
@@ -2446,7 +2464,7 @@ function renderPreview(result, parseErrors) {
     const tr = document.createElement('tr');
     tr.className = row.type==='plan' ? 'prev-plan' : 'prev-real';
     const typeLabel = row.type==='plan' ? 'Planejado' : 'Realizado';
-    tr.innerHTML = `<td>${row.regional ?? '—'}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
+    tr.innerHTML = `<td>${row.regional ?? '—'}</td><td>${row.year}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
     row.values.forEach((v, i) => {
       const td = document.createElement('td');
       if (v === null) {
@@ -2476,7 +2494,7 @@ function confirmImport() {
   if (!parsedImportData) return;
   parsedImportData.forEach(row => {
     const regionName = row.regional || getDataEntryRegionalName();
-    const targetYear = getDefaultYear();
+    const targetYear = String(row.year || getDefaultYear());
     ensureRegionalStructure(regionName, targetYear);
     row.values.forEach((v, mi) => {
       if (v !== null) appData[regionName][targetYear][row.pkgId][mi][row.type] = v;
@@ -2487,7 +2505,7 @@ function confirmImport() {
   if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
   document.getElementById('paste-area').value = '';
-  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso por regional.`);
+  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso por regional e ano.`);
   parsedImportData = null;
 }
 
@@ -2504,11 +2522,11 @@ function showFeedback(type, msg) {
 }
 
 function downloadTemplate() {
-  const header = ['Regional','Pacote','Tipo',...MONTHS].join(';');
+  const header = ['Regional','Ano','Pacote','Tipo',...MONTHS].join(';');
   const rows = [];
   PACKAGES.forEach(p => {
-    rows.push(['Goiânia',p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
-    rows.push(['Goiânia',p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push(['Goiânia',CURRENT_YEAR,p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push(['Goiânia',CURRENT_YEAR,p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
   });
   const csv = [header, ...rows].join('\r\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
