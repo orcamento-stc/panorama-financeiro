@@ -652,6 +652,21 @@
           <div class="month-grid" id="month-grid"></div>
         </div>
       </div>
+
+      <span class="filter-label">Ano:</span>
+      <div class="month-picker" id="year-picker">
+        <button class="month-picker-btn" id="year-picker-btn" onclick="toggleYearDropdown(event)">
+          <span id="year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="year-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione o ano</span>
+            <button onclick="setCurrentYearFilter()">Ano vigente</button>
+          </div>
+          <div class="month-grid" id="year-grid"></div>
+        </div>
+      </div>
     </div>
 
     <div class="cards-section-title">Pacotes</div>
@@ -736,7 +751,23 @@
           <div class="month-grid" id="data-regional-grid"></div>
         </div>
       </div>
-      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados manualmente serão gravados na regional selecionada.</span>
+
+      <span class="filter-label">Ano:</span>
+      <div class="month-picker" id="data-year-picker">
+        <button class="month-picker-btn" id="data-year-picker-btn" onclick="toggleDataYearDropdown(event)">
+          <span id="data-year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="data-year-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione o ano</span>
+            <button onclick="setCurrentDataYear()">Ano vigente</button>
+          </div>
+          <div class="month-grid" id="data-year-grid"></div>
+        </div>
+      </div>
+
+      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados manualmente serão gravados na regional e no ano selecionados.</span>
     </div>
 
     <!-- TABS -->
@@ -1235,16 +1266,22 @@ const REGIONALS = [
   'Rio Verde',
   'Uruaçu'
 ];
+const CURRENT_YEAR = new Date().getFullYear();
 let selectedRegionals = [];      // panorama: vazio = todas
 let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
 
 let appData = {};
 
-function ensureRegionalStructure(regionName) {
+function getDefaultYear() {
+  return String(CURRENT_YEAR);
+}
+
+function ensureRegionalStructure(regionName, year = getDefaultYear()) {
   if (!appData[regionName] || Array.isArray(appData[regionName])) appData[regionName] = {};
+  if (!appData[regionName][year] || Array.isArray(appData[regionName][year])) appData[regionName][year] = {};
   PACKAGES.forEach(p => {
-    if (!appData[regionName][p.id] || !Array.isArray(appData[regionName][p.id])) {
-      appData[regionName][p.id] = MONTHS.map(() => ({plan:null,real:null}));
+    if (!appData[regionName][year][p.id] || !Array.isArray(appData[regionName][year][p.id])) {
+      appData[regionName][year][p.id] = MONTHS.map(() => ({plan:null,real:null}));
     }
   });
 }
@@ -1254,18 +1291,39 @@ function normalizeLegacyData() {
   if (looksLegacy) {
     const legacy = appData;
     appData = {};
-    REGIONALS.forEach(r => ensureRegionalStructure(r));
+    REGIONALS.forEach(r => ensureRegionalStructure(r, getDefaultYear()));
     PACKAGES.forEach(p => {
       const arr = legacy[p.id];
       if (Array.isArray(arr)) {
-        appData['Goiânia'][p.id] = arr.map(m => ({
+        appData['Goiânia'][getDefaultYear()][p.id] = arr.map(m => ({
           plan: m?.plan ?? null,
           real: m?.real ?? null
         }));
       }
     });
   }
-  REGIONALS.forEach(r => ensureRegionalStructure(r));
+
+  REGIONALS.forEach(regionName => {
+    if (!appData[regionName] || Array.isArray(appData[regionName])) {
+      const oldRegion = appData[regionName];
+      appData[regionName] = {};
+      if (oldRegion && !Array.isArray(oldRegion)) {
+        appData[regionName][getDefaultYear()] = oldRegion;
+      }
+    }
+
+    const regionBucket = appData[regionName];
+    const hasYearKeys = Object.keys(regionBucket).some(k => /^\d{4}$/.test(k));
+
+    if (!hasYearKeys) {
+      const oldStructure = regionBucket;
+      appData[regionName] = {};
+      appData[regionName][getDefaultYear()] = oldStructure;
+    }
+
+    Object.keys(appData[regionName]).forEach(year => ensureRegionalStructure(regionName, year));
+    ensureRegionalStructure(regionName, getDefaultYear());
+  });
 }
 
 function initData() {
@@ -1278,7 +1336,7 @@ function initData() {
     }
   } catch(e) {}
   appData = {};
-  REGIONALS.forEach(r => ensureRegionalStructure(r));
+  REGIONALS.forEach(r => ensureRegionalStructure(r, getDefaultYear()));
 }
 function saveData() { localStorage.setItem(SK, JSON.stringify(appData)); flashToast(); }
 function flashToast() {
@@ -1405,6 +1463,8 @@ function showScreen(name) {
 let cardFilter  = 'all';
 let selectedMonths = []; // empty = all
 let selectedPkg = 'total';
+let selectedYear = CURRENT_YEAR;
+let dataSelectedYear = CURRENT_YEAR;
 
 function setCardFilter(v) {
   cardFilter = v;
@@ -1530,13 +1590,88 @@ function toggleMonthDropdown(e) {
 document.addEventListener('click', () => {
   const md = document.getElementById('month-dropdown');
   const rd = document.getElementById('regional-dropdown');
+  const yd = document.getElementById('year-dropdown');
   const drd = document.getElementById('data-regional-dropdown');
+  const dyd = document.getElementById('data-year-dropdown');
   if (md) md.classList.remove('open');
   if (rd) rd.classList.remove('open');
+  if (yd) yd.classList.remove('open');
   if (drd) drd.classList.remove('open');
+  if (dyd) dyd.classList.remove('open');
 });
 document.getElementById('month-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('regional-dropdown').addEventListener('click', e => e.stopPropagation());
+document.getElementById('year-dropdown').addEventListener('click', e => e.stopPropagation());
+document.getElementById('data-year-dropdown').addEventListener('click', e => e.stopPropagation());
+
+
+function getAvailableYears() {
+  const years = new Set([CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1]);
+  Object.values(appData || {}).forEach(regionBucket => {
+    if (regionBucket && typeof regionBucket === 'object' && !Array.isArray(regionBucket)) {
+      Object.keys(regionBucket).forEach(k => {
+        if (/^\d{4}$/.test(k)) years.add(Number(k));
+      });
+    }
+  });
+  return Array.from(years).sort((a,b) => a-b);
+}
+
+function buildYearPicker() {
+  const grid = document.getElementById('year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (selectedYear === year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      selectedYear = year;
+      buildYearPicker();
+      renderPanorama();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('year-picker-label');
+  if (lbl) lbl.textContent = String(selectedYear);
+}
+function toggleYearDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('year-dropdown').classList.toggle('open');
+}
+function setCurrentYearFilter() {
+  selectedYear = CURRENT_YEAR;
+  buildYearPicker();
+  renderPanorama();
+}
+
+function buildDataYearPicker() {
+  const grid = document.getElementById('data-year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (dataSelectedYear === year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      dataSelectedYear = year;
+      buildDataYearPicker();
+      renderDataTable();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('data-year-picker-label');
+  if (lbl) lbl.textContent = String(dataSelectedYear);
+}
+function toggleDataYearDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('data-year-dropdown').classList.toggle('open');
+}
+function setCurrentDataYear() {
+  dataSelectedYear = CURRENT_YEAR;
+  buildDataYearPicker();
+  renderDataTable();
+}
 
 function getVisiblePkgs() {
   if (cardFilter==='card')   return PACKAGES.filter(p => ['07','08','09','15','20'].includes(p.id));
@@ -1551,10 +1686,13 @@ function getSelectedRegionalNames() {
 function getDataEntryRegionalName() {
   return dataSelectedRegional == null ? 'Goiânia' : REGIONALS[dataSelectedRegional];
 }
+function getDataEntryYear() {
+  return String(dataSelectedYear || CURRENT_YEAR);
+}
 
-function getCell(regionName, pkgId, monthIndex) {
-  ensureRegionalStructure(regionName);
-  return appData[regionName][pkgId][monthIndex];
+function getCell(regionName, pkgId, monthIndex, year = String(selectedYear || CURRENT_YEAR)) {
+  ensureRegionalStructure(regionName, year);
+  return appData[regionName][year][pkgId][monthIndex];
 }
 
 /* ── AGGREGATION ── */
@@ -1598,7 +1736,7 @@ function badge(st,hib) {
 }
 
 /* ── RENDER PANORAMA ── */
-function renderPanorama() { buildRegionalPicker(); buildMonthPicker(); renderCards(); renderChart(); }
+function renderPanorama() { buildRegionalPicker(); buildMonthPicker(); buildYearPicker(); renderCards(); renderChart(); }
 
 function renderCards() {
   const grid = document.getElementById('cards-grid');
@@ -1733,7 +1871,8 @@ function openModal({ id, name, plan, real, hib }) {
     : `Meses: ${modalMonths.map(i=>MONTHS[i]).join(', ')}`;
   const rLabel = modalRegionals.length === 0 ? 'Todas as regionais'
     : modalRegionals.map(i=>REGIONALS[i]).join(', ');
-  document.getElementById('modal-period').textContent = `${mLabel} · Regional: ${rLabel}`;
+  const yearLabel = currentScreen === 'pac10' ? String(CURRENT_YEAR) : String(selectedYear);
+  document.getElementById('modal-period').textContent = `${mLabel} · Regional: ${rLabel} · Ano: ${yearLabel}`;
 
   document.getElementById('card-modal').classList.add('open');
 }
@@ -1799,8 +1938,8 @@ function renderChart() {
     pkgIds=[selectedPkg]; label=`Pac. ${pkg.id} — ${pkg.name}`; hib=pkg.hib;
   }
   const regionalLabel = selectedRegionals.length===0 ? 'Todas as regionais' : selectedRegionals.map(i=>REGIONALS[i]).join(', ');
-  document.getElementById('chart-title').textContent = label + ' — Acumulado · ' + regionalLabel;
-  document.getElementById('dre-title').textContent   = 'DRE — ' + label + ' · ' + regionalLabel;
+  document.getElementById('chart-title').textContent = label + ' — Acumulado · ' + regionalLabel + ' · Ano ' + selectedYear;
+  document.getElementById('dre-title').textContent   = 'DRE — ' + label + ' · ' + regionalLabel + ' · Ano ' + selectedYear;
 
   const { cumPlan, cumReal, cumProj, lastRealIdx } = getProjectionData(pkgIds);
 
@@ -2018,6 +2157,7 @@ function switchDataTab(name) {
 /* ── DATA TABLE ── */
 function renderDataTable() {
   buildDataRegionalPicker();
+  buildDataYearPicker();
   const tbody = document.getElementById('data-tbody');
   tbody.innerHTML = '';
   PACKAGES.forEach(p => {
@@ -2040,13 +2180,15 @@ function renderDataTable() {
         const inp = document.createElement('input');
         inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
         const regionName = getDataEntryRegionalName();
-        const val = getCell(regionName, p.id, mi)?.[type];
+        const year = getDataEntryYear();
+        const val = getCell(regionName, p.id, mi, year)?.[type];
         if (val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
           const activeRegion = getDataEntryRegionalName();
-          ensureRegionalStructure(activeRegion);
+          const activeYear = getDataEntryYear();
+          ensureRegionalStructure(activeRegion, activeYear);
           const n = normalizeManualNumber(inp.value);
-          appData[activeRegion][p.id][mi][type]=n;
+          appData[activeRegion][activeYear][p.id][mi][type]=n;
           localStorage.setItem(SK,JSON.stringify(appData));
           flashToast();
           if(currentScreen==='panorama') renderPanorama();
@@ -2262,9 +2404,10 @@ function confirmImport() {
   if (!parsedImportData) return;
   parsedImportData.forEach(row => {
     const regionName = row.regional || getDataEntryRegionalName();
-    ensureRegionalStructure(regionName);
+    const targetYear = getDefaultYear();
+    ensureRegionalStructure(regionName, targetYear);
     row.values.forEach((v, mi) => {
-      if (v !== null) appData[regionName][row.pkgId][mi][row.type] = v;
+      if (v !== null) appData[regionName][targetYear][row.pkgId][mi][row.type] = v;
     });
   });
   saveData();
@@ -2307,6 +2450,9 @@ function downloadTemplate() {
 
 /* ── PAC10 DATA MODEL ── */
 const SK_PAC10 = 'eq_stcgyn_pac10_v1';
+function getPac10DefaultYear() {
+  return String(CURRENT_YEAR);
+}
 // Serviços da DRE PAC.10
 // Para incluir ou remover serviços no futuro, altere somente esta lista.
 const PAC10_SERVICES = [
@@ -2323,12 +2469,36 @@ let dataPac10SelectedRegional = REGIONALS.indexOf('Goiânia');
 let pac10ChartInst = null;
 let parsedPac10ImportData = null;
 
-function ensurePac10RegionalStructure(regionName) {
+function ensurePac10RegionalStructure(regionName, year = getPac10DefaultYear()) {
   if (!pac10Data[regionName] || Array.isArray(pac10Data[regionName])) pac10Data[regionName] = {};
+  if (!pac10Data[regionName][year] || Array.isArray(pac10Data[regionName][year])) pac10Data[regionName][year] = {};
   PAC10_SERVICES.forEach(svc => {
-    if (!pac10Data[regionName][svc] || !Array.isArray(pac10Data[regionName][svc])) {
-      pac10Data[regionName][svc] = MONTHS.map(() => ({plan:null, real:null}));
+    if (!pac10Data[regionName][year][svc] || !Array.isArray(pac10Data[regionName][year][svc])) {
+      pac10Data[regionName][year][svc] = MONTHS.map(() => ({plan:null, real:null}));
     }
+  });
+}
+function normalizePac10LegacyData() {
+  REGIONALS.forEach(regionName => {
+    if (!pac10Data[regionName] || Array.isArray(pac10Data[regionName])) {
+      const oldRegion = pac10Data[regionName];
+      pac10Data[regionName] = {};
+      if (oldRegion && !Array.isArray(oldRegion)) {
+        pac10Data[regionName][getPac10DefaultYear()] = oldRegion;
+      }
+    }
+
+    const regionBucket = pac10Data[regionName];
+    const hasYearKeys = Object.keys(regionBucket).some(k => /^\d{4}$/.test(k));
+
+    if (!hasYearKeys) {
+      const oldStructure = regionBucket;
+      pac10Data[regionName] = {};
+      pac10Data[regionName][getPac10DefaultYear()] = oldStructure;
+    }
+
+    Object.keys(pac10Data[regionName]).forEach(year => ensurePac10RegionalStructure(regionName, year));
+    ensurePac10RegionalStructure(regionName, getPac10DefaultYear());
   });
 }
 function initPac10Data() {
@@ -2336,7 +2506,7 @@ function initPac10Data() {
     const s = localStorage.getItem(SK_PAC10);
     if (s) pac10Data = JSON.parse(s) || {};
   } catch(e) { pac10Data = {}; }
-  REGIONALS.forEach(r => ensurePac10RegionalStructure(r));
+  normalizePac10LegacyData();
 }
 function savePac10Data() {
   localStorage.setItem(SK_PAC10, JSON.stringify(pac10Data));
@@ -2346,9 +2516,9 @@ function savePac10Data() {
     t._tid = setTimeout(() => t.classList.remove('show'), 1800);
   }
 }
-function getPac10Cell(regionName, serviceName, monthIndex) {
-  ensurePac10RegionalStructure(regionName);
-  return pac10Data[regionName][serviceName][monthIndex];
+function getPac10Cell(regionName, serviceName, monthIndex, year = getPac10DefaultYear()) {
+  ensurePac10RegionalStructure(regionName, year);
+  return pac10Data[regionName][year][serviceName][monthIndex];
 }
 function getPac10SelectedRegionalNames() {
   return pac10SelectedRegionals.length ? pac10SelectedRegionals.map(i=>REGIONALS[i]) : [...REGIONALS];
@@ -2705,7 +2875,7 @@ function renderPac10DataTable() {
         const val=getPac10Cell(region, svc, mi)?.[type]; if(val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
           const activeRegion=getPac10DataEntryRegionalName(); ensurePac10RegionalStructure(activeRegion);
-          const n = normalizeManualNumber(inp.value); pac10Data[activeRegion][svc][mi][type]=n;
+          const n = normalizeManualNumber(inp.value); pac10Data[activeRegion][getPac10DefaultYear()][svc][mi][type]=n;
           localStorage.setItem(SK_PAC10, JSON.stringify(pac10Data)); savePac10Data();
           if(currentScreen==='pac10') renderPac10();
         });
@@ -2842,7 +3012,7 @@ function confirmPac10Import() {
   if (!parsedPac10ImportData) return;
   parsedPac10ImportData.forEach(row => {
     const region = row.regional || getPac10DataEntryRegionalName(); ensurePac10RegionalStructure(region);
-    row.values.forEach((v,mi)=>{ if(v!==null) pac10Data[region][row.service][mi][row.type]=v; });
+    row.values.forEach((v,mi)=>{ if(v!==null) pac10Data[region][getPac10DefaultYear()][row.service][mi][row.type]=v; });
   });
   savePac10Data(); renderPac10DataTable(); if(currentScreen==='pac10') renderPac10(); cancelPac10Preview(); document.getElementById('paste-pac10-area').value=''; showPac10Feedback('success', `✅ Importação concluída! ${parsedPac10ImportData.length} linha(s) gravadas com sucesso.`); parsedPac10ImportData=null;
 }
@@ -2978,7 +3148,9 @@ initData();
 initPac10Data();
 buildRegionalPicker();
 buildMonthPicker();
+buildYearPicker();
 buildDataRegionalPicker();
+buildDataYearPicker();
 buildPac10RegionalPicker();
 buildPac10MonthPicker();
 buildPac10ServicePicker();
