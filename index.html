@@ -887,6 +887,21 @@
         </div>
       </div>
 
+      <span class="filter-label">Ano:</span>
+      <div class="month-picker" id="pac10-year-picker">
+        <button class="month-picker-btn" id="pac10-year-picker-btn" onclick="togglePac10YearDropdown(event)">
+          <span id="pac10-year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="pac10-year-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione o ano</span>
+            <button onclick="setCurrentPac10Year()">Ano vigente</button>
+          </div>
+          <div class="month-grid" id="pac10-year-grid"></div>
+        </div>
+      </div>
+
       <span class="filter-label">Serviços:</span>
       <div class="month-picker" id="pac10-service-picker">
         <button class="month-picker-btn" id="pac10-service-picker-btn" onclick="togglePac10ServiceDropdown(event)" style="min-width:280px">
@@ -958,7 +973,22 @@
           <div class="month-grid" id="data-pac10-regional-grid"></div>
         </div>
       </div>
-      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados serão gravados na regional selecionada para os serviços do PAC.10.</span>
+
+      <span class="filter-label">Ano:</span>
+      <div class="month-picker" id="data-pac10-year-picker">
+        <button class="month-picker-btn" id="data-pac10-year-picker-btn" onclick="toggleDataPac10YearDropdown(event)">
+          <span id="data-pac10-year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="data-pac10-year-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione o ano</span>
+            <button onclick="setCurrentDataPac10Year()">Ano vigente</button>
+          </div>
+          <div class="month-grid" id="data-pac10-year-grid"></div>
+        </div>
+      </div>
+      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados serão gravados na regional e no ano selecionados para os serviços do PAC.10.</span>
     </div>
 
     <div class="data-tabs">
@@ -1587,6 +1617,48 @@ function toggleMonthDropdown(e) {
   e.stopPropagation();
   document.getElementById('month-dropdown').classList.toggle('open');
 }
+function buildPac10YearPicker() {
+  const grid = document.getElementById('pac10-year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (pac10SelectedYear===year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      pac10SelectedYear = year;
+      buildPac10YearPicker();
+      renderPac10();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('pac10-year-picker-label');
+  if (lbl) lbl.textContent = String(pac10SelectedYear);
+}
+function togglePac10YearDropdown(e){ e.stopPropagation(); document.getElementById('pac10-year-dropdown').classList.toggle('open'); }
+function setCurrentPac10Year(){ pac10SelectedYear = CURRENT_YEAR; buildPac10YearPicker(); renderPac10(); }
+
+function buildDataPac10YearPicker() {
+  const grid = document.getElementById('data-pac10-year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (dataPac10SelectedYear===year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      dataPac10SelectedYear = year;
+      buildDataPac10YearPicker();
+      renderPac10DataTable();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('data-pac10-year-picker-label');
+  if (lbl) lbl.textContent = String(dataPac10SelectedYear);
+}
+function toggleDataPac10YearDropdown(e){ e.stopPropagation(); document.getElementById('data-pac10-year-dropdown').classList.toggle('open'); }
+function setCurrentDataPac10Year(){ dataPac10SelectedYear = CURRENT_YEAR; buildDataPac10YearPicker(); renderPac10DataTable(); }
+
 document.addEventListener('click', () => {
   const md = document.getElementById('month-dropdown');
   const rd = document.getElementById('regional-dropdown');
@@ -2465,7 +2537,9 @@ let pac10SelectedRegionals = [];
 let pac10SelectedMonths = [];
 let pac10SelectedServices = [];
 let pac10SelectedCard = 'total';
+let pac10SelectedYear = CURRENT_YEAR;
 let dataPac10SelectedRegional = REGIONALS.indexOf('Goiânia');
+let dataPac10SelectedYear = CURRENT_YEAR;
 let pac10ChartInst = null;
 let parsedPac10ImportData = null;
 
@@ -2529,13 +2603,16 @@ function getVisiblePac10Services() {
 function getPac10DataEntryRegionalName() {
   return dataPac10SelectedRegional == null ? 'Goiânia' : REGIONALS[dataPac10SelectedRegional];
 }
+function getPac10DataEntryYear() {
+  return String(dataPac10SelectedYear || CURRENT_YEAR);
+}
 function monthlyForPac10Services(serviceNames) {
   const regions = getPac10SelectedRegionalNames();
   return MONTHS.map((_,mi) => {
     let plan=0, real=0, hp=false, hr=false;
     regions.forEach(region => {
       serviceNames.forEach(svc => {
-        const d = getPac10Cell(region, svc, mi);
+        const d = getPac10Cell(region, svc, mi, String(pac10SelectedYear || CURRENT_YEAR));
         if (d?.plan != null) { plan += d.plan; hp = true; }
         if (d?.real != null) { real += d.real; hr = true; }
       });
@@ -2559,11 +2636,11 @@ function getPac10ProjectionData(serviceNames) {
   MONTHS.forEach((_, mi) => {
     const regions = getPac10SelectedRegionalNames();
     const anyReal = regions.some(region => serviceNames.some(svc => {
-      const v = getPac10Cell(region, svc, mi)?.real;
+      const v = getPac10Cell(region, svc, mi, String(pac10SelectedYear || CURRENT_YEAR))?.real;
       return v != null && v !== 0;
     }));
     const anyRealZero = lastRealIdx >= 0 && regions.some(region => serviceNames.some(svc => {
-      const c = getPac10Cell(region, svc, mi);
+      const c = getPac10Cell(region, svc, mi, String(pac10SelectedYear || CURRENT_YEAR));
       const v = c?.real;
       return v === 0 && c?.plan != null;
     }));
@@ -2688,11 +2765,11 @@ function clearPac10ServiceSel(){ pac10SelectedServices=[]; buildPac10ServicePick
 function togglePac10ServiceDropdown(e){ e.stopPropagation(); document.getElementById('pac10-service-dropdown').classList.toggle('open'); }
 
 document.addEventListener('click', () => {
-  ['pac10-month-dropdown','pac10-regional-dropdown','pac10-service-dropdown','data-pac10-regional-dropdown'].forEach(id => {
+  ['pac10-month-dropdown','pac10-year-dropdown','pac10-regional-dropdown','pac10-service-dropdown','data-pac10-regional-dropdown','data-pac10-year-dropdown'].forEach(id => {
     const el = document.getElementById(id); if (el) el.classList.remove('open');
   });
 });
-['pac10-month-dropdown','pac10-regional-dropdown','pac10-service-dropdown','data-pac10-regional-dropdown'].forEach(id => {
+['pac10-month-dropdown','pac10-year-dropdown','pac10-regional-dropdown','pac10-service-dropdown','data-pac10-regional-dropdown','data-pac10-year-dropdown'].forEach(id => {
   setTimeout(()=>{ const el=document.getElementById(id); if(el) el.addEventListener('click', e=>e.stopPropagation()); },0);
 });
 
@@ -2700,6 +2777,7 @@ document.addEventListener('click', () => {
 function renderPac10() {
   buildPac10RegionalPicker();
   buildPac10MonthPicker();
+  buildPac10YearPicker();
   buildPac10ServicePicker();
   renderPac10Cards();
   renderPac10Chart();
@@ -2767,8 +2845,8 @@ function renderPac10Chart() {
   const services = pac10SelectedCard==='total' ? getVisiblePac10Services() : [pac10SelectedCard];
   const label = pac10SelectedCard==='total' ? 'PAC.10 — Acumulado · Serviços' : `PAC.10 — ${pac10SelectedCard}`;
   const regionalLabel = pac10SelectedRegionals.length===0 ? 'Todas as regionais' : pac10SelectedRegionals.map(i=>REGIONALS[i]).join(', ');
-  document.getElementById('pac10-chart-title').textContent = label + ' · ' + regionalLabel;
-  document.getElementById('pac10-dre-title').textContent = 'DRE — PAC.10 · ' + (pac10SelectedCard==='total' ? 'Serviços' : pac10SelectedCard) + ' · ' + regionalLabel;
+  document.getElementById('pac10-chart-title').textContent = label + ' · ' + regionalLabel + ' · Ano ' + pac10SelectedYear;
+  document.getElementById('pac10-dre-title').textContent = 'DRE — PAC.10 · ' + (pac10SelectedCard==='total' ? 'Serviços' : pac10SelectedCard) + ' · ' + regionalLabel + ' · Ano ' + pac10SelectedYear;
   const { cumPlan, cumReal, cumProj, lastRealIdx } = getPac10ProjectionData(services);
   const pw = document.getElementById('pac10-proj-warn');
   const finalPV = cumProj.filter(v=>v!=null);
@@ -2854,6 +2932,7 @@ function switchPac10DataTab(name) {
 }
 function renderPac10DataTable() {
   buildDataPac10RegionalPicker();
+  buildDataPac10YearPicker();
   const tbody = document.getElementById('data-pac10-tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -2872,10 +2951,13 @@ function renderPac10DataTable() {
         const td=document.createElement('td'); td.className='tcell';
         const inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
         const region=getPac10DataEntryRegionalName();
-        const val=getPac10Cell(region, svc, mi)?.[type]; if(val!=null) inp.value=val;
+        const year=getPac10DataEntryYear();
+        const val=getPac10Cell(region, svc, mi, year)?.[type]; if(val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
-          const activeRegion=getPac10DataEntryRegionalName(); ensurePac10RegionalStructure(activeRegion);
-          const n = normalizeManualNumber(inp.value); pac10Data[activeRegion][getPac10DefaultYear()][svc][mi][type]=n;
+          const activeRegion=getPac10DataEntryRegionalName();
+          const activeYear=getPac10DataEntryYear();
+          ensurePac10RegionalStructure(activeRegion, activeYear);
+          const n = normalizeManualNumber(inp.value); pac10Data[activeRegion][activeYear][svc][mi][type]=n;
           localStorage.setItem(SK_PAC10, JSON.stringify(pac10Data)); savePac10Data();
           if(currentScreen==='pac10') renderPac10();
         });
@@ -3011,8 +3093,10 @@ function renderPac10Preview(result, parseErrors) {
 function confirmPac10Import() {
   if (!parsedPac10ImportData) return;
   parsedPac10ImportData.forEach(row => {
-    const region = row.regional || getPac10DataEntryRegionalName(); ensurePac10RegionalStructure(region);
-    row.values.forEach((v,mi)=>{ if(v!==null) pac10Data[region][getPac10DefaultYear()][row.service][mi][row.type]=v; });
+    const region = row.regional || getPac10DataEntryRegionalName();
+    const targetYear = getPac10DefaultYear();
+    ensurePac10RegionalStructure(region, targetYear);
+    row.values.forEach((v,mi)=>{ if(v!==null) pac10Data[region][targetYear][row.service][mi][row.type]=v; });
   });
   savePac10Data(); renderPac10DataTable(); if(currentScreen==='pac10') renderPac10(); cancelPac10Preview(); document.getElementById('paste-pac10-area').value=''; showPac10Feedback('success', `✅ Importação concluída! ${parsedPac10ImportData.length} linha(s) gravadas com sucesso.`); parsedPac10ImportData=null;
 }
@@ -3153,8 +3237,10 @@ buildDataRegionalPicker();
 buildDataYearPicker();
 buildPac10RegionalPicker();
 buildPac10MonthPicker();
+buildPac10YearPicker();
 buildPac10ServicePicker();
 buildDataPac10RegionalPicker();
+buildDataPac10YearPicker();
 </script>
 </body>
 </html>
