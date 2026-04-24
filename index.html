@@ -1020,21 +1020,27 @@
           <h3>📋 Colar dados da planilha</h3>
           <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo para os serviços do PAC.10.</p>
           <div class="import-instructions">
-            <strong>Formato esperado:</strong> cada linha deve ter um destes formatos:<br>
+            <strong>Formato esperado:</strong> cada linha pode ter um destes formatos:<br>
+            <code>Regional</code> → <code>Ano</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
+            ou<br>
             <code>Regional</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
             ou<br>
+            <code>Regional</code> → <code>Ano</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br>
+            ou<br>
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
+            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
             <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
             <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
           </div>
-          <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo sem pacote:
-Goiânia	Atend. Emerg. Miscelânea Técnica	Planejado	1000	1200	...
-Goiânia	Ligação ou Miscelânea Não Executada STC	Realizado	900	1100	...
-Goiânia	MBX	Planejado	700	800	...
+          <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo com ano:
+Goiânia	2026	Atend. Emerg. Miscelânea Técnica	Planejado	1000	1200	...
+Goiânia	2026	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	...
 
-Exemplo com pacote:
-Goiânia	PAC.10	Planejado	Atend. Emerg. Miscelânea Técnica	1000	1200	...
-Goiânia	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	..."></textarea>
+Exemplo com coluna Ano em branco:
+Goiânia		MBX	Planejado	700	800	...
+
+Exemplo sem coluna Ano:
+Anápolis	Atend. Emerg. Miscelânea Técnica	Realizado	900	1100	..."></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parsePac10Import()">🔍 Pré-visualizar</button>
             <button class="btn-import ghost" onclick="document.getElementById('paste-pac10-area').value=''">Limpar</button>
@@ -3032,12 +3038,14 @@ function parsePac10Import() {
     const n1 = normTxt(cols[1]);
     const n2 = normTxt(cols[2]);
     const n3 = normTxt(cols[3]);
+    const n4 = normTxt(cols[4]);
 
-    // Cabeçalhos aceitos:
-    // Regional | Serviço | Tipo | ...
-    // Regional | Pacote | Tipo | Serviço | ...
-    if ((n0==='regional' && (n1==='servico' || n1==='serviço')) ||
-        (n0==='regional' && n1==='pacote' && n2==='tipo' && (n3==='servico' || n3==='serviço'))) {
+    if (
+      (n0==='regional' && (n1==='servico' || n1==='serviço')) ||
+      (n0==='regional' && n1==='ano' && (n2==='servico' || n2==='serviço')) ||
+      (n0==='regional' && n1==='pacote' && n2==='tipo' && (n3==='servico' || n3==='serviço')) ||
+      (n0==='regional' && n1==='ano' && n2==='pacote' && n3==='tipo' && (n4==='servico' || n4==='serviço'))
+    ) {
       return;
     }
 
@@ -3045,25 +3053,33 @@ function parsePac10Import() {
     let serviceRaw = '';
     let typeRaw = '';
     let valueStart = 0;
+    let year = getPac10DefaultYear();
 
     if (!REGIONALS.includes(regional)) {
       parseErrors.push(`Linha ${li+1}: regional "${regional}" não reconhecida.`);
       return;
     }
 
-    // Formato A: Regional | Serviço | Tipo | 12 meses
-    if (cols.length >= 15 && !isPac10Token(cols[1])) {
-      serviceRaw = cols[1] || '';
-      typeRaw = cols[2] || '';
-      valueStart = 3;
+    const c1 = (cols[1] || '').trim();
+    const hasYearValue = /^\d{4}$/.test(c1);
+    const hasBlankYearCol = c1 === '' && cols.length >= 16;
+    const hasYearColumn = hasYearValue || hasBlankYearCol;
+    const offset = hasYearColumn ? 1 : 0;
+    year = hasYearValue ? c1 : getPac10DefaultYear();
+
+    const tokenAfterYear = cols[1 + offset] || '';
+
+    if (cols.length >= 15 + offset && !isPac10Token(tokenAfterYear)) {
+      serviceRaw = cols[1 + offset] || '';
+      typeRaw = cols[2 + offset] || '';
+      valueStart = 3 + offset;
     }
-    // Formato B: Regional | Pacote | Tipo | Serviço | 12 meses
-    else if (cols.length >= 16 && isPac10Token(cols[1])) {
-      serviceRaw = cols[3] || '';
-      typeRaw = cols[2] || '';
-      valueStart = 4;
+    else if (cols.length >= 16 + offset && isPac10Token(tokenAfterYear)) {
+      serviceRaw = cols[4 + offset] || '';
+      typeRaw = cols[3 + offset] || '';
+      valueStart = 5 + offset;
     } else {
-      parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Serviço + Tipo + 12 meses, ou Regional + PAC.10 + Tipo + Serviço + 12 meses.`);
+      parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Ano + Serviço + Tipo + 12 meses, ou Regional + Ano + PAC.10 + Tipo + Serviço + 12 meses.`);
       return;
     }
 
@@ -3088,15 +3104,12 @@ function parsePac10Import() {
       const rawVal=(cols[valueStart+m]??'').replace(/R\$\s*/g,'').replace(/\s/g,'');
       if(rawVal===''||rawVal==='-'||rawVal.toLowerCase()==='null') values.push(null);
       else {
-        let norm=rawVal;
-        if(norm.includes(',')&&norm.includes('.')) norm=norm.replace(/\./g,'').replace(',','.');
-        else if(norm.includes(',')) norm=norm.replace(',','.');
-        const n=parseFloat(norm);
-        if(isNaN(n)){ errs.push(m); values.push(null); }
+        const n = normalizeManualNumber(rawVal);
+        if(n == null){ errs.push(m); values.push(null); }
         else values.push(n);
       }
     }
-    result.push({ regional, service, type, values, errs });
+    result.push({ regional, year, service, type, values, errs });
   });
 
   if (!result.length) {
@@ -3109,9 +3122,9 @@ function renderPac10Preview(result, parseErrors) {
   const wrap=document.getElementById('preview-pac10-wrap'); const count=document.getElementById('preview-pac10-count'); const tbl=document.getElementById('preview-pac10-table');
   count.textContent = `${result.length} linha(s)${parseErrors.length>0?' · ⚠️ '+parseErrors.length+' aviso(s)':''}`;
   tbl.innerHTML='';
-  const thead=document.createElement('thead'); thead.innerHTML=`<tr><th>Regional</th><th>Serviço</th><th>Tipo</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}</tr>`; tbl.appendChild(thead);
+  const thead=document.createElement('thead'); thead.innerHTML=`<tr><th>Regional</th><th>Ano</th><th>Serviço</th><th>Tipo</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}</tr>`; tbl.appendChild(thead);
   const tbody=document.createElement('tbody');
-  result.forEach(row=>{ const tr=document.createElement('tr'); tr.className=row.type==='plan'?'prev-plan':'prev-real'; tr.innerHTML=`<td>${row.regional ?? '—'}</td><td>${row.service}</td><td class="ttype">${row.type==='plan'?'Planejado':'Realizado'}</td>`; row.values.forEach((v,i)=>{ const td=document.createElement('td'); if(v===null){ td.className=row.errs.includes(i)?'val-err':''; td.textContent=row.errs.includes(i)?'⚠️ erro':'—'; } else { td.className='val-ok'; td.textContent=fmtShort(v); td.title=fmtBRL(v); } tr.appendChild(td); }); tbody.appendChild(tr); });
+  result.forEach(row=>{ const tr=document.createElement('tr'); tr.className=row.type==='plan'?'prev-plan':'prev-real'; tr.innerHTML=`<td>${row.regional ?? '—'}</td><td>${row.year}</td><td>${row.service}</td><td class="ttype">${row.type==='plan'?'Planejado':'Realizado'}</td>`; row.values.forEach((v,i)=>{ const td=document.createElement('td'); if(v===null){ td.className=row.errs.includes(i)?'val-err':''; td.textContent=row.errs.includes(i)?'⚠️ erro':'—'; } else { td.className='val-ok'; td.textContent=fmtShort(v); td.title=fmtBRL(v); } tr.appendChild(td); }); tbody.appendChild(tr); });
   tbl.appendChild(tbody); wrap.style.display='block';
   if(parseErrors.length>0) showPac10Feedback('error','⚠️ Alguns avisos:<br>'+parseErrors.map(e=>'• '+e).join('<br>')); else showPac10Feedback('success',`✓ ${result.length} linha(s) prontas para importar.`);
 }
@@ -3119,18 +3132,18 @@ function confirmPac10Import() {
   if (!parsedPac10ImportData) return;
   parsedPac10ImportData.forEach(row => {
     const region = row.regional || getPac10DataEntryRegionalName();
-    const targetYear = getPac10DefaultYear();
+    const targetYear = String(row.year || getPac10DefaultYear());
     ensurePac10RegionalStructure(region, targetYear);
     row.values.forEach((v,mi)=>{ if(v!==null) pac10Data[region][targetYear][row.service][mi][row.type]=v; });
   });
-  savePac10Data(); renderPac10DataTable(); if(currentScreen==='pac10') renderPac10(); cancelPac10Preview(); document.getElementById('paste-pac10-area').value=''; showPac10Feedback('success', `✅ Importação concluída! ${parsedPac10ImportData.length} linha(s) gravadas com sucesso.`); parsedPac10ImportData=null;
+  savePac10Data(); renderPac10DataTable(); if(currentScreen==='pac10') renderPac10(); cancelPac10Preview(); document.getElementById('paste-pac10-area').value=''; showPac10Feedback('success', `✅ Importação concluída! ${parsedPac10ImportData.length} linha(s) gravadas com sucesso por regional e ano.`); parsedPac10ImportData=null;
 }
 function cancelPac10Preview(){ document.getElementById('preview-pac10-wrap').style.display='none'; parsedPac10ImportData=null; }
 function showPac10Feedback(type,msg){ const fb=document.getElementById('import-pac10-feedback'); fb.className='import-feedback '+type; fb.innerHTML=msg; fb.style.display='block'; }
 function downloadPac10Template() {
-  const header=['Regional','Serviço','Tipo',...MONTHS].join(';');
+  const header=['Regional','Ano','Serviço','Tipo',...MONTHS].join(';');
   const rows=[];
-  PAC10_SERVICES.forEach(svc=>{ rows.push(['Goiânia',svc,'Planejado',...MONTHS.map(()=> '0')].join(';')); rows.push(['Goiânia',svc,'Realizado',...MONTHS.map(()=> '0')].join(';')); });
+  PAC10_SERVICES.forEach(svc=>{ rows.push(['Goiânia',CURRENT_YEAR,svc,'Planejado',...MONTHS.map(()=> '0')].join(';')); rows.push(['Goiânia',CURRENT_YEAR,svc,'Realizado',...MONTHS.map(()=> '0')].join(';')); });
   const csv=[header,...rows].join('\r\n'); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='template_dre_pac10.csv'; a.click();
 }
 
