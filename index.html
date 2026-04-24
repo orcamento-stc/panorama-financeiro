@@ -808,7 +808,7 @@
             <code>Regional</code> &nbsp;→&nbsp; <code>Ano</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br>
             ou<br>
             <code>Regional</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
-            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, assume automaticamente o ano vigente.<br>
+            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
             <strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
             <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
             <strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
@@ -2374,9 +2374,16 @@ function parseImport() {
     }
 
     const regional = cols[0];
-    const maybeYear = cols[1] || '';
-    const hasYearColumn = /^\d{4}$/.test(maybeYear);
-    const year = hasYearColumn ? maybeYear : getDefaultYear();
+    const maybeYear = (cols[1] || '').trim();
+
+    // Aceita:
+    // 1) Regional | Ano | Pacote | Tipo | 12 meses
+    // 2) Regional | Pacote | Tipo | 12 meses
+    // 3) Regional | [Ano em branco] | Pacote | Tipo | 12 meses
+    const secondLooksLikePackage = PACKAGES.some(p => p.id === String(maybeYear).replace(/\D/g,'').padStart(2,'0'));
+    const explicitBlankYearColumn = (maybeYear === '' && cols.length >= 16 && !secondLooksLikePackage);
+    const hasYearColumn = /^\d{4}$/.test(maybeYear) || explicitBlankYearColumn;
+    const year = /^\d{4}$/.test(maybeYear) ? maybeYear : getDefaultYear();
 
     const pkgCol = hasYearColumn ? 2 : 1;
     const typeCol = hasYearColumn ? 3 : 2;
