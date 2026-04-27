@@ -493,6 +493,9 @@
   }
   #screen-comparativo_anual .ca-callout li strong{ color:#fff; }
   #screen-comparativo_anual .ca-callout-note{ margin-top:.75rem; color:var(--eq-gray); font-size:.76rem; line-height:1.5; }
+  #screen-comparativo_anual .month-picker-btn{ min-width:160px; }
+  #screen-comparativo_anual .month-dropdown{ right:auto; left:0; }
+  #screen-comparativo_anual .ca-empty{ padding:1rem; border-radius:12px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.07); color:var(--eq-gray); font-size:.84rem; }
   @media (max-width: 1180px){
     #screen-comparativo_anual .ca-hero-grid,
     #screen-comparativo_anual .ca-main-grid,
@@ -1086,18 +1089,60 @@ Anápolis	Atend. Emerg. Miscelânea Técnica	Realizado	900	1100	..."></textarea>
 
     <div class="ca-filter-bar">
       <span class="ca-filter-label">Regional:</span>
-      <div class="ca-picker">Goiânia <span class="ca-chev">▼</span></div>
+      <div class="month-picker" id="ca-regional-picker">
+        <button class="month-picker-btn" onclick="toggleCaRegionalDropdown(event)">
+          <span id="ca-regional-picker-label">Todas as regionais</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="ca-regional-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione a regional</span>
+            <button onclick="clearCaRegional()">Todas</button>
+          </div>
+          <div class="month-grid" id="ca-regional-grid"></div>
+        </div>
+      </div>
 
       <span class="ca-filter-label">Ano base:</span>
-      <div class="ca-picker">2025 <span class="ca-chev">▼</span></div>
+      <div class="month-picker" id="ca-base-year-picker">
+        <button class="month-picker-btn" onclick="toggleCaBaseYearDropdown(event)">
+          <span id="ca-base-year-picker-label">2025</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="ca-base-year-dropdown">
+          <div class="month-dropdown-header"><span>Selecione o ano base</span></div>
+          <div class="month-grid" id="ca-base-year-grid"></div>
+        </div>
+      </div>
 
       <span class="ca-filter-label">Ano comparativo:</span>
-      <div class="ca-picker">2026 <span class="ca-chev">▼</span></div>
+      <div class="month-picker" id="ca-compare-year-picker">
+        <button class="month-picker-btn" onclick="toggleCaCompareYearDropdown(event)">
+          <span id="ca-compare-year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="ca-compare-year-dropdown">
+          <div class="month-dropdown-header"><span>Selecione o ano comparativo</span></div>
+          <div class="month-grid" id="ca-compare-year-grid"></div>
+        </div>
+      </div>
 
       <div class="ca-filter-gap"></div>
 
       <span class="ca-filter-label">Pacote:</span>
-      <div class="ca-picker">Todos os pacotes <span class="ca-chev">▼</span></div>
+      <div class="month-picker" id="ca-package-picker">
+        <button class="month-picker-btn" onclick="toggleCaPackageDropdown(event)" style="min-width:220px">
+          <span id="ca-package-picker-label">Todos os pacotes</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="ca-package-dropdown" style="min-width:310px;max-width:380px">
+          <div class="month-dropdown-header">
+            <span>Selecione o pacote</span>
+            <button onclick="clearCaPackage()">Todos</button>
+          </div>
+          <div class="month-grid" id="ca-package-grid"></div>
+        </div>
+      </div>
     </div>
 
     <div class="ca-hero-grid">
@@ -3265,6 +3310,184 @@ function renderComparativoAnual(){
   });
 }
 
+
+/* ── COMPARATIVO ANUAL FUNCIONAL — BASE REAL DO PANORAMA ── */
+let caSelectedRegional = null;
+let caBaseYear = CURRENT_YEAR - 1;
+let caCompareYear = CURRENT_YEAR;
+let caSelectedPkg = 'total';
+
+function caYears(){
+  const years = new Set([CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1]);
+  Object.values(appData || {}).forEach(regionBucket => {
+    if (regionBucket && typeof regionBucket === 'object' && !Array.isArray(regionBucket)) {
+      Object.keys(regionBucket).forEach(k => { if (/^\d{4}$/.test(k)) years.add(Number(k)); });
+    }
+  });
+  return Array.from(years).sort((a,b)=>a-b);
+}
+function caRegions(){ return caSelectedRegional == null ? [...REGIONALS] : [REGIONALS[caSelectedRegional]]; }
+function caPkgIds(){ return caSelectedPkg === 'total' ? PACKAGES.map(p=>p.id) : [caSelectedPkg]; }
+function caPkgLabel(){ if(caSelectedPkg==='total') return 'Todos os pacotes'; const p=PACKAGES.find(x=>x.id===caSelectedPkg); return p ? `PAC.${p.id} · ${p.name}` : 'Todos os pacotes'; }
+function caMonthly(year, pkgIds=caPkgIds(), regions=caRegions()){
+  const y = String(year);
+  return MONTHS.map((_,mi)=>{
+    let plan=0, real=0, hp=false, hr=false;
+    regions.forEach(region=>{
+      ensureRegionalStructure(region, y);
+      pkgIds.forEach(id=>{
+        const d = appData?.[region]?.[y]?.[id]?.[mi];
+        if(d?.plan != null){ plan += d.plan; hp = true; }
+        if(d?.real != null){ real += d.real; hr = true; }
+      });
+    });
+    return { plan: hp ? plan : null, real: hr ? real : null };
+  });
+}
+function caSum(monthly,key){ let t=0,h=false; monthly.forEach(m=>{ if(m?.[key]!=null){ t+=m[key]; h=true; } }); return h?t:null; }
+function caAccum(values){ let sum=0, has=false; return values.map(v=>{ if(v==null) return has?sum:null; sum+=v; has=true; return sum; }); }
+function caPct(diff,base){ return base ? diff/base*100 : null; }
+function caSignedPct(v){ return (v==null || isNaN(v)) ? '—' : `${v>0?'+':''}${v.toFixed(1)}%`; }
+function caSignedShort(v){ return (v==null || isNaN(v)) ? '—' : `${v>0?'+':''}${fmtShort(v)}`; }
+function caSetHTML(selector, value){ const el=document.querySelector(selector); if(el) el.innerHTML=value; }
+
+function buildCaRegionalPicker(){
+  const grid=document.getElementById('ca-regional-grid'); if(!grid) return; grid.innerHTML='';
+  const all=document.createElement('div'); all.className='month-opt-all'+(caSelectedRegional==null?' sel':''); all.textContent='Todas as regionais'; all.onclick=clearCaRegional; grid.appendChild(all);
+  REGIONALS.forEach((r,i)=>{ const el=document.createElement('div'); el.className='month-opt'+(caSelectedRegional===i?' sel':''); el.textContent=r; el.onclick=()=>{ caSelectedRegional=i; buildCaRegionalPicker(); renderComparativoAnual(); }; grid.appendChild(el); });
+  const lbl=document.getElementById('ca-regional-picker-label'); if(lbl) lbl.textContent=caSelectedRegional==null?'Todas as regionais':REGIONALS[caSelectedRegional];
+}
+function clearCaRegional(){ caSelectedRegional=null; buildCaRegionalPicker(); renderComparativoAnual(); }
+function toggleCaRegionalDropdown(e){ e.stopPropagation(); document.getElementById('ca-regional-dropdown').classList.toggle('open'); }
+function buildCaYearPicker(kind){
+  const isBase = kind === 'base';
+  const grid=document.getElementById(isBase?'ca-base-year-grid':'ca-compare-year-grid'); if(!grid) return;
+  const selected = isBase ? caBaseYear : caCompareYear;
+  grid.innerHTML='';
+  caYears().forEach(year=>{ const el=document.createElement('div'); el.className='month-opt'+(selected===year?' sel':''); el.textContent=String(year); el.onclick=()=>{ if(isBase) caBaseYear=year; else caCompareYear=year; buildCaYearPicker(kind); renderComparativoAnual(); }; grid.appendChild(el); });
+  const lbl=document.getElementById(isBase?'ca-base-year-picker-label':'ca-compare-year-picker-label'); if(lbl) lbl.textContent=String(selected);
+}
+function toggleCaBaseYearDropdown(e){ e.stopPropagation(); document.getElementById('ca-base-year-dropdown').classList.toggle('open'); }
+function toggleCaCompareYearDropdown(e){ e.stopPropagation(); document.getElementById('ca-compare-year-dropdown').classList.toggle('open'); }
+function buildCaPackagePicker(){
+  const grid=document.getElementById('ca-package-grid'); if(!grid) return; grid.innerHTML='';
+  const all=document.createElement('div'); all.className='month-opt-all'+(caSelectedPkg==='total'?' sel':''); all.textContent='Todos os pacotes'; all.onclick=clearCaPackage; grid.appendChild(all);
+  PACKAGES.forEach(p=>{ const el=document.createElement('div'); el.className='month-opt'+(caSelectedPkg===p.id?' sel':''); el.textContent=`PAC.${p.id} · ${p.name}`; el.onclick=()=>{ caSelectedPkg=p.id; buildCaPackagePicker(); renderComparativoAnual(); }; grid.appendChild(el); });
+  const lbl=document.getElementById('ca-package-picker-label'); if(lbl) lbl.textContent=caPkgLabel();
+}
+function clearCaPackage(){ caSelectedPkg='total'; buildCaPackagePicker(); renderComparativoAnual(); }
+function toggleCaPackageDropdown(e){ e.stopPropagation(); document.getElementById('ca-package-dropdown').classList.toggle('open'); }
+document.addEventListener('click',()=>{ ['ca-regional-dropdown','ca-base-year-dropdown','ca-compare-year-dropdown','ca-package-dropdown'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('open'); }); });
+['ca-regional-dropdown','ca-base-year-dropdown','ca-compare-year-dropdown','ca-package-dropdown'].forEach(id=>{ setTimeout(()=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',e=>e.stopPropagation()); },0); });
+
+function caRenderRank(pkgIds){
+  const list=document.querySelector('#screen-comparativo_anual .ca-rank-list'); if(!list) return; list.innerHTML='';
+  const rows=REGIONALS.map(region=>{
+    const base=caSum(caMonthly(caBaseYear,pkgIds,[region]),'real');
+    const comp=caSum(caMonthly(caCompareYear,pkgIds,[region]),'real');
+    const diff=(base!=null&&comp!=null)?comp-base:null;
+    return {region,base,comp,diff,pct:diff!=null?caPct(diff,base):null};
+  }).filter(r=>r.base!=null||r.comp!=null).sort((a,b)=>(b.pct??-999999)-(a.pct??-999999)).slice(0,5);
+  if(!rows.length){ list.innerHTML='<div class="ca-empty">Sem dados para montar ranking por regional.</div>'; return; }
+  rows.forEach(r=>{
+    const color=r.diff>0?'#22c55e':r.diff<0?'#ef4444':'#eab308';
+    const div=document.createElement('div'); div.className='ca-rank-row';
+    div.innerHTML=`<span class="ca-rank-bullet" style="background:${color}"></span><span class="ca-rank-name">${r.region}</span><span class="ca-rank-num">${fmtShort(r.comp??0)}</span><span class="ca-rank-var" style="color:${color}">${caSignedPct(r.pct)}</span>`;
+    list.appendChild(div);
+  });
+}
+function caRenderHighlights(baseMonthly, compMonthly){
+  let best=null, worst=null, over=null;
+  MONTHS.forEach((m,i)=>{
+    const br=baseMonthly[i].real, cr=compMonthly[i].real, cp=compMonthly[i].plan;
+    if(br!=null&&cr!=null){ const d=cr-br; if(!best||d>best.diff) best={month:m,diff:d}; if(!worst||d<worst.diff) worst={month:m,diff:d}; }
+    if(cp!=null&&cr!=null){ const o=cr-cp; if(!over||o>over.over) over={month:m,over:o}; }
+  });
+  const impacts=PACKAGES.map(p=>{ const b=caSum(caMonthly(caBaseYear,[p.id]),'real'); const c=caSum(caMonthly(caCompareYear,[p.id]),'real'); return {p,diff:(b!=null&&c!=null)?c-b:null}; }).filter(x=>x.diff!=null).sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff));
+  const top=impacts[0];
+  caSetHTML('#screen-comparativo_anual .ca-callout ul', `<li><strong>Maior avanço mensal:</strong> ${best?`${best.month} (${caSignedShort(best.diff)})`:'sem dados suficientes.'}</li><li><strong>Maior retração mensal:</strong> ${worst?`${worst.month} (${caSignedShort(worst.diff)})`:'sem dados suficientes.'}</li><li><strong>Maior pressão contra planejado:</strong> ${over?`${over.month} (${caSignedShort(over.over)})`:'sem dados suficientes.'}</li><li><strong>Pacote com maior impacto:</strong> ${top?`PAC.${top.p.id} · ${top.p.name} (${caSignedShort(top.diff)})`:'sem dados suficientes.'}</li>`);
+}
+
+function renderComparativoAnual(){
+  destroyComparativoCharts();
+  buildCaRegionalPicker(); buildCaYearPicker('base'); buildCaYearPicker('compare'); buildCaPackagePicker();
+
+  const regionLabel=caSelectedRegional==null?'todas as regionais':REGIONALS[caSelectedRegional];
+  const pkgLabel=caPkgLabel();
+  const pkgIds=caPkgIds();
+
+  const baseM=caMonthly(caBaseYear,pkgIds);
+  const compM=caMonthly(caCompareYear,pkgIds);
+  const baseReal=caSum(baseM,'real');
+  const compReal=caSum(compM,'real');
+  const compPlan=caSum(compM,'plan');
+  const diff=(baseReal!=null&&compReal!=null)?compReal-baseReal:null;
+  const growth=diff!=null?caPct(diff,baseReal):null;
+  const adhDiff=(compReal!=null&&compPlan!=null)?compReal-compPlan:null;
+  const adhPct=adhDiff!=null?caPct(adhDiff,compPlan):null;
+
+  caSetHTML('#screen-comparativo_anual .ca-hero-card p', `Considerando a seleção de <strong>${regionLabel}</strong>, <strong>${caBaseYear}</strong> como ano base, <strong>${caCompareYear}</strong> como ano comparativo e <strong>${pkgLabel}</strong>, o painel apresenta leitura executiva baseada nos dados reais importados no Panorama.`);
+  const minis=document.querySelectorAll('#screen-comparativo_anual .ca-mini .ca-num'); if(minis[0]) minis[0].textContent=caBaseYear; if(minis[1]) minis[1].textContent=caCompareYear;
+  const kpis=document.querySelectorAll('#screen-comparativo_anual .ca-kpi .ca-value');
+  if(kpis[0]) kpis[0].textContent=baseReal==null?'—':fmtShort(baseReal);
+  if(kpis[1]) kpis[1].textContent=compReal==null?'—':fmtShort(compReal);
+  if(kpis[2]) kpis[2].textContent=diff==null?'—':caSignedShort(diff);
+  if(kpis[3]) kpis[3].textContent=growth==null?'—':caSignedPct(growth);
+  const subs=document.querySelectorAll('#screen-comparativo_anual .ca-kpi .ca-sub');
+  if(subs[0]) subs[0].textContent=`Realizado ${caBaseYear}`;
+  if(subs[1]) subs[1].textContent=`Realizado ${caCompareYear}`;
+  if(subs[2]) subs[2].textContent=`${caCompareYear} vs ${caBaseYear}`;
+
+  const readings=document.querySelectorAll('#screen-comparativo_anual .ca-reading-item');
+  const growthClass=diff>0?'ca-pos':diff<0?'ca-neg':'ca-warn';
+  if(readings[0]) readings[0].innerHTML=diff==null?'Ainda não há dados suficientes para comparar o realizado acumulado entre os anos.':`O realizado acumulado de <strong>${caCompareYear}</strong> está <span class="${growthClass}">${caSignedPct(growth)}</span> em relação a ${caBaseYear}.`;
+  const adhClass=adhDiff==null?'ca-warn':(adhDiff<=0?'ca-pos':'ca-neg');
+  if(readings[1]) readings[1].innerHTML=adhDiff==null?'Ainda não há dados suficientes para comparar o realizado contra o planejado do ano comparativo.':`O desvio acumulado contra o planejado em <strong>${caCompareYear}</strong> está em <span class="${adhClass}">${caSignedPct(adhPct)}</span> (${caSignedShort(adhDiff)}).`;
+  const impacts=PACKAGES.map(p=>{ const b=caSum(caMonthly(caBaseYear,[p.id]),'real'); const c=caSum(caMonthly(caCompareYear,[p.id]),'real'); return {p,diff:(b!=null&&c!=null)?c-b:null}; }).filter(x=>x.diff!=null).sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff));
+  if(readings[2]) readings[2].innerHTML=impacts.length?`<strong>PAC.${impacts[0].p.id}</strong> · <strong>${impacts[0].p.name}</strong> concentra a maior diferença absoluta no comparativo anual (${caSignedShort(impacts[0].diff)}).`:'Ainda não há dados suficientes para identificar o pacote com maior impacto.';
+  let critical=null; MONTHS.forEach((m,i)=>{ const p=compM[i].plan,r=compM[i].real; if(p!=null&&r!=null){ const o=r-p; if(!critical||o>critical.over) critical={month:m,over:o}; } });
+  if(readings[3]) readings[3].innerHTML=critical?`<strong>Maior ponto de atenção:</strong> <span class="ca-warn">${critical.month}</span>, com variação contra planejado de <span class="${critical.over>0?'ca-neg':'ca-pos'}">${caSignedShort(critical.over)}</span>.`:'Ainda não há dados suficientes para identificar o maior ponto de atenção.';
+
+  const notes=document.querySelectorAll('#screen-comparativo_anual .ca-panel > div[style*="margin-top"]');
+  if(notes[0]) notes[0].innerHTML=`<strong>Leitura objetiva:</strong> ${diff==null?'Ainda não há dados suficientes para comparar os anos.':`o comparativo mostra variação acumulada de ${caSignedShort(diff)} (${caSignedPct(growth)}) em ${caCompareYear} contra ${caBaseYear}.`}`;
+  if(notes[1]) notes[1].innerHTML=`<strong>Leitura objetiva:</strong> ${diff==null?'Ainda não há dados suficientes para avaliar tendência acumulada.':`${caCompareYear} ${diff>=0?'mantém trajetória acima':'permanece abaixo'} de ${caBaseYear} no acumulado anual.`}`;
+  if(notes[2]) notes[2].innerHTML=`<strong>Leitura objetiva:</strong> ${adhDiff==null?'Ainda não há dados suficientes para avaliar planejado vs realizado.':`em ${caCompareYear}, o realizado está ${adhDiff>0?'acima':adhDiff<0?'abaixo':'em linha com'} do planejado em ${caSignedShort(adhDiff)}.`}`;
+
+  caRenderRank(pkgIds);
+  caRenderHighlights(baseM, compM);
+
+  const baseRealMonthly=baseM.map(m=>m.real);
+  const compRealMonthly=compM.map(m=>m.real);
+  const compPlanMonthly=compM.map(m=>m.plan);
+  const baseAccum=caAccum(baseRealMonthly);
+  const compAccum=caAccum(compRealMonthly);
+
+  comparativoCharts.compare = new Chart(document.getElementById('ca-chartCompare'), {
+    type:'bar',
+    data:{ labels:MONTHS, datasets:[
+      {label:String(caBaseYear), data:baseRealMonthly, backgroundColor:'rgba(96,165,250,0.55)', borderColor:'#60a5fa', borderWidth:1.5, borderRadius:6},
+      {label:String(caCompareYear), data:compRealMonthly, backgroundColor:'rgba(244,121,32,0.55)', borderColor:'#f47920', borderWidth:1.5, borderRadius:6}
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'#c8d4f0', font:{family:'DM Sans',size:12}}}, tooltip:{backgroundColor:'rgba(8,18,55,.96)',titleColor:'#f8faff',bodyColor:'#c8d4f0',callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtBRL(ctx.raw)}`}}, datalabels:{display:false}}, scales:{ x:{ticks:{color:'#c8d4f0'},grid:{color:'rgba(255,255,255,.05)'}}, y:{ticks:{color:'#c8d4f0',callback:v=>fmtShort(v)},grid:{color:'rgba(255,255,255,.06)'}}} }
+  });
+
+  comparativoCharts.accum = new Chart(document.getElementById('ca-chartAccum'), {
+    type:'line',
+    data:{ labels:MONTHS, datasets:[
+      {label:`${caBaseYear} Acum.`, data:baseAccum, borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,.15)', fill:false, tension:.35, pointRadius:3},
+      {label:`${caCompareYear} Acum.`, data:compAccum, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.15)', fill:false, tension:.35, pointRadius:3}
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'#c8d4f0', font:{family:'DM Sans',size:11}}}, datalabels:{display:false}}, scales:{ x:{ticks:{color:'#c8d4f0'},grid:{color:'rgba(255,255,255,.05)'}}, y:{ticks:{color:'#c8d4f0',callback:v=>fmtShort(v)},grid:{color:'rgba(255,255,255,.06)'}}} }
+  });
+
+  comparativoCharts.planReal = new Chart(document.getElementById('ca-chartPlanReal'), {
+    type:'doughnut',
+    data:{ labels:[`Planejado ${caCompareYear}`,`Realizado ${caCompareYear}`], datasets:[{ data:[compPlan??0, compReal??0], backgroundColor:['rgba(244,121,32,.8)','rgba(34,197,94,.8)'], borderColor:['#f47920','#22c55e'], borderWidth:1.2 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom', labels:{color:'#c8d4f0',font:{family:'DM Sans',size:11}}}, tooltip:{backgroundColor:'rgba(8,18,55,.96)',titleColor:'#f8faff',bodyColor:'#c8d4f0',callbacks:{label:ctx=>`${ctx.label}: ${fmtBRL(ctx.raw)}`}}, datalabels:{display:false}} }
+  });
+}
+
+
 /* ── INIT ── */
 initData();
 initPac10Data();
@@ -3279,6 +3502,10 @@ buildPac10YearPicker();
 buildPac10ServicePicker();
 buildDataPac10RegionalPicker();
 buildDataPac10YearPicker();
+buildCaRegionalPicker();
+buildCaYearPicker('base');
+buildCaYearPicker('compare');
+buildCaPackagePicker();
 </script>
 </body>
 </html>
