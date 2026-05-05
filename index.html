@@ -1033,17 +1033,17 @@
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
             <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
             <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
-            <strong>Serviço:</strong> use <code>Atend. Emerg. Miscelânea Técnica</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
+            <strong>Serviço:</strong> use <code>Atendimento Emergencial</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
           </div>
           <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo com ano:
-Goiânia	2026	Atend. Emerg. Miscelânea Técnica	Planejado	1000	1200	...
+Goiânia	2026	Atendimento Emergencial	Planejado	1000	1200	...
 Goiânia	2026	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	...
 
 Exemplo com coluna Ano em branco:
 Goiânia		MBX	Planejado	700	800	...
 
 Exemplo sem coluna Ano:
-Anápolis	Atend. Emerg. Miscelânea Técnica	Realizado	900	1100	..."></textarea>
+Anápolis	Atendimento Emergencial	Realizado	900	1100	..."></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parsePac10Import()">🔍 Pré-visualizar</button>
             <button class="btn-import ghost" onclick="document.getElementById('paste-pac10-area').value=''">Limpar</button>
@@ -2604,7 +2604,7 @@ function getPac10DefaultYear() {
 // Serviços da DRE PAC.10
 // Para incluir ou remover serviços no futuro, altere somente esta lista.
 const PAC10_SERVICES = [
-  'Atend. Emerg. Miscelânea Técnica',
+  'Atendimento Emergencial',
   'Ligação ou Miscelânea Não Executada STC',
   'MBX'
 ].sort((a,b)=>a.localeCompare(b,'pt-BR'));
