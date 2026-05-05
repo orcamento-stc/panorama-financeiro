@@ -1033,7 +1033,7 @@
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
             <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
             <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
-            <strong>Serviço:</strong> use <code>Atendimento Emergencial</code>, <code>Ligação ou Miscelânea Não Executada STC</code> ou <code>MBX</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
+            <strong>Serviço:</strong> use <code>Atendimento Emergencial</code>, <code>Ligação ou Miscelânea Não Executada STC</code>, <code>MBX</code>, <code>Miscelânea</code> ou <code>WhatsApp</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
           </div>
           <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo com ano:
 Goiânia	2026	Atendimento Emergencial	Planejado	1000	1200	...
@@ -1043,7 +1043,9 @@ Exemplo com coluna Ano em branco:
 Goiânia		MBX	Planejado	700	800	...
 
 Exemplo sem coluna Ano:
-Anápolis	Atendimento Emergencial	Realizado	900	1100	..."></textarea>
+Anápolis	Atendimento Emergencial	Realizado	900	1100	...
+Anápolis	Miscelânea	Planejado	800	850	...
+Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parsePac10Import()">🔍 Pré-visualizar</button>
             <button class="btn-import ghost" onclick="document.getElementById('paste-pac10-area').value=''">Limpar</button>
@@ -2606,7 +2608,9 @@ function getPac10DefaultYear() {
 const PAC10_SERVICES = [
   'Atendimento Emergencial',
   'Ligação ou Miscelânea Não Executada STC',
-  'MBX'
+  'MBX',
+  'Miscelânea',
+  'WhatsApp'
 ].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 let pac10Data = {};
 let pac10SelectedRegionals = [];
