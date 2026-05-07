@@ -1337,6 +1337,7 @@ const PACKAGES = [
   { id:'10', name:'Serviços Operacionais',         card:false, hib:false },
   { id:'11', name:'Combate a Perdas',              card:false, hib:false },
   { id:'15', name:'Sist. Info. e Telecom',         card:true,  hib:false },
+  { id:'16', name:'Arrecadação e Cobrança',        card:true,  hib:false },
   { id:'20', name:'Contingências',                 card:true,  hib:false },
 ];
 const SK = 'eq_stcgyn_v4';
@@ -1802,9 +1803,9 @@ function setCurrentDataYear() {
 }
 
 function getVisiblePkgs() {
-  if (cardFilter==='card')   return PACKAGES.filter(p => ['07','08','09','15','20'].includes(p.id));
+  if (cardFilter==='card')   return PACKAGES.filter(p => ['07','08','09','15','16','20'].includes(p.id));
   if (cardFilter==='nocard') return PACKAGES.filter(p => ['10','11'].includes(p.id));
-  return PACKAGES.filter(p => ['07','08','09','10','11','15','20'].includes(p.id));
+  return PACKAGES.filter(p => ['07','08','09','10','11','15','16','20'].includes(p.id));
 }
 
 function getSelectedRegionalNames() {
