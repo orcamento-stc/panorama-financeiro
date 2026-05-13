@@ -622,6 +622,38 @@
   }
 }
 
+
+/* === BACKUP PENDENTE INTELIGENTE === */
+.backup-pendente-alerta {
+  display: none;
+  margin: 10px auto 0 auto;
+  max-width: 1180px;
+  background: #fff7d6;
+  color: #6b4e00;
+  border: 1px solid #f0d36a;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+}
+
+.backup-pendente-alerta.active {
+  display: block;
+}
+
+.backup-pendente-alerta small {
+  display: block;
+  font-weight: 600;
+  margin-top: 3px;
+  color: #7a610d;
+}
+
+.backup-pendente-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
+}
+
 </style>
 </head>
 <body>
@@ -674,6 +706,11 @@
           </div>
         </div>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
+
+    <div id="backup-pendente-alerta" class="backup-pendente-alerta">
+      ⚠️ Backup pendente
+      <small>Existem alterações salvas neste navegador que ainda não foram exportadas em backup.</small>
+    </div>
 </nav>
 
 <!-- PANORAMA -->
@@ -1609,6 +1646,35 @@ document.addEventListener('click', function(event) {
     }
 });
 
+
+function marcarBackupPendente(pendente) {
+    localStorage.setItem('eq_stcgyn_backup_pendente', pendente ? '1' : '0');
+    atualizarIndicadorBackupPendente();
+}
+
+function atualizarIndicadorBackupPendente() {
+    const pendente = localStorage.getItem('eq_stcgyn_backup_pendente') === '1';
+    const alerta = document.getElementById('backup-pendente-alerta');
+    const menuBackup = document.querySelector('.backup-menu-wrap .btn-nav');
+
+    if (alerta) {
+        alerta.classList.toggle('active', pendente);
+    }
+
+    if (menuBackup) {
+        menuBackup.classList.toggle('backup-pendente-btn', pendente);
+        menuBackup.textContent = pendente ? '⚠️ Menu Backup' : '🔧 Menu Backup';
+    }
+}
+
+function registrarAlteracaoDados() {
+    marcarBackupPendente(true);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    atualizarIndicadorBackupPendente();
+});
+
 function exportarBackup() {
     const backup = {
         eq_stcgyn_v4: localStorage.getItem('eq_stcgyn_v4'),
@@ -1621,15 +1687,31 @@ function exportarBackup() {
         return;
     }
 
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const hora = String(agora.getHours()).padStart(2, '0');
+    const minuto = String(agora.getMinutes()).padStart(2, '0');
+    const nomeArquivo = `backup_${ano}-${mes}-${dia}_${hora}-${minuto}.json`;
+
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'backup_panorama_financeiro_stc.json';
+    a.download = nomeArquivo;
     a.click();
 
     URL.revokeObjectURL(url);
+
+    localStorage.setItem('eq_stcgyn_ultimo_backup', JSON.stringify({
+        data: new Date().toISOString(),
+        arquivo: nomeArquivo
+    }));
+
+    marcarBackupPendente(false);
+    alert('Backup gerado com sucesso: ' + nomeArquivo);
 }
 
 function restaurarBackup() {
@@ -1661,14 +1743,17 @@ function restaurarBackup() {
 
                 if (dadosPanorama) {
                     localStorage.setItem('eq_stcgyn_v4', typeof dadosPanorama === 'string' ? dadosPanorama : JSON.stringify(dadosPanorama));
+    registrarAlteracaoDados();
                 }
 
                 if (dadosPac10) {
                     localStorage.setItem('eq_stcgyn_pac10_v1', typeof dadosPac10 === 'string' ? dadosPac10 : JSON.stringify(dadosPac10));
+    registrarAlteracaoDados();
                 }
 
                 alert('Backup restaurado com sucesso. A página será atualizada.');
-                location.reload();
+                marcarBackupPendente(false);
+                    location.reload();
             } catch (erro) {
                 alert('Erro ao restaurar backup. Verifique se o arquivo selecionado é o backup correto.');
                 console.error(erro);
