@@ -1530,19 +1530,23 @@ function doLogout() {
   document.getElementById('icon-eye-off').style.display = 'none';
 }
 function exportarBackup() {
-    const dados = localStorage.getItem('panorama_financeiro');
+    const backup = {
+        eq_stcgyn_v4: localStorage.getItem('eq_stcgyn_v4'),
+        eq_stcgyn_pac10_v1: localStorage.getItem('eq_stcgyn_pac10_v1'),
+        data_exportacao: new Date().toISOString()
+    };
 
-    if (!dados) {
+    if (!backup.eq_stcgyn_v4 && !backup.eq_stcgyn_pac10_v1) {
         alert('Nenhum dado encontrado para backup.');
         return;
     }
 
-    const blob = new Blob([dados], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'backup_panorama_financeiro.json';
+    a.download = 'backup_panorama_financeiro_stc.json';
     a.click();
 
     URL.revokeObjectURL(url);
