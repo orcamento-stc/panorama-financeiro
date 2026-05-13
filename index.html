@@ -1647,6 +1647,7 @@ document.addEventListener('click', function(event) {
 });
 
 
+
 function marcarBackupPendente(pendente) {
     localStorage.setItem('eq_stcgyn_backup_pendente', pendente ? '1' : '0');
     atualizarIndicadorBackupPendente();
@@ -1657,9 +1658,7 @@ function atualizarIndicadorBackupPendente() {
     const alerta = document.getElementById('backup-pendente-alerta');
     const menuBackup = document.querySelector('.backup-menu-wrap .btn-nav');
 
-    if (alerta) {
-        alerta.classList.toggle('active', pendente);
-    }
+    if (alerta) alerta.classList.toggle('active', pendente);
 
     if (menuBackup) {
         menuBackup.classList.toggle('backup-pendente-btn', pendente);
@@ -1673,6 +1672,18 @@ function registrarAlteracaoDados() {
 
 document.addEventListener('DOMContentLoaded', function() {
     atualizarIndicadorBackupPendente();
+
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(chave, valor) {
+        originalSetItem.apply(this, arguments);
+
+        if (
+            chave === 'eq_stcgyn_v4' ||
+            chave === 'eq_stcgyn_pac10_v1'
+        ) {
+            marcarBackupPendente(true);
+        }
+    };
 });
 
 function exportarBackup() {
