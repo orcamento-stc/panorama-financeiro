@@ -1529,6 +1529,24 @@ function doLogout() {
   document.getElementById('icon-eye').style.display = '';
   document.getElementById('icon-eye-off').style.display = 'none';
 }
+function exportarBackup() {
+    const dados = localStorage.getItem('panorama_financeiro');
+
+    if (!dados) {
+        alert('Nenhum dado encontrado para backup.');
+        return;
+    }
+
+    const blob = new Blob([dados], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_panorama_financeiro.json';
+    a.click();
+
+    URL.revokeObjectURL(url);
+}  
 
 /* ── SCREENS ── */
 let currentScreen = '';
