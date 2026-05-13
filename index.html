@@ -610,6 +610,7 @@
     <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
   </div>
   <button class="btn-nav" onclick="exportarBackup()">💾 Backup</button>
+  <button class="btn-nav" onclick="importarBackup()">📂 Restaurar Backup</button>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
 </nav>
 
@@ -1550,6 +1551,55 @@ function exportarBackup() {
     a.click();
 
     URL.revokeObjectURL(url);
+}
+
+function importarBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+
+    input.onchange = function(event) {
+        const arquivo = event.target.files && event.target.files[0];
+        if (!arquivo) return;
+
+        const leitor = new FileReader();
+
+        leitor.onload = function(e) {
+            try {
+                const backup = JSON.parse(e.target.result);
+
+                const dadosPanorama = backup.eq_stcgyn_v4;
+                const dadosPac10 = backup.eq_stcgyn_pac10_v1;
+
+                if (!dadosPanorama && !dadosPac10) {
+                    alert('Arquivo de backup inválido. Nenhum dado do Panorama foi encontrado.');
+                    return;
+                }
+
+                if (!confirm('Restaurar este backup? Os dados atuais deste navegador serão substituídos.')) {
+                    return;
+                }
+
+                if (dadosPanorama) {
+                    localStorage.setItem('eq_stcgyn_v4', typeof dadosPanorama === 'string' ? dadosPanorama : JSON.stringify(dadosPanorama));
+                }
+
+                if (dadosPac10) {
+                    localStorage.setItem('eq_stcgyn_pac10_v1', typeof dadosPac10 === 'string' ? dadosPac10 : JSON.stringify(dadosPac10));
+                }
+
+                alert('Backup restaurado com sucesso. A página será atualizada.');
+                location.reload();
+            } catch (erro) {
+                alert('Erro ao restaurar backup. Verifique se o arquivo selecionado é o backup correto.');
+                console.error(erro);
+            }
+        };
+
+        leitor.readAsText(arquivo);
+    };
+
+    input.click();
 }  
 
 /* ── SCREENS ── */
