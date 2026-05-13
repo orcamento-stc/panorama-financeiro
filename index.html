@@ -565,6 +565,64 @@
     .section-wrap, .data-wrap { padding: 1rem; }
     .login-box { padding: 1.8rem 1.4rem; }
   }
+
+/* === RESPONSIVIDADE MENU SUPERIOR === */
+@media (max-width: 1400px) {
+  #topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .topbar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn-nav,
+  .btn-logout {
+    font-size: 13px;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  .topbar-brand {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .topbar-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+  }
+
+  .topbar-nav::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .topbar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+  }
+
+  .btn-nav,
+  .btn-logout {
+    flex: 0 0 auto;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .topbar-brand {
+    font-size: 22px;
+  }
+}
+
 </style>
 </head>
 <body>
