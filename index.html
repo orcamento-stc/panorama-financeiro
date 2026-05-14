@@ -633,6 +633,116 @@
   color: #ffffff !important;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
 }
+
+
+/* === CONTROLE DE ACESSO ADMIN / CONSULTA === */
+body.perfil-consulta .admin-only {
+  display: none !important;
+}
+
+body.perfil-admin .consulta-only {
+  display: none !important;
+}
+
+.perfil-badge {
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: var(--eq-gray);
+  font-size: .72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.password-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.62);
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.password-modal-backdrop.active {
+  display: flex;
+}
+
+.password-modal {
+  width: 100%;
+  max-width: 460px;
+  background: #0b1a4e;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.45);
+  padding: 1.4rem;
+  color: #fff;
+}
+
+.password-modal h3 {
+  margin: 0 0 .45rem 0;
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+}
+
+.password-modal p {
+  margin: 0 0 1rem 0;
+  color: var(--eq-gray);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.password-modal label {
+  display: block;
+  margin: .75rem 0 .35rem 0;
+  color: var(--eq-gray);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.password-modal input {
+  width: 100%;
+  padding: .72rem .85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+  outline: none;
+}
+
+.password-modal input:focus {
+  border-color: var(--eq-orange);
+}
+
+.password-modal-actions {
+  display: flex;
+  gap: .7rem;
+  justify-content: flex-end;
+  margin-top: 1.1rem;
+}
+
+.password-modal-actions button {
+  padding: .55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.password-modal-cancel {
+  background: transparent;
+  color: var(--eq-gray);
+}
+
+.password-modal-save {
+  background: var(--eq-orange);
+  color: #fff;
+  border-color: var(--eq-orange) !important;
+}
+
 </style>
 </head>
 <body>
@@ -672,18 +782,20 @@
   <div class="topbar-brand">Equatorial &nbsp;·&nbsp; <span>STC</span></div>
   <div class="topbar-nav">
     <button class="btn-nav active" id="nav-panorama" onclick="showScreen('panorama')">📊 Panorama</button>
-    <button class="btn-nav" id="nav-data" onclick="showScreen('data')">✏️ Inserir Dados</button>
+    <button class="btn-nav admin-only" id="nav-data" onclick="showScreen('data')">✏️ Inserir Dados</button>
     <button class="btn-nav" id="nav-pac10" onclick="showScreen('pac10')">📈 DRE PAC.10</button>
-    <button class="btn-nav" id="nav-data_pac10" onclick="showScreen('data_pac10')">📝 Inserir dados DRE PAC10</button>
+    <button class="btn-nav admin-only" id="nav-data_pac10" onclick="showScreen('data_pac10')">📝 Inserir dados DRE PAC10</button>
     <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
   </div>
-        <div class="backup-menu-wrap">
+        <div class="backup-menu-wrap admin-only">
           <button class="btn-nav" onclick="toggleMenuBackup()">🔧 Menu Backup</button>
           <div class="backup-menu" id="backup-menu">
             <button onclick="exportarBackup()">💾 Fazer Backup</button>
             <button onclick="restaurarBackup()">📂 Restaurar Backup</button>
+            <button onclick="abrirPainelSenhas()">🔐 Alterar Senhas</button>
           </div>
         </div>
+  <span class="perfil-badge" id="perfil-badge">Perfil</span>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
 </nav>
 
@@ -1500,7 +1612,10 @@ function initData() {
   appData = {};
   REGIONALS.forEach(r => ensureRegionalStructure(r, getDefaultYear()));
 }
-function saveData() { localStorage.setItem(SK, JSON.stringify(appData)); flashToast(); }
+function saveData() {
+  if (currentUserRole !== 'admin') { alert('Perfil de consulta: alteração não permitida.'); return; }
+  localStorage.setItem(SK, JSON.stringify(appData)); flashToast();
+}
 function flashToast() {
   const t = document.getElementById('saved-toast');
   t.classList.add('show'); clearTimeout(t._tid);
@@ -1568,8 +1683,21 @@ function normalizeManualNumber(raw) {
 }
 
 
-/* ── AUTH ── */
-const PWD = 'Equatorial2026#';
+/* ── AUTH / PERFIS ── */
+const DEFAULT_ADMIN_PWD = 'Equatorial2026#';
+const DEFAULT_CONSULTA_PWD = 'Consulta2026#';
+const ADMIN_PWD_KEY = 'eq_stcgyn_admin_pwd';
+const CONSULTA_PWD_KEY = 'eq_stcgyn_consulta_pwd';
+let currentUserRole = '';
+
+function getAdminPwd() {
+  return localStorage.getItem(ADMIN_PWD_KEY) || DEFAULT_ADMIN_PWD;
+}
+
+function getConsultaPwd() {
+  return localStorage.getItem(CONSULTA_PWD_KEY) || DEFAULT_CONSULTA_PWD;
+}
+
 function togglePwd() {
   const inp = document.getElementById('pwd-input');
   const eye    = document.getElementById('icon-eye');
@@ -1580,9 +1708,25 @@ function togglePwd() {
     inp.type = 'password'; eye.style.display=''; eyeOff.style.display='none';
   }
 }
+
+function aplicarPerfilAcesso(role) {
+  currentUserRole = role;
+  document.body.classList.remove('perfil-admin','perfil-consulta');
+  document.body.classList.add(role === 'admin' ? 'perfil-admin' : 'perfil-consulta');
+
+  const badge = document.getElementById('perfil-badge');
+  if (badge) badge.textContent = role === 'admin' ? 'ADMIN' : 'CONSULTA';
+}
+
 function doLogin() {
   const v = document.getElementById('pwd-input').value;
-  if (v === PWD) {
+  let role = '';
+
+  if (v === getAdminPwd()) role = 'admin';
+  if (v === getConsultaPwd()) role = 'consulta';
+
+  if (role) {
+    aplicarPerfilAcesso(role);
     document.getElementById('screen-login').classList.remove('active');
     document.getElementById('topbar').classList.add('visible');
     showScreen('panorama');
@@ -1591,17 +1735,63 @@ function doLogin() {
     document.getElementById('pwd-input').value = '';
   }
 }
+
 document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
 function doLogout() {
+  currentUserRole = '';
+  document.body.classList.remove('perfil-admin','perfil-consulta');
   document.getElementById('topbar').classList.remove('visible');
-  document.getElementById('screen-panorama').classList.remove('active');
-  document.getElementById('screen-data').classList.remove('active');
+  ['panorama','data','pac10','data_pac10','comparativo_anual'].forEach(n => {
+    const el = document.getElementById('screen-'+n);
+    if (el) el.classList.remove('active');
+  });
   document.getElementById('screen-login').classList.add('active');
   document.getElementById('pwd-input').value = '';
   document.getElementById('login-error').textContent = '';
   document.getElementById('pwd-input').type = 'password';
   document.getElementById('icon-eye').style.display = '';
   document.getElementById('icon-eye-off').style.display = 'none';
+}
+
+function abrirPainelSenhas() {
+  if (currentUserRole !== 'admin') return;
+  const modal = document.getElementById('password-modal-backdrop');
+  if (modal) modal.classList.add('active');
+}
+
+function fecharPainelSenhas() {
+  const modal = document.getElementById('password-modal-backdrop');
+  if (modal) modal.classList.remove('active');
+  ['senha-admin-atual','senha-admin-nova','senha-consulta-nova'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+function salvarNovasSenhas() {
+  if (currentUserRole !== 'admin') return;
+
+  const atual = document.getElementById('senha-admin-atual').value;
+  const novaAdmin = document.getElementById('senha-admin-nova').value.trim();
+  const novaConsulta = document.getElementById('senha-consulta-nova').value.trim();
+
+  if (atual !== getAdminPwd()) {
+    alert('Senha atual do administrador incorreta.');
+    return;
+  }
+
+  if (!novaAdmin && !novaConsulta) {
+    alert('Informe pelo menos uma nova senha.');
+    return;
+  }
+
+  if (novaAdmin) localStorage.setItem(ADMIN_PWD_KEY, novaAdmin);
+  if (novaConsulta) localStorage.setItem(CONSULTA_PWD_KEY, novaConsulta);
+
+  fecharPainelSenhas();
+  alert('Senhas atualizadas com sucesso neste navegador. Gere um backup para preservar a configuração.');
+  registrarAlteracaoDados();
 }
 
 function toggleMenuBackup() {
@@ -1664,6 +1854,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function exportarBackup() {
+    if (currentUserRole !== 'admin') { alert('Perfil de consulta: backup não permitido.'); return; }
     const backup = {
         eq_stcgyn_v4: localStorage.getItem('eq_stcgyn_v4'),
         eq_stcgyn_pac10_v1: localStorage.getItem('eq_stcgyn_pac10_v1'),
@@ -1703,6 +1894,7 @@ function exportarBackup() {
 }
 
 function restaurarBackup() {
+    if (currentUserRole !== 'admin') { alert('Perfil de consulta: restauração não permitida.'); return; }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json,application/json';
@@ -1757,6 +1949,10 @@ function restaurarBackup() {
 /* ── SCREENS ── */
 let currentScreen = '';
 function showScreen(name) {
+  if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10')) {
+    alert('Perfil de consulta: acesso permitido apenas para visualização.');
+    name = 'panorama';
+  }
   currentScreen = name;
   ['panorama','data','pac10','data_pac10','comparativo_anual'].forEach(n => {
     const s = document.getElementById('screen-'+n);
@@ -2542,6 +2738,7 @@ function renderDataTable() {
           const activeYear = getDataEntryYear();
           ensureRegionalStructure(activeRegion, activeYear);
           const n = normalizeManualNumber(inp.value);
+          if (currentUserRole !== 'admin') { alert('Perfil de consulta: alteração não permitida.'); return; }
           appData[activeRegion][activeYear][p.id][mi][type]=n;
           localStorage.setItem(SK,JSON.stringify(appData));
           flashToast();
@@ -2889,6 +3086,7 @@ function initPac10Data() {
   normalizePac10LegacyData();
 }
 function savePac10Data() {
+  if (currentUserRole !== 'admin') { alert('Perfil de consulta: alteração não permitida.'); return; }
   localStorage.setItem(SK_PAC10, JSON.stringify(pac10Data));
   const t = document.getElementById('saved-pac10-toast');
   if (t) {
