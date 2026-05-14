@@ -743,6 +743,55 @@ body.perfil-admin .consulta-only {
   border-color: var(--eq-orange) !important;
 }
 
+
+/* === MENU ADMIN / ACESSOS === */
+.admin-access-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.perfil-menu-btn {
+  cursor: pointer;
+}
+
+.admin-access-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 210px;
+  background: rgba(11, 26, 78, 0.98);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+  padding: 8px;
+  display: none;
+  z-index: 9999;
+}
+
+.admin-access-menu.active {
+  display: block;
+}
+
+.admin-access-menu button {
+  width: 100%;
+  display: block;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: #eef3ff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.admin-access-menu button:hover {
+  background: rgba(255,255,255,0.10);
+}
+
 </style>
 </head>
 <body>
@@ -792,12 +841,40 @@ body.perfil-admin .consulta-only {
           <div class="backup-menu" id="backup-menu">
             <button onclick="exportarBackup()">💾 Fazer Backup</button>
             <button onclick="restaurarBackup()">📂 Restaurar Backup</button>
-            <button onclick="abrirPainelSenhas()">🔐 Alterar Senhas</button>
           </div>
         </div>
-  <span class="perfil-badge" id="perfil-badge">Perfil</span>
+  <div class="admin-access-wrap admin-only">
+    <button class="perfil-badge perfil-menu-btn" id="perfil-badge-admin" onclick="toggleMenuAdminAcessos()">ADMIN</button>
+    <div class="admin-access-menu" id="admin-access-menu">
+      <button onclick="abrirPainelSenhas()">🔐 Gerenciar Acessos</button>
+    </div>
+  </div>
+  <span class="perfil-badge consulta-only" id="perfil-badge-consulta">CONSULTA</span>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
 </nav>
+
+
+<!-- MODAL GERENCIAR ACESSOS -->
+<div class="password-modal-backdrop" id="password-modal-backdrop">
+  <div class="password-modal">
+    <h3>Gerenciar Acessos</h3>
+    <p>Altere as senhas do perfil Administrador e do perfil Consulta. Esta opção aparece somente para o administrador.</p>
+
+    <label for="senha-admin-atual">Senha atual do administrador</label>
+    <input type="password" id="senha-admin-atual" placeholder="Digite a senha atual">
+
+    <label for="senha-admin-nova">Nova senha do administrador</label>
+    <input type="password" id="senha-admin-nova" placeholder="Deixe em branco para manter">
+
+    <label for="senha-consulta-nova">Nova senha de consulta</label>
+    <input type="password" id="senha-consulta-nova" placeholder="Deixe em branco para manter">
+
+    <div class="password-modal-actions">
+      <button class="password-modal-cancel" onclick="fecharPainelSenhas()">Cancelar</button>
+      <button class="password-modal-save" onclick="salvarNovasSenhas()">Salvar senhas</button>
+    </div>
+  </div>
+</div>
 
 <!-- PANORAMA -->
 <div id="screen-panorama">
@@ -1714,8 +1791,11 @@ function aplicarPerfilAcesso(role) {
   document.body.classList.remove('perfil-admin','perfil-consulta');
   document.body.classList.add(role === 'admin' ? 'perfil-admin' : 'perfil-consulta');
 
-  const badge = document.getElementById('perfil-badge');
-  if (badge) badge.textContent = role === 'admin' ? 'ADMIN' : 'CONSULTA';
+  const badgeAdmin = document.getElementById('perfil-badge-admin');
+  const badgeConsulta = document.getElementById('perfil-badge-consulta');
+
+  if (badgeAdmin) badgeAdmin.textContent = 'ADMIN';
+  if (badgeConsulta) badgeConsulta.textContent = 'CONSULTA';
 }
 
 function doLogin() {
@@ -1754,10 +1834,30 @@ function doLogout() {
   document.getElementById('icon-eye-off').style.display = 'none';
 }
 
+
+function toggleMenuAdminAcessos() {
+  if (currentUserRole !== 'admin') return;
+  const menu = document.getElementById('admin-access-menu');
+  if (!menu) return;
+  menu.classList.toggle('active');
+}
+
+document.addEventListener('click', function(event) {
+  const wrapper = document.querySelector('.admin-access-wrap');
+  const menu = document.getElementById('admin-access-menu');
+  if (!wrapper || !menu) return;
+
+  if (!wrapper.contains(event.target)) {
+    menu.classList.remove('active');
+  }
+});
+
 function abrirPainelSenhas() {
   if (currentUserRole !== 'admin') return;
   const modal = document.getElementById('password-modal-backdrop');
   if (modal) modal.classList.add('active');
+  const menuAdmin = document.getElementById('admin-access-menu');
+  if (menuAdmin) menuAdmin.classList.remove('active');
 }
 
 function fecharPainelSenhas() {
