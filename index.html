@@ -792,6 +792,26 @@ body.perfil-admin .consulta-only {
   background: rgba(255,255,255,0.10);
 }
 
+
+/* === CORREÇÃO MENU ADMIN - GERENCIAR ACESSOS === */
+#topbar {
+  overflow: visible !important;
+}
+
+.admin-access-wrap {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 10020 !important;
+}
+
+.admin-access-menu {
+  z-index: 10050 !important;
+}
+
+.admin-access-menu.active {
+  display: block !important;
+}
+
 </style>
 </head>
 <body>
@@ -844,9 +864,9 @@ body.perfil-admin .consulta-only {
           </div>
         </div>
   <div class="admin-access-wrap admin-only">
-    <button class="perfil-badge perfil-menu-btn" id="perfil-badge-admin" onclick="toggleMenuAdminAcessos()">ADMIN</button>
+    <button type="button" class="perfil-badge perfil-menu-btn" id="perfil-badge-admin" onclick="toggleMenuAdminAcessos(event)">ADMIN</button>
     <div class="admin-access-menu" id="admin-access-menu">
-      <button onclick="abrirPainelSenhas()">🔐 Gerenciar Acessos</button>
+      <button type="button" onclick="abrirPainelSenhas(event)">🔐 Gerenciar Acessos</button>
     </div>
   </div>
   <span class="perfil-badge consulta-only" id="perfil-badge-consulta">CONSULTA</span>
@@ -1835,27 +1855,38 @@ function doLogout() {
 }
 
 
-function toggleMenuAdminAcessos() {
-  if (currentUserRole !== 'admin') return;
+function usuarioAdminAtivo() {
+  return currentUserRole === 'admin' || document.body.classList.contains('perfil-admin');
+}
+
+function toggleMenuAdminAcessos(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  if (!usuarioAdminAtivo()) return;
+
   const menu = document.getElementById('admin-access-menu');
   if (!menu) return;
+
+  const backupMenu = document.getElementById('backup-menu');
+  if (backupMenu) backupMenu.classList.remove('active');
+
   menu.classList.toggle('active');
 }
 
-document.addEventListener('click', function(event) {
-  const wrapper = document.querySelector('.admin-access-wrap');
-  const menu = document.getElementById('admin-access-menu');
-  if (!wrapper || !menu) return;
-
-  if (!wrapper.contains(event.target)) {
-    menu.classList.remove('active');
+function abrirPainelSenhas(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
-});
 
-function abrirPainelSenhas() {
-  if (currentUserRole !== 'admin') return;
+  if (!usuarioAdminAtivo()) return;
+
   const modal = document.getElementById('password-modal-backdrop');
   if (modal) modal.classList.add('active');
+
   const menuAdmin = document.getElementById('admin-access-menu');
   if (menuAdmin) menuAdmin.classList.remove('active');
 }
@@ -1870,7 +1901,7 @@ function fecharPainelSenhas() {
 }
 
 function salvarNovasSenhas() {
-  if (currentUserRole !== 'admin') return;
+  if (!usuarioAdminAtivo()) return;
 
   const atual = document.getElementById('senha-admin-atual').value;
   const novaAdmin = document.getElementById('senha-admin-nova').value.trim();
@@ -1893,6 +1924,16 @@ function salvarNovasSenhas() {
   alert('Senhas atualizadas com sucesso neste navegador. Gere um backup para preservar a configuração.');
   registrarAlteracaoDados();
 }
+
+document.addEventListener('click', function(event) {
+  const wrapper = document.querySelector('.admin-access-wrap');
+  const menu = document.getElementById('admin-access-menu');
+  if (!wrapper || !menu) return;
+
+  if (!wrapper.contains(event.target)) {
+    menu.classList.remove('active');
+  }
+});
 
 function toggleMenuBackup() {
     const menu = document.getElementById('backup-menu');
