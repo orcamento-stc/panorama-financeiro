@@ -959,7 +959,7 @@ body.perfil-admin .consulta-only {
         </button>
         <div class="month-dropdown" id="super-dropdown">
           <div class="month-dropdown-header">
-            <span>Selecione a superintendência</span>
+            <span>Segure CTRL para múltiplas</span>
             <button onclick="clearSuperSel()">Limpar</button>
           </div>
           <div class="month-grid" id="super-grid"></div>
@@ -1431,6 +1431,21 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
     </div>
 
     <div class="ca-filter-bar">
+      <span class="ca-filter-label">Superintendência:</span>
+      <div class="month-picker" id="ca-super-picker">
+        <button class="month-picker-btn" onclick="toggleCaSuperDropdown(event)" style="min-width:240px">
+          <span id="ca-super-picker-label">Todas as superintendências</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="ca-super-dropdown" style="min-width:310px;max-width:380px">
+          <div class="month-dropdown-header">
+            <span>Segure CTRL para múltiplas</span>
+            <button onclick="clearCaSuper()">Todas</button>
+          </div>
+          <div class="month-grid" id="ca-super-grid"></div>
+        </div>
+      </div>
+
       <span class="ca-filter-label">Regional:</span>
       <div class="month-picker" id="ca-regional-picker">
         <button class="month-picker-btn" onclick="toggleCaRegionalDropdown(event)">
@@ -1439,7 +1454,7 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
         </button>
         <div class="month-dropdown" id="ca-regional-dropdown">
           <div class="month-dropdown-header">
-            <span>Selecione a regional</span>
+            <span>Segure CTRL para múltiplas</span>
             <button onclick="clearCaRegional()">Todas</button>
           </div>
           <div class="month-grid" id="ca-regional-grid"></div>
@@ -1480,7 +1495,7 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
         </button>
         <div class="month-dropdown" id="ca-package-dropdown" style="min-width:310px;max-width:380px">
           <div class="month-dropdown-header">
-            <span>Selecione o pacote</span>
+            <span>Segure CTRL para múltiplas</span>
             <button onclick="clearCaPackage()">Todos</button>
           </div>
           <div class="month-grid" id="ca-package-grid"></div>
@@ -1702,7 +1717,7 @@ const SUPERINTENDENCIAS = {
   'Sul': ['Morrinhos', 'Rio Verde']
 };
 const CURRENT_YEAR = new Date().getFullYear();
-let selectedSuperintendencia = 'all'; // panorama: all = todas
+let selectedSuperintendencias = []; // panorama: vazio = todas
 let selectedRegionals = [];      // panorama: vazio = todas
 let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
 
@@ -2216,20 +2231,29 @@ function setCardFilter(v) {
 }
 
 
+
 function getRegionalIndicesBySuper() {
-  if (!selectedSuperintendencia || selectedSuperintendencia === 'all') {
+  if (!selectedSuperintendencias || selectedSuperintendencias.length === 0) {
     return REGIONALS.map((_, i) => i);
   }
-  const nomes = SUPERINTENDENCIAS[selectedSuperintendencia] || [];
-  return REGIONALS.map((r, i) => nomes.includes(r) ? i : -1).filter(i => i >= 0);
+
+  const nomes = new Set();
+  selectedSuperintendencias.forEach(superNome => {
+    (SUPERINTENDENCIAS[superNome] || []).forEach(regional => nomes.add(regional));
+  });
+
+  return REGIONALS.map((r, i) => nomes.has(r) ? i : -1).filter(i => i >= 0);
 }
 
 function getRegionalFilterLabel() {
   if (selectedRegionals.length > 0) {
     return selectedRegionals.map(i => REGIONALS[i]).join(', ');
   }
-  if (selectedSuperintendencia && selectedSuperintendencia !== 'all') {
-    return 'Superintendência ' + selectedSuperintendencia;
+  if (selectedSuperintendencias.length === 1) {
+    return 'Superintendência ' + selectedSuperintendencias[0];
+  }
+  if (selectedSuperintendencias.length > 1) {
+    return selectedSuperintendencias.join(', ');
   }
   return 'Todas as regionais';
 }
@@ -2240,30 +2264,43 @@ function buildSuperPicker() {
   grid.innerHTML = '';
 
   const all = document.createElement('div');
-  all.className = 'month-opt-all' + (selectedSuperintendencia === 'all' ? ' sel' : '');
+  all.className = 'month-opt-all' + (selectedSuperintendencias.length === 0 ? ' sel' : '');
   all.textContent = 'Todas as superintendências';
   all.onclick = () => { clearSuperSel(); };
   grid.appendChild(all);
 
   Object.keys(SUPERINTENDENCIAS).forEach(nome => {
     const el = document.createElement('div');
-    el.className = 'month-opt' + (selectedSuperintendencia === nome ? ' sel' : '');
+    el.className = 'month-opt' + (selectedSuperintendencias.includes(nome) ? ' sel' : '');
     el.textContent = nome;
-    el.onclick = () => {
-      selectedSuperintendencia = nome;
-      selectedRegionals = [];
-      buildSuperPicker();
-      buildRegionalPicker();
-      renderPanorama();
-    };
+    el.onclick = (e) => toggleSuperOpt(nome, e.ctrlKey || e.metaKey);
     grid.appendChild(el);
   });
 
   updateSuperLabel();
 }
 
+function toggleSuperOpt(nome, multi) {
+  if (!multi) {
+    if (selectedSuperintendencias.length === 1 && selectedSuperintendencias[0] === nome) {
+      selectedSuperintendencias = [];
+    } else {
+      selectedSuperintendencias = [nome];
+    }
+  } else {
+    const pos = selectedSuperintendencias.indexOf(nome);
+    if (pos >= 0) selectedSuperintendencias.splice(pos, 1);
+    else selectedSuperintendencias.push(nome);
+  }
+
+  selectedRegionals = [];
+  buildSuperPicker();
+  buildRegionalPicker();
+  renderPanorama();
+}
+
 function clearSuperSel() {
-  selectedSuperintendencia = 'all';
+  selectedSuperintendencias = [];
   selectedRegionals = [];
   buildSuperPicker();
   buildRegionalPicker();
@@ -2273,9 +2310,14 @@ function clearSuperSel() {
 function updateSuperLabel() {
   const lbl = document.getElementById('super-picker-label');
   if (!lbl) return;
-  lbl.textContent = selectedSuperintendencia === 'all'
-    ? 'Todas as superintendências'
-    : selectedSuperintendencia;
+
+  if (selectedSuperintendencias.length === 0) {
+    lbl.textContent = 'Todas as superintendências';
+  } else if (selectedSuperintendencias.length === 1) {
+    lbl.textContent = selectedSuperintendencias[0];
+  } else {
+    lbl.textContent = selectedSuperintendencias.join(', ');
+  }
 }
 
 function toggleSuperDropdown(e) {
@@ -2291,7 +2333,7 @@ function buildRegionalPicker() {
 
   const all = document.createElement('div');
   all.className = 'month-opt-all' + (selectedRegionals.length===0?' sel':'');
-  all.textContent = selectedSuperintendencia === 'all' ? 'Todas as regionais' : 'Todas da superintendência';
+  all.textContent = selectedSuperintendencias.length === 0 ? 'Todas as regionais' : 'Todas da superintendência';
   all.onclick = () => { clearRegionalSel(); };
   grid.appendChild(all);
 
@@ -2330,7 +2372,7 @@ function updateRegionalLabel() {
   const lbl = document.getElementById('regional-picker-label');
   if (!lbl) return;
   if (selectedRegionals.length === 0) {
-    lbl.textContent = selectedSuperintendencia === 'all'
+    lbl.textContent = selectedSuperintendencias.length === 0
       ? 'Todas as regionais'
       : 'Todas da superintendência';
   }
@@ -4055,10 +4097,11 @@ function renderComparativoAnual(){
 
 
 /* ── COMPARATIVO ANUAL FUNCIONAL — BASE REAL DO PANORAMA ── */
-let caSelectedRegional = null;
+let caSelectedRegionals = [];
+let caSelectedSuperintendencias = [];
 let caBaseYear = CURRENT_YEAR - 1;
 let caCompareYear = CURRENT_YEAR;
-let caSelectedPkg = 'total';
+let caSelectedPkgs = [];
 
 function caYears(){
   const years = new Set([CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1]);
@@ -4069,9 +4112,49 @@ function caYears(){
   });
   return Array.from(years).sort((a,b)=>a-b);
 }
-function caRegions(){ return caSelectedRegional == null ? [...REGIONALS] : [REGIONALS[caSelectedRegional]]; }
-function caPkgIds(){ return caSelectedPkg === 'total' ? PACKAGES.map(p=>p.id) : [caSelectedPkg]; }
-function caPkgLabel(){ if(caSelectedPkg==='total') return 'Todos os pacotes'; const p=PACKAGES.find(x=>x.id===caSelectedPkg); return p ? `PAC.${p.id} · ${p.name}` : 'Todos os pacotes'; }
+
+function caSuperRegionalIndices() {
+  if (!caSelectedSuperintendencias || caSelectedSuperintendencias.length === 0) {
+    return REGIONALS.map((_, i) => i);
+  }
+
+  const nomes = new Set();
+  caSelectedSuperintendencias.forEach(superNome => {
+    (SUPERINTENDENCIAS[superNome] || []).forEach(regional => nomes.add(regional));
+  });
+
+  return REGIONALS.map((r, i) => nomes.has(r) ? i : -1).filter(i => i >= 0);
+}
+
+function caRegions(){
+  if (caSelectedRegionals.length > 0) {
+    return caSelectedRegionals.map(i => REGIONALS[i]);
+  }
+  return caSuperRegionalIndices().map(i => REGIONALS[i]);
+}
+
+function caRegionLabel(){
+  if (caSelectedRegionals.length === 1) return REGIONALS[caSelectedRegionals[0]];
+  if (caSelectedRegionals.length > 1) return caSelectedRegionals.map(i => REGIONALS[i]).join(', ');
+  if (caSelectedSuperintendencias.length === 1) return 'Superintendência ' + caSelectedSuperintendencias[0];
+  if (caSelectedSuperintendencias.length > 1) return caSelectedSuperintendencias.join(', ');
+  return 'todas as regionais';
+}
+
+function caPkgIds(){ return caSelectedPkgs.length === 0 ? PACKAGES.map(p=>p.id) : [...caSelectedPkgs]; }
+
+function caPkgLabel(){
+  if(caSelectedPkgs.length === 0) return 'Todos os pacotes';
+  if(caSelectedPkgs.length === 1) {
+    const p=PACKAGES.find(x=>x.id===caSelectedPkgs[0]);
+    return p ? `PAC.${p.id} · ${p.name}` : 'Todos os pacotes';
+  }
+  return caSelectedPkgs.map(id => {
+    const p=PACKAGES.find(x=>x.id===id);
+    return p ? `PAC.${p.id}` : id;
+  }).join(', ');
+}
+
 function caMonthly(year, pkgIds=caPkgIds(), regions=caRegions()){
   const y = String(year);
   return MONTHS.map((_,mi)=>{
@@ -4087,6 +4170,7 @@ function caMonthly(year, pkgIds=caPkgIds(), regions=caRegions()){
     return { plan: hp ? plan : null, real: hr ? real : null };
   });
 }
+
 function caSum(monthly,key){ let t=0,h=false; monthly.forEach(m=>{ if(m?.[key]!=null){ t+=m[key]; h=true; } }); return h?t:null; }
 function caAccum(values){ let sum=0, has=false; return values.map(v=>{ if(v==null) return has?sum:null; sum+=v; has=true; return sum; }); }
 function caPct(diff,base){ return base ? diff/base*100 : null; }
@@ -4094,14 +4178,91 @@ function caSignedPct(v){ return (v==null || isNaN(v)) ? '—' : `${v>0?'+':''}${
 function caSignedShort(v){ return (v==null || isNaN(v)) ? '—' : `${v>0?'+':''}${fmtShort(v)}`; }
 function caSetHTML(selector, value){ const el=document.querySelector(selector); if(el) el.innerHTML=value; }
 
+function buildCaSuperPicker(){
+  const grid=document.getElementById('ca-super-grid'); if(!grid) return; grid.innerHTML='';
+  const all=document.createElement('div');
+  all.className='month-opt-all'+(caSelectedSuperintendencias.length===0?' sel':'');
+  all.textContent='Todas as superintendências';
+  all.onclick=clearCaSuper;
+  grid.appendChild(all);
+
+  Object.keys(SUPERINTENDENCIAS).forEach(nome=>{
+    const el=document.createElement('div');
+    el.className='month-opt'+(caSelectedSuperintendencias.includes(nome)?' sel':'');
+    el.textContent=nome;
+    el.onclick=(e)=>toggleCaSuperOpt(nome, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  const lbl=document.getElementById('ca-super-picker-label');
+  if(lbl) {
+    if(caSelectedSuperintendencias.length===0) lbl.textContent='Todas as superintendências';
+    else if(caSelectedSuperintendencias.length===1) lbl.textContent=caSelectedSuperintendencias[0];
+    else lbl.textContent=caSelectedSuperintendencias.join(', ');
+  }
+}
+
+function toggleCaSuperOpt(nome, multi){
+  if(!multi){
+    if(caSelectedSuperintendencias.length===1 && caSelectedSuperintendencias[0]===nome) caSelectedSuperintendencias=[];
+    else caSelectedSuperintendencias=[nome];
+  } else {
+    const pos=caSelectedSuperintendencias.indexOf(nome);
+    if(pos>=0) caSelectedSuperintendencias.splice(pos,1);
+    else caSelectedSuperintendencias.push(nome);
+  }
+
+  caSelectedRegionals=[];
+  buildCaSuperPicker();
+  buildCaRegionalPicker();
+  renderComparativoAnual();
+}
+
+function clearCaSuper(){ caSelectedSuperintendencias=[]; caSelectedRegionals=[]; buildCaSuperPicker(); buildCaRegionalPicker(); renderComparativoAnual(); }
+function toggleCaSuperDropdown(e){ e.stopPropagation(); document.getElementById('ca-super-dropdown').classList.toggle('open'); }
+
 function buildCaRegionalPicker(){
   const grid=document.getElementById('ca-regional-grid'); if(!grid) return; grid.innerHTML='';
-  const all=document.createElement('div'); all.className='month-opt-all'+(caSelectedRegional==null?' sel':''); all.textContent='Todas as regionais'; all.onclick=clearCaRegional; grid.appendChild(all);
-  REGIONALS.forEach((r,i)=>{ const el=document.createElement('div'); el.className='month-opt'+(caSelectedRegional===i?' sel':''); el.textContent=r; el.onclick=()=>{ caSelectedRegional=i; buildCaRegionalPicker(); renderComparativoAnual(); }; grid.appendChild(el); });
-  const lbl=document.getElementById('ca-regional-picker-label'); if(lbl) lbl.textContent=caSelectedRegional==null?'Todas as regionais':REGIONALS[caSelectedRegional];
+  const all=document.createElement('div');
+  all.className='month-opt-all'+(caSelectedRegionals.length===0?' sel':'');
+  all.textContent=caSelectedSuperintendencias.length===0?'Todas as regionais':'Todas da superintendência';
+  all.onclick=clearCaRegional;
+  grid.appendChild(all);
+
+  caSuperRegionalIndices().forEach(i=>{
+    const r=REGIONALS[i];
+    const el=document.createElement('div');
+    el.className='month-opt'+(caSelectedRegionals.includes(i)?' sel':'');
+    el.textContent=r;
+    el.onclick=(e)=>toggleCaRegionalOpt(i, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  const lbl=document.getElementById('ca-regional-picker-label');
+  if(lbl) {
+    if(caSelectedRegionals.length===0) lbl.textContent=caSelectedSuperintendencias.length===0?'Todas as regionais':'Todas da superintendência';
+    else if(caSelectedRegionals.length===1) lbl.textContent=REGIONALS[caSelectedRegionals[0]];
+    else lbl.textContent=caSelectedRegionals.map(i=>REGIONALS[i]).join(', ');
+  }
 }
-function clearCaRegional(){ caSelectedRegional=null; buildCaRegionalPicker(); renderComparativoAnual(); }
+
+function toggleCaRegionalOpt(idx, multi){
+  if(!multi){
+    if(caSelectedRegionals.length===1 && caSelectedRegionals[0]===idx) caSelectedRegionals=[];
+    else caSelectedRegionals=[idx];
+  } else {
+    const pos=caSelectedRegionals.indexOf(idx);
+    if(pos>=0) caSelectedRegionals.splice(pos,1);
+    else caSelectedRegionals.push(idx);
+    caSelectedRegionals.sort((a,b)=>a-b);
+  }
+  buildCaRegionalPicker();
+  renderComparativoAnual();
+}
+
+function clearCaRegional(){ caSelectedRegionals=[]; buildCaRegionalPicker(); renderComparativoAnual(); }
 function toggleCaRegionalDropdown(e){ e.stopPropagation(); document.getElementById('ca-regional-dropdown').classList.toggle('open'); }
+
 function buildCaYearPicker(kind){
   const isBase = kind === 'base';
   const grid=document.getElementById(isBase?'ca-base-year-grid':'ca-compare-year-grid'); if(!grid) return;
@@ -4110,22 +4271,52 @@ function buildCaYearPicker(kind){
   caYears().forEach(year=>{ const el=document.createElement('div'); el.className='month-opt'+(selected===year?' sel':''); el.textContent=String(year); el.onclick=()=>{ if(isBase) caBaseYear=year; else caCompareYear=year; buildCaYearPicker(kind); renderComparativoAnual(); }; grid.appendChild(el); });
   const lbl=document.getElementById(isBase?'ca-base-year-picker-label':'ca-compare-year-picker-label'); if(lbl) lbl.textContent=String(selected);
 }
+
 function toggleCaBaseYearDropdown(e){ e.stopPropagation(); document.getElementById('ca-base-year-dropdown').classList.toggle('open'); }
 function toggleCaCompareYearDropdown(e){ e.stopPropagation(); document.getElementById('ca-compare-year-dropdown').classList.toggle('open'); }
+
 function buildCaPackagePicker(){
   const grid=document.getElementById('ca-package-grid'); if(!grid) return; grid.innerHTML='';
-  const all=document.createElement('div'); all.className='month-opt-all'+(caSelectedPkg==='total'?' sel':''); all.textContent='Todos os pacotes'; all.onclick=clearCaPackage; grid.appendChild(all);
-  PACKAGES.forEach(p=>{ const el=document.createElement('div'); el.className='month-opt'+(caSelectedPkg===p.id?' sel':''); el.textContent=`PAC.${p.id} · ${p.name}`; el.onclick=()=>{ caSelectedPkg=p.id; buildCaPackagePicker(); renderComparativoAnual(); }; grid.appendChild(el); });
-  const lbl=document.getElementById('ca-package-picker-label'); if(lbl) lbl.textContent=caPkgLabel();
+  const all=document.createElement('div');
+  all.className='month-opt-all'+(caSelectedPkgs.length===0?' sel':'');
+  all.textContent='Todos os pacotes';
+  all.onclick=clearCaPackage;
+  grid.appendChild(all);
+
+  PACKAGES.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='month-opt'+(caSelectedPkgs.includes(p.id)?' sel':'');
+    el.textContent=`PAC.${p.id} · ${p.name}`;
+    el.onclick=(e)=>toggleCaPackageOpt(p.id, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  const lbl=document.getElementById('ca-package-picker-label');
+  if(lbl) lbl.textContent=caPkgLabel();
 }
-function clearCaPackage(){ caSelectedPkg='total'; buildCaPackagePicker(); renderComparativoAnual(); }
+
+function toggleCaPackageOpt(pkgId, multi){
+  if(!multi){
+    if(caSelectedPkgs.length===1 && caSelectedPkgs[0]===pkgId) caSelectedPkgs=[];
+    else caSelectedPkgs=[pkgId];
+  } else {
+    const pos=caSelectedPkgs.indexOf(pkgId);
+    if(pos>=0) caSelectedPkgs.splice(pos,1);
+    else caSelectedPkgs.push(pkgId);
+  }
+  buildCaPackagePicker();
+  renderComparativoAnual();
+}
+
+function clearCaPackage(){ caSelectedPkgs=[]; buildCaPackagePicker(); renderComparativoAnual(); }
 function toggleCaPackageDropdown(e){ e.stopPropagation(); document.getElementById('ca-package-dropdown').classList.toggle('open'); }
-document.addEventListener('click',()=>{ ['ca-regional-dropdown','ca-base-year-dropdown','ca-compare-year-dropdown','ca-package-dropdown'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('open'); }); });
-['ca-regional-dropdown','ca-base-year-dropdown','ca-compare-year-dropdown','ca-package-dropdown'].forEach(id=>{ setTimeout(()=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',e=>e.stopPropagation()); },0); });
+
+document.addEventListener('click',()=>{ ['ca-super-dropdown','ca-regional-dropdown','ca-base-year-dropdown','ca-compare-year-dropdown','ca-package-dropdown'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('open'); }); });
+['ca-super-dropdown','ca-regional-dropdown','ca-base-year-dropdown','ca-compare-year-dropdown','ca-package-dropdown'].forEach(id=>{ setTimeout(()=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',e=>e.stopPropagation()); },0); });
 
 function caRenderRank(pkgIds){
   const list=document.querySelector('#screen-comparativo_anual .ca-rank-list'); if(!list) return; list.innerHTML='';
-  const rows=REGIONALS.map(region=>{
+  const rows=caRegions().map(region=>{
     const base=caSum(caMonthly(caBaseYear,pkgIds,[region]),'real');
     const comp=caSum(caMonthly(caCompareYear,pkgIds,[region]),'real');
     const diff=(base!=null&&comp!=null)?comp-base:null;
@@ -4153,9 +4344,9 @@ function caRenderHighlights(baseMonthly, compMonthly){
 
 function renderComparativoAnual(){
   destroyComparativoCharts();
-  buildCaRegionalPicker(); buildCaYearPicker('base'); buildCaYearPicker('compare'); buildCaPackagePicker();
+  buildCaSuperPicker(); buildCaRegionalPicker(); buildCaYearPicker('base'); buildCaYearPicker('compare'); buildCaPackagePicker();
 
-  const regionLabel=caSelectedRegional==null?'todas as regionais':REGIONALS[caSelectedRegional];
+  const regionLabel=caRegionLabel();
   const pkgLabel=caPkgLabel();
   const pkgIds=caPkgIds();
 
