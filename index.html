@@ -951,6 +951,21 @@ body.perfil-admin .consulta-only {
       </div>
       <div class="filter-gap"></div>
 
+      <span class="filter-label">Superintendência:</span>
+      <div class="month-picker" id="super-picker">
+        <button class="month-picker-btn" id="super-picker-btn" onclick="toggleSuperDropdown(event)">
+          <span id="super-picker-label">Todas as superintendências</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="super-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione a superintendência</span>
+            <button onclick="clearSuperSel()">Limpar</button>
+          </div>
+          <div class="month-grid" id="super-grid"></div>
+        </div>
+      </div>
+
       <span class="filter-label">Regional:</span>
       <div class="month-picker" id="regional-picker">
         <button class="month-picker-btn" id="regional-picker-btn" onclick="toggleRegionalDropdown(event)">
@@ -1679,7 +1694,15 @@ const REGIONALS = [
   'Rio Verde',
   'Uruaçu'
 ];
+const SUPERINTENDENCIAS = {
+  'Centro': ['Goiânia', 'Metropolitana'],
+  'Nordeste': ['Luziânia', 'Formosa'],
+  'Norte': ['Anápolis', 'Uruaçu'],
+  'Sudoeste': ['Iporá', 'Montes Belos'],
+  'Sul': ['Morrinhos', 'Rio Verde']
+};
 const CURRENT_YEAR = new Date().getFullYear();
+let selectedSuperintendencia = 'all'; // panorama: all = todas
 let selectedRegionals = [];      // panorama: vazio = todas
 let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
 
@@ -2192,6 +2215,74 @@ function setCardFilter(v) {
   renderPanorama();
 }
 
+
+function getRegionalIndicesBySuper() {
+  if (!selectedSuperintendencia || selectedSuperintendencia === 'all') {
+    return REGIONALS.map((_, i) => i);
+  }
+  const nomes = SUPERINTENDENCIAS[selectedSuperintendencia] || [];
+  return REGIONALS.map((r, i) => nomes.includes(r) ? i : -1).filter(i => i >= 0);
+}
+
+function getRegionalFilterLabel() {
+  if (selectedRegionals.length > 0) {
+    return selectedRegionals.map(i => REGIONALS[i]).join(', ');
+  }
+  if (selectedSuperintendencia && selectedSuperintendencia !== 'all') {
+    return 'Superintendência ' + selectedSuperintendencia;
+  }
+  return 'Todas as regionais';
+}
+
+function buildSuperPicker() {
+  const grid = document.getElementById('super-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (selectedSuperintendencia === 'all' ? ' sel' : '');
+  all.textContent = 'Todas as superintendências';
+  all.onclick = () => { clearSuperSel(); };
+  grid.appendChild(all);
+
+  Object.keys(SUPERINTENDENCIAS).forEach(nome => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (selectedSuperintendencia === nome ? ' sel' : '');
+    el.textContent = nome;
+    el.onclick = () => {
+      selectedSuperintendencia = nome;
+      selectedRegionals = [];
+      buildSuperPicker();
+      buildRegionalPicker();
+      renderPanorama();
+    };
+    grid.appendChild(el);
+  });
+
+  updateSuperLabel();
+}
+
+function clearSuperSel() {
+  selectedSuperintendencia = 'all';
+  selectedRegionals = [];
+  buildSuperPicker();
+  buildRegionalPicker();
+  renderPanorama();
+}
+
+function updateSuperLabel() {
+  const lbl = document.getElementById('super-picker-label');
+  if (!lbl) return;
+  lbl.textContent = selectedSuperintendencia === 'all'
+    ? 'Todas as superintendências'
+    : selectedSuperintendencia;
+}
+
+function toggleSuperDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('super-dropdown').classList.toggle('open');
+}
+
 /* Regional picker (visual + estrutura pronta) */
 function buildRegionalPicker() {
   const grid = document.getElementById('regional-grid');
@@ -2200,11 +2291,12 @@ function buildRegionalPicker() {
 
   const all = document.createElement('div');
   all.className = 'month-opt-all' + (selectedRegionals.length===0?' sel':'');
-  all.textContent = 'Todas as regionais';
+  all.textContent = selectedSuperintendencia === 'all' ? 'Todas as regionais' : 'Todas da superintendência';
   all.onclick = () => { clearRegionalSel(); };
   grid.appendChild(all);
 
-  REGIONALS.forEach((r, i) => {
+  getRegionalIndicesBySuper().forEach(i => {
+    const r = REGIONALS[i];
     const el = document.createElement('div');
     el.className = 'month-opt' + (selectedRegionals.includes(i)?' sel':'');
     el.textContent = r;
@@ -2237,7 +2329,11 @@ function clearRegionalSel() {
 function updateRegionalLabel() {
   const lbl = document.getElementById('regional-picker-label');
   if (!lbl) return;
-  if (selectedRegionals.length === 0) lbl.textContent = 'Todas as regionais';
+  if (selectedRegionals.length === 0) {
+    lbl.textContent = selectedSuperintendencia === 'all'
+      ? 'Todas as regionais'
+      : 'Todas da superintendência';
+  }
   else if (selectedRegionals.length === 1) lbl.textContent = REGIONALS[selectedRegionals[0]];
   else lbl.textContent = selectedRegionals.map(i=>REGIONALS[i]).join(', ');
 }
@@ -2351,17 +2447,20 @@ function setCurrentDataPac10Year(){ dataPac10SelectedYear = CURRENT_YEAR; buildD
 
 document.addEventListener('click', () => {
   const md = document.getElementById('month-dropdown');
+  const sd = document.getElementById('super-dropdown');
   const rd = document.getElementById('regional-dropdown');
   const yd = document.getElementById('year-dropdown');
   const drd = document.getElementById('data-regional-dropdown');
   const dyd = document.getElementById('data-year-dropdown');
   if (md) md.classList.remove('open');
+  if (sd) sd.classList.remove('open');
   if (rd) rd.classList.remove('open');
   if (yd) yd.classList.remove('open');
   if (drd) drd.classList.remove('open');
   if (dyd) dyd.classList.remove('open');
 });
 document.getElementById('month-dropdown').addEventListener('click', e => e.stopPropagation());
+document.getElementById('super-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('regional-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('year-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('data-year-dropdown').addEventListener('click', e => e.stopPropagation());
@@ -2442,7 +2541,11 @@ function getVisiblePkgs() {
 }
 
 function getSelectedRegionalNames() {
-  return selectedRegionals.length ? selectedRegionals.map(i => REGIONALS[i]) : [...REGIONALS];
+  const base = getRegionalIndicesBySuper();
+  const idxs = selectedRegionals.length
+    ? selectedRegionals.filter(i => base.includes(i))
+    : base;
+  return idxs.map(i => REGIONALS[i]);
 }
 
 function getDataEntryRegionalName() {
@@ -2498,7 +2601,7 @@ function badge(st,hib) {
 }
 
 /* ── RENDER PANORAMA ── */
-function renderPanorama() { buildRegionalPicker(); buildMonthPicker(); buildYearPicker(); renderCards(); renderChart(); }
+function renderPanorama() { buildSuperPicker(); buildRegionalPicker(); buildMonthPicker(); buildYearPicker(); renderCards(); renderChart(); }
 
 function renderCards() {
   const grid = document.getElementById('cards-grid');
@@ -2631,8 +2734,8 @@ function openModal({ id, name, plan, real, hib }) {
   const mLabel = modalMonths.length === 0 ? 'Acumulado anual'
     : modalMonths.length === 1 ? `Mês: ${MONTHS[modalMonths[0]]}`
     : `Meses: ${modalMonths.map(i=>MONTHS[i]).join(', ')}`;
-  const rLabel = modalRegionals.length === 0 ? 'Todas as regionais'
-    : modalRegionals.map(i=>REGIONALS[i]).join(', ');
+  const rLabel = currentScreen === 'panorama' ? getRegionalFilterLabel() : (modalRegionals.length === 0 ? 'Todas as regionais'
+    : modalRegionals.map(i=>REGIONALS[i]).join(', '));
   const yearLabel = currentScreen === 'pac10' ? String(CURRENT_YEAR) : String(selectedYear);
   document.getElementById('modal-period').textContent = `${mLabel} · Regional: ${rLabel} · Ano: ${yearLabel}`;
 
@@ -2699,7 +2802,7 @@ function renderChart() {
     const pkg=PACKAGES.find(p=>p.id===selectedPkg);
     pkgIds=[selectedPkg]; label=`Pac. ${pkg.id} — ${pkg.name}`; hib=pkg.hib;
   }
-  const regionalLabel = selectedRegionals.length===0 ? 'Todas as regionais' : selectedRegionals.map(i=>REGIONALS[i]).join(', ');
+  const regionalLabel = getRegionalFilterLabel();
   document.getElementById('chart-title').textContent = label + ' — Acumulado · ' + regionalLabel + ' · Ano ' + selectedYear;
   document.getElementById('dre-title').textContent   = 'DRE — ' + label + ' · ' + regionalLabel + ' · Ano ' + selectedYear;
 
