@@ -845,6 +845,104 @@ body.perfil-admin .consulta-only {
   background: rgba(255,255,255,0.08);
 }
 
+
+/* === LAYOUT ORGANIZADO DOS FILTROS === */
+.filter-bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: .75rem;
+}
+
+.filter-row,
+.ca-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .8rem 1rem;
+  width: 100%;
+}
+
+.filter-field,
+.ca-filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+
+.filter-field-card {
+  flex: 1 1 390px;
+}
+
+.filter-field-super,
+.filter-field-regional {
+  flex: 0 1 320px;
+}
+
+.filter-row-time {
+  justify-content: flex-end;
+  padding-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.filter-field-month,
+.filter-field-year {
+  flex: 0 1 250px;
+}
+
+#screen-comparativo_anual .ca-filter-bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: .75rem;
+}
+
+#screen-comparativo_anual .ca-filter-row-main {
+  justify-content: space-between;
+}
+
+#screen-comparativo_anual .ca-filter-row-years {
+  justify-content: flex-start;
+  padding-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+#screen-comparativo_anual .ca-filter-field-super,
+#screen-comparativo_anual .ca-filter-field-regional,
+#screen-comparativo_anual .ca-filter-field-package {
+  flex: 1 1 330px;
+}
+
+#screen-comparativo_anual .ca-filter-field-year {
+  flex: 0 1 310px;
+}
+
+@media (max-width: 1100px) {
+  .filter-field,
+  .ca-filter-field {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .filter-field .month-picker,
+  .ca-filter-field .month-picker {
+    flex: 1;
+  }
+
+  .filter-field .month-picker-btn,
+  .ca-filter-field .month-picker-btn {
+    width: 100%;
+  }
+
+  .filter-row-time,
+  #screen-comparativo_anual .ca-filter-row-years {
+    justify-content: stretch;
+  }
+
+  .filter-field-card {
+    justify-content: flex-start;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -942,73 +1040,86 @@ body.perfil-admin .consulta-only {
 <div id="screen-panorama">
   <div class="section-wrap">
 
-    <div class="filter-bar">
-      <span class="filter-label">CARD:</span>
-      <div class="toggle-group">
-        <button class="btn-toggle sel" id="tog-all"    onclick="setCardFilter('all')">Todos</button>
-        <button class="btn-toggle"     id="tog-card"   onclick="setCardFilter('card')">CARD</button>
-        <button class="btn-toggle"     id="tog-nocard" onclick="setCardFilter('nocard')">Pacotes Operacionais</button>
-      </div>
-      <div class="filter-gap"></div>
-
-      <span class="filter-label">Superintendência:</span>
-      <div class="month-picker" id="super-picker">
-        <button class="month-picker-btn" id="super-picker-btn" onclick="toggleSuperDropdown(event)">
-          <span id="super-picker-label">Todas as superintendências</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="super-dropdown">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplas</span>
-            <button onclick="clearSuperSel()">Limpar</button>
+    <div class="filter-bar filter-bar-panorama">
+      <div class="filter-row filter-row-main">
+        <div class="filter-field filter-field-card">
+          <span class="filter-label">CARD:</span>
+          <div class="toggle-group">
+            <button class="btn-toggle sel" id="tog-all"    onclick="setCardFilter('all')">Todos</button>
+            <button class="btn-toggle"     id="tog-card"   onclick="setCardFilter('card')">CARD</button>
+            <button class="btn-toggle"     id="tog-nocard" onclick="setCardFilter('nocard')">Pacotes Operacionais</button>
           </div>
-          <div class="month-grid" id="super-grid"></div>
+        </div>
+
+        <div class="filter-field filter-field-super">
+          <span class="filter-label">Superintendência:</span>
+          <div class="month-picker" id="super-picker">
+            <button class="month-picker-btn" id="super-picker-btn" onclick="toggleSuperDropdown(event)">
+              <span id="super-picker-label">Todas as superintendências</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="super-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearSuperSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="super-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-regional">
+          <span class="filter-label">Regional:</span>
+          <div class="month-picker" id="regional-picker">
+            <button class="month-picker-btn" id="regional-picker-btn" onclick="toggleRegionalDropdown(event)">
+              <span id="regional-picker-label">Todas as regionais</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="regional-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearRegionalSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="regional-grid"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <span class="filter-label">Regional:</span>
-      <div class="month-picker" id="regional-picker">
-        <button class="month-picker-btn" id="regional-picker-btn" onclick="toggleRegionalDropdown(event)">
-          <span id="regional-picker-label">Todas as regionais</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="regional-dropdown">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplas</span>
-            <button onclick="clearRegionalSel()">Limpar</button>
+      <div class="filter-row filter-row-time">
+        <div class="filter-field filter-field-month">
+          <span class="filter-label">Mês:</span>
+          <!-- Custom multi-month picker -->
+          <div class="month-picker" id="month-picker">
+            <button class="month-picker-btn" id="month-picker-btn" onclick="toggleMonthDropdown(event)">
+              <span id="month-picker-label">Todos os meses</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="month-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplos</span>
+                <button onclick="clearMonthSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="month-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="regional-grid"></div>
         </div>
-      </div>
 
-      <span class="filter-label">Mês:</span>
-      <!-- Custom multi-month picker -->
-      <div class="month-picker" id="month-picker">
-        <button class="month-picker-btn" id="month-picker-btn" onclick="toggleMonthDropdown(event)">
-          <span id="month-picker-label">Todos os meses</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="month-dropdown">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplos</span>
-            <button onclick="clearMonthSel()">Limpar</button>
+        <div class="filter-field filter-field-year">
+          <span class="filter-label">Ano:</span>
+          <div class="month-picker" id="year-picker">
+            <button class="month-picker-btn" id="year-picker-btn" onclick="toggleYearDropdown(event)">
+              <span id="year-picker-label">2026</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="year-dropdown">
+              <div class="month-dropdown-header">
+                <span>Selecione o ano</span>
+                <button onclick="setCurrentYearFilter()">Ano vigente</button>
+              </div>
+              <div class="month-grid" id="year-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="month-grid"></div>
-        </div>
-      </div>
-
-      <span class="filter-label">Ano:</span>
-      <div class="month-picker" id="year-picker">
-        <button class="month-picker-btn" id="year-picker-btn" onclick="toggleYearDropdown(event)">
-          <span id="year-picker-label">2026</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="year-dropdown">
-          <div class="month-dropdown-header">
-            <span>Selecione o ano</span>
-            <button onclick="setCurrentYearFilter()">Ano vigente</button>
-          </div>
-          <div class="month-grid" id="year-grid"></div>
         </div>
       </div>
     </div>
@@ -1431,74 +1542,86 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
     </div>
 
     <div class="ca-filter-bar">
-      <span class="ca-filter-label">Superintendência:</span>
-      <div class="month-picker" id="ca-super-picker">
-        <button class="month-picker-btn" onclick="toggleCaSuperDropdown(event)" style="min-width:240px">
-          <span id="ca-super-picker-label">Todas as superintendências</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="ca-super-dropdown" style="min-width:310px;max-width:380px">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplas</span>
-            <button onclick="clearCaSuper()">Todas</button>
+      <div class="ca-filter-row ca-filter-row-main">
+        <div class="ca-filter-field ca-filter-field-super">
+          <span class="ca-filter-label">Superintendência:</span>
+          <div class="month-picker" id="ca-super-picker">
+            <button class="month-picker-btn" onclick="toggleCaSuperDropdown(event)" style="min-width:240px">
+              <span id="ca-super-picker-label">Todas as superintendências</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ca-super-dropdown" style="min-width:310px;max-width:380px">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearCaSuper()">Todas</button>
+              </div>
+              <div class="month-grid" id="ca-super-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="ca-super-grid"></div>
         </div>
-      </div>
 
-      <span class="ca-filter-label">Regional:</span>
-      <div class="month-picker" id="ca-regional-picker">
-        <button class="month-picker-btn" onclick="toggleCaRegionalDropdown(event)">
-          <span id="ca-regional-picker-label">Todas as regionais</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="ca-regional-dropdown">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplas</span>
-            <button onclick="clearCaRegional()">Todas</button>
+        <div class="ca-filter-field ca-filter-field-regional">
+          <span class="ca-filter-label">Regional:</span>
+          <div class="month-picker" id="ca-regional-picker">
+            <button class="month-picker-btn" onclick="toggleCaRegionalDropdown(event)">
+              <span id="ca-regional-picker-label">Todas as regionais</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ca-regional-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearCaRegional()">Todas</button>
+              </div>
+              <div class="month-grid" id="ca-regional-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="ca-regional-grid"></div>
         </div>
-      </div>
 
-      <span class="ca-filter-label">Ano base:</span>
-      <div class="month-picker" id="ca-base-year-picker">
-        <button class="month-picker-btn" onclick="toggleCaBaseYearDropdown(event)">
-          <span id="ca-base-year-picker-label">2025</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="ca-base-year-dropdown">
-          <div class="month-dropdown-header"><span>Selecione o ano base</span></div>
-          <div class="month-grid" id="ca-base-year-grid"></div>
-        </div>
-      </div>
-
-      <span class="ca-filter-label">Ano comparativo:</span>
-      <div class="month-picker" id="ca-compare-year-picker">
-        <button class="month-picker-btn" onclick="toggleCaCompareYearDropdown(event)">
-          <span id="ca-compare-year-picker-label">2026</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="ca-compare-year-dropdown">
-          <div class="month-dropdown-header"><span>Selecione o ano comparativo</span></div>
-          <div class="month-grid" id="ca-compare-year-grid"></div>
-        </div>
-      </div>
-
-      <div class="ca-filter-gap"></div>
-
-      <span class="ca-filter-label">Pacote:</span>
-      <div class="month-picker" id="ca-package-picker">
-        <button class="month-picker-btn" onclick="toggleCaPackageDropdown(event)" style="min-width:220px">
-          <span id="ca-package-picker-label">Todos os pacotes</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="ca-package-dropdown" style="min-width:310px;max-width:380px">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplas</span>
-            <button onclick="clearCaPackage()">Todos</button>
+        <div class="ca-filter-field ca-filter-field-package">
+          <span class="ca-filter-label">Pacote:</span>
+          <div class="month-picker" id="ca-package-picker">
+            <button class="month-picker-btn" onclick="toggleCaPackageDropdown(event)" style="min-width:220px">
+              <span id="ca-package-picker-label">Todos os pacotes</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ca-package-dropdown" style="min-width:310px;max-width:380px">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearCaPackage()">Todos</button>
+              </div>
+              <div class="month-grid" id="ca-package-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="ca-package-grid"></div>
+        </div>
+      </div>
+
+      <div class="ca-filter-row ca-filter-row-years">
+        <div class="ca-filter-field ca-filter-field-year">
+          <span class="ca-filter-label">Ano base:</span>
+          <div class="month-picker" id="ca-base-year-picker">
+            <button class="month-picker-btn" onclick="toggleCaBaseYearDropdown(event)">
+              <span id="ca-base-year-picker-label">2025</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ca-base-year-dropdown">
+              <div class="month-dropdown-header"><span>Selecione o ano base</span></div>
+              <div class="month-grid" id="ca-base-year-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ca-filter-field ca-filter-field-year">
+          <span class="ca-filter-label">Ano comparativo:</span>
+          <div class="month-picker" id="ca-compare-year-picker">
+            <button class="month-picker-btn" onclick="toggleCaCompareYearDropdown(event)">
+              <span id="ca-compare-year-picker-label">2026</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ca-compare-year-dropdown">
+              <div class="month-dropdown-header"><span>Selecione o ano comparativo</span></div>
+              <div class="month-grid" id="ca-compare-year-grid"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
