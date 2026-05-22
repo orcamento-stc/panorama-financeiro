@@ -943,6 +943,257 @@ body.perfil-admin .consulta-only {
   }
 }
 
+
+
+/* === REFINAMENTO MENU SUPERIOR E FILTROS - 22/05 === */
+#topbar {
+  gap: .75rem;
+}
+
+.topbar-brand {
+  flex: 1 1 auto;
+  min-width: 190px;
+}
+
+.topbar-nav-principal {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex: 0 0 auto;
+}
+
+.more-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.more-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 250px;
+  background: rgba(11, 26, 78, 0.98);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+  padding: 8px;
+  display: none;
+  z-index: 10000;
+}
+
+.more-menu.active {
+  display: block;
+}
+
+.more-menu button {
+  width: 100%;
+  display: block;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: #eef3ff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.more-menu button:hover,
+.more-menu button.active {
+  background: rgba(255,255,255,0.10);
+}
+
+.compact-backup-menu {
+  position: relative;
+  display: inline-flex;
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+
+.compact-backup-menu .backup-menu {
+  right: 0;
+  top: calc(100% + 8px);
+}
+
+/* Panorama: filtros em duas linhas organizadas */
+.filter-bar-panorama {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: .82rem !important;
+}
+
+.filter-bar-panorama .filter-row-main {
+  display: grid !important;
+  grid-template-columns: minmax(330px, 1fr) minmax(285px, 340px) minmax(255px, 310px);
+  align-items: center;
+  column-gap: 1.35rem;
+  row-gap: .75rem;
+  width: 100%;
+}
+
+.filter-bar-panorama .filter-row-time {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.6rem;
+  padding-top: .75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  width: 100%;
+}
+
+.filter-field,
+.ca-filter-field {
+  white-space: nowrap;
+}
+
+.filter-field-card,
+.filter-field-super,
+.filter-field-regional,
+.filter-field-month,
+.filter-field-year {
+  flex: unset !important;
+}
+
+.filter-field-super,
+.filter-field-regional {
+  gap: .7rem;
+}
+
+.filter-field-super .month-picker,
+.filter-field-regional .month-picker,
+.filter-field-month .month-picker,
+.filter-field-year .month-picker {
+  min-width: 0;
+}
+
+.filter-field-super .month-picker-btn,
+.filter-field-regional .month-picker-btn {
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-field-month .month-picker-btn {
+  min-width: 210px;
+}
+
+.filter-field-year .month-picker-btn {
+  min-width: 150px;
+}
+
+/* Comparativo Anual: linha 1 escopo, linha 2 temporal + pacote */
+#screen-comparativo_anual .ca-filter-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: .82rem !important;
+}
+
+#screen-comparativo_anual .ca-filter-row-main {
+  display: grid !important;
+  grid-template-columns: minmax(300px, 380px) minmax(260px, 340px);
+  justify-content: start;
+  align-items: center;
+  column-gap: 2rem;
+  row-gap: .75rem;
+  width: 100%;
+}
+
+#screen-comparativo_anual .ca-filter-row-years {
+  display: grid !important;
+  grid-template-columns: minmax(230px, 280px) minmax(260px, 320px) minmax(300px, 390px);
+  justify-content: start;
+  align-items: center;
+  column-gap: 2rem;
+  row-gap: .75rem;
+  padding-top: .75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  width: 100%;
+}
+
+#screen-comparativo_anual .ca-filter-field-super,
+#screen-comparativo_anual .ca-filter-field-regional,
+#screen-comparativo_anual .ca-filter-field-package,
+#screen-comparativo_anual .ca-filter-field-year {
+  flex: unset !important;
+}
+
+#screen-comparativo_anual .ca-filter-field .month-picker {
+  width: 100%;
+}
+
+#screen-comparativo_anual .ca-filter-field .month-picker-btn {
+  width: 100%;
+}
+
+@media (max-width: 1260px) {
+  #topbar {
+    padding: 0 .8rem;
+    gap: .55rem;
+  }
+  .topbar-brand {
+    min-width: 150px;
+    font-size: .86rem;
+  }
+  .btn-nav {
+    padding: .35rem .72rem;
+    font-size: .78rem;
+  }
+}
+
+@media (max-width: 1050px) {
+  #topbar {
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    padding: .55rem .75rem;
+  }
+  .topbar-brand {
+    flex: 1 1 180px;
+  }
+  .topbar-nav-principal {
+    order: 2;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: .15rem;
+  }
+  .more-menu-wrap,
+  .perfil-badge,
+  .btn-logout {
+    order: 1;
+  }
+}
+
+@media (max-width: 980px) {
+  .filter-bar-panorama .filter-row-main,
+  #screen-comparativo_anual .ca-filter-row-main,
+  #screen-comparativo_anual .ca-filter-row-years {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filter-bar-panorama .filter-row-time {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: .85rem;
+  }
+
+  .filter-field,
+  .ca-filter-field {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .filter-field .month-picker,
+  .ca-filter-field .month-picker {
+    flex: 1;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -980,26 +1231,31 @@ body.perfil-admin .consulta-only {
 <nav id="topbar">
   <span class="topbar-eq">GRUPO</span>
   <div class="topbar-brand">Equatorial &nbsp;·&nbsp; <span>STC</span></div>
-  <div class="topbar-nav">
+
+  <div class="topbar-nav topbar-nav-principal">
     <button class="btn-nav active" id="nav-panorama" onclick="showScreen('panorama')">📊 Panorama</button>
-    <button class="btn-nav admin-only" id="nav-data" onclick="showScreen('data')">✏️ Inserir Dados</button>
     <button class="btn-nav" id="nav-pac10" onclick="showScreen('pac10')">📈 DRE PAC.10</button>
-    <button class="btn-nav admin-only" id="nav-data_pac10" onclick="showScreen('data_pac10')">📝 Inserir dados DRE PAC10</button>
     <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
   </div>
-        <div class="backup-menu-wrap admin-only">
-          <button class="btn-nav" onclick="toggleMenuBackup()">🔧 Menu Backup</button>
-          <div class="backup-menu" id="backup-menu">
-            <button onclick="exportarBackup()">💾 Fazer Backup</button>
-            <button onclick="restaurarBackup()">📂 Restaurar Backup</button>
-          </div>
-        </div>
-  <div class="admin-access-wrap admin-only">
-    <button type="button" class="perfil-badge perfil-menu-btn" id="perfil-badge-admin" onclick="toggleMenuAdminAcessos(event)">ADMIN</button>
-    <div class="admin-access-menu" id="admin-access-menu">
-      <button type="button" onclick="abrirPainelSenhas(event)">🔐 Gerenciar Acessos</button>
+
+  <div class="more-menu-wrap admin-only">
+    <button type="button" class="btn-nav" onclick="toggleMenuMaisOpcoes(event)">☰ Mais opções</button>
+    <div class="more-menu" id="more-menu">
+      <button type="button" id="nav-data" onclick="showScreen('data'); fecharMenusTopbar();">✏️ Inserir Dados</button>
+      <button type="button" id="nav-data_pac10" onclick="showScreen('data_pac10'); fecharMenusTopbar();">📝 Inserir dados DRE PAC10</button>
+      <button type="button" onclick="toggleMenuBackup(); fecharMenuMaisOpcoes();">🔧 Menu Backup</button>
+      <button type="button" onclick="abrirPainelSenhas(event); fecharMenuMaisOpcoes();">🔐 Gerenciar Acessos</button>
     </div>
   </div>
+
+  <div class="backup-menu-wrap admin-only compact-backup-menu">
+    <div class="backup-menu" id="backup-menu">
+      <button onclick="exportarBackup()">💾 Fazer Backup</button>
+      <button onclick="restaurarBackup()">📂 Restaurar Backup</button>
+    </div>
+  </div>
+
+  <span class="perfil-badge admin-only" id="perfil-badge-admin">ADMIN</span>
   <span class="perfil-badge consulta-only" id="perfil-badge-consulta">CONSULTA</span>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
 </nav>
@@ -1577,22 +1833,7 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
           </div>
         </div>
 
-        <div class="ca-filter-field ca-filter-field-package">
-          <span class="ca-filter-label">Pacote:</span>
-          <div class="month-picker" id="ca-package-picker">
-            <button class="month-picker-btn" onclick="toggleCaPackageDropdown(event)" style="min-width:220px">
-              <span id="ca-package-picker-label">Todos os pacotes</span>
-              <span class="chevron">▼</span>
-            </button>
-            <div class="month-dropdown" id="ca-package-dropdown" style="min-width:310px;max-width:380px">
-              <div class="month-dropdown-header">
-                <span>Segure CTRL para múltiplas</span>
-                <button onclick="clearCaPackage()">Todos</button>
-              </div>
-              <div class="month-grid" id="ca-package-grid"></div>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       <div class="ca-filter-row ca-filter-row-years">
@@ -1623,7 +1864,24 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
             </div>
           </div>
         </div>
-      </div>
+      
+
+        <div class="ca-filter-field ca-filter-field-package">
+          <span class="ca-filter-label">Pacote:</span>
+          <div class="month-picker" id="ca-package-picker">
+            <button class="month-picker-btn" onclick="toggleCaPackageDropdown(event)" style="min-width:220px">
+              <span id="ca-package-picker-label">Todos os pacotes</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ca-package-dropdown" style="min-width:310px;max-width:380px">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearCaPackage()">Todos</button>
+              </div>
+              <div class="month-grid" id="ca-package-grid"></div>
+            </div>
+          </div>
+        </div></div>
     </div>
 
     <div class="ca-hero-grid">
@@ -2167,6 +2425,40 @@ document.addEventListener('click', function(event) {
   }
 });
 
+
+
+function toggleMenuMaisOpcoes(event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById('more-menu');
+  if (!menu) return;
+  menu.classList.toggle('active');
+  const backupMenu = document.getElementById('backup-menu');
+  if (backupMenu) backupMenu.classList.remove('active');
+  const adminMenu = document.getElementById('admin-access-menu');
+  if (adminMenu) adminMenu.classList.remove('active');
+}
+
+function fecharMenuMaisOpcoes() {
+  const menu = document.getElementById('more-menu');
+  if (menu) menu.classList.remove('active');
+}
+
+function fecharMenusTopbar() {
+  fecharMenuMaisOpcoes();
+  const backupMenu = document.getElementById('backup-menu');
+  if (backupMenu) backupMenu.classList.remove('active');
+  const adminMenu = document.getElementById('admin-access-menu');
+  if (adminMenu) adminMenu.classList.remove('active');
+}
+
+document.addEventListener('click', function(event) {
+  const moreWrap = document.querySelector('.more-menu-wrap');
+  const moreMenu = document.getElementById('more-menu');
+  if (moreWrap && moreMenu && !moreWrap.contains(event.target)) {
+    moreMenu.classList.remove('active');
+  }
+});
+
 function toggleMenuBackup() {
     const menu = document.getElementById('backup-menu');
     if (!menu) return;
@@ -2193,7 +2485,7 @@ function marcarBackupPendente(pendente) {
 function atualizarIndicadorBackupPendente() {
     const pendente = localStorage.getItem('eq_stcgyn_backup_pendente') === '1';
     const alerta = document.getElementById('backup-pendente-alerta');
-    const menuBackup = document.querySelector('.backup-menu-wrap .btn-nav');
+    const menuBackup = document.querySelector('.more-menu-wrap .btn-nav');
 
     if (alerta) alerta.classList.remove('active');
 
@@ -2322,6 +2614,7 @@ function restaurarBackup() {
 /* ── SCREENS ── */
 let currentScreen = '';
 function showScreen(name) {
+  fecharMenusTopbar();
   if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10')) {
     alert('Perfil de consulta: acesso permitido apenas para visualização.');
     name = 'panorama';
