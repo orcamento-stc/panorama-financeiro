@@ -846,130 +846,17 @@ body.perfil-admin .consulta-only {
 }
 
 
-/* === LAYOUT ORGANIZADO DOS FILTROS === */
-.filter-bar {
-  flex-direction: column;
-  align-items: stretch;
-  gap: .75rem;
-}
 
-.filter-row,
-.ca-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .8rem 1rem;
-  width: 100%;
-}
-
-.filter-field,
-.ca-filter-field {
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-  min-width: 0;
-}
-
-.filter-field-card {
-  flex: 1 1 390px;
-}
-
-.filter-field-super,
-.filter-field-regional {
-  flex: 0 1 320px;
-}
-
-.filter-row-time {
-  justify-content: flex-end;
-  padding-top: .25rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-
-.filter-field-month,
-.filter-field-year {
-  flex: 0 1 250px;
-}
-
-#screen-comparativo_anual .ca-filter-bar {
-  flex-direction: column;
-  align-items: stretch;
-  gap: .75rem;
-}
-
-#screen-comparativo_anual .ca-filter-row-main {
-  justify-content: space-between;
-}
-
-#screen-comparativo_anual .ca-filter-row-years {
-  justify-content: flex-start;
-  padding-top: .25rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-
-#screen-comparativo_anual .ca-filter-field-super,
-#screen-comparativo_anual .ca-filter-field-regional,
-#screen-comparativo_anual .ca-filter-field-package {
-  flex: 1 1 330px;
-}
-
-#screen-comparativo_anual .ca-filter-field-year {
-  flex: 0 1 310px;
-}
-
-@media (max-width: 1100px) {
-  .filter-field,
-  .ca-filter-field {
-    flex: 1 1 100%;
-    justify-content: space-between;
-  }
-
-  .filter-field .month-picker,
-  .ca-filter-field .month-picker {
-    flex: 1;
-  }
-
-  .filter-field .month-picker-btn,
-  .ca-filter-field .month-picker-btn {
-    width: 100%;
-  }
-
-  .filter-row-time,
-  #screen-comparativo_anual .ca-filter-row-years {
-    justify-content: stretch;
-  }
-
-  .filter-field-card {
-    justify-content: flex-start;
-  }
-}
-
-
-
-/* === REFINAMENTO MENU SUPERIOR E FILTROS - 22/05 === */
-#topbar {
-  gap: .75rem;
-}
-
-.topbar-brand {
-  flex: 1 1 auto;
-  min-width: 190px;
-}
-
-.topbar-nav-principal {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  flex: 0 0 auto;
-}
-
-.more-menu-wrap {
+/* === MENU MAIS OPCOES CORPORATIVO === */
+.more-options-wrap {
   position: relative;
   display: inline-flex;
   align-items: center;
-  flex: 0 0 auto;
+  overflow: visible !important;
+  z-index: 10020;
 }
 
-.more-menu {
+.more-options-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -980,14 +867,12 @@ body.perfil-admin .consulta-only {
   box-shadow: 0 18px 45px rgba(0,0,0,0.35);
   padding: 8px;
   display: none;
-  z-index: 10000;
+  z-index: 10050;
 }
 
-.more-menu.active {
-  display: block;
-}
+.more-options-menu.active { display: block; }
 
-.more-menu button {
+.more-options-menu button {
   width: 100%;
   display: block;
   text-align: left;
@@ -1002,195 +887,126 @@ body.perfil-admin .consulta-only {
   font-size: 14px;
 }
 
-.more-menu button:hover,
-.more-menu button.active {
+.more-options-menu button:hover { background: rgba(255,255,255,0.10); }
+
+.more-options-divider {
+  height: 1px;
   background: rgba(255,255,255,0.10);
+  margin: 7px 4px;
 }
 
-.compact-backup-menu {
-  position: relative;
-  display: inline-flex;
-  width: 0;
-  height: 0;
-  overflow: visible;
+.more-options-label {
+  display: block;
+  color: var(--eq-gray);
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 10px 4px;
+  opacity: .8;
 }
 
-.compact-backup-menu .backup-menu {
-  right: 0;
-  top: calc(100% + 8px);
+@media (max-width: 1150px) {
+  #topbar { gap: .55rem; padding: 0 .8rem; }
+  .topbar-brand { font-size: .86rem; }
+  .btn-nav, .btn-logout { font-size: .75rem; padding: .35rem .7rem; }
 }
 
-/* Panorama: filtros em duas linhas organizadas */
-.filter-bar-panorama {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  gap: .82rem !important;
+/* === AJUSTE ESPECIFICO FILTROS PANORAMA E COMPARATIVO === */
+#screen-panorama .filter-bar-panorama {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85rem;
 }
 
-.filter-bar-panorama .filter-row-main {
-  display: grid !important;
-  grid-template-columns: minmax(330px, 1fr) minmax(285px, 340px) minmax(255px, 310px);
+#screen-panorama .filter-row {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  column-gap: 1.35rem;
-  row-gap: .75rem;
   width: 100%;
 }
 
-.filter-bar-panorama .filter-row-time {
-  display: flex !important;
-  align-items: center;
+#screen-panorama .filter-row-main {
+  gap: .9rem 1.55rem;
+}
+
+#screen-panorama .filter-row-time {
   justify-content: flex-end;
-  gap: 1.6rem;
-  padding-top: .75rem;
+  gap: .9rem 1.2rem;
+  padding-top: .25rem;
   border-top: 1px solid rgba(255,255,255,0.06);
-  width: 100%;
 }
 
-.filter-field,
-.ca-filter-field {
-  white-space: nowrap;
-}
-
-.filter-field-card,
-.filter-field-super,
-.filter-field-regional,
-.filter-field-month,
-.filter-field-year {
-  flex: unset !important;
-}
-
-.filter-field-super,
-.filter-field-regional {
-  gap: .7rem;
-}
-
-.filter-field-super .month-picker,
-.filter-field-regional .month-picker,
-.filter-field-month .month-picker,
-.filter-field-year .month-picker {
+#screen-panorama .filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
   min-width: 0;
 }
 
-.filter-field-super .month-picker-btn,
-.filter-field-regional .month-picker-btn {
-  width: 100%;
-  min-width: 0;
-}
+#screen-panorama .filter-field-card { flex: 1 1 360px; }
+#screen-panorama .filter-field-super { flex: 0 1 330px; margin-right: .45rem; }
+#screen-panorama .filter-field-regional { flex: 0 1 285px; }
+#screen-panorama .filter-field-month { flex: 0 1 270px; }
+#screen-panorama .filter-field-year { flex: 0 1 230px; }
 
-.filter-field-month .month-picker-btn {
-  min-width: 210px;
-}
-
-.filter-field-year .month-picker-btn {
-  min-width: 150px;
-}
-
-/* Comparativo Anual: linha 1 escopo, linha 2 temporal + pacote */
 #screen-comparativo_anual .ca-filter-bar {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  gap: .82rem !important;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85rem;
+}
+
+#screen-comparativo_anual .ca-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  gap: .9rem 1.25rem;
 }
 
 #screen-comparativo_anual .ca-filter-row-main {
-  display: grid !important;
-  grid-template-columns: minmax(300px, 380px) minmax(260px, 340px);
-  justify-content: start;
-  align-items: center;
-  column-gap: 2rem;
-  row-gap: .75rem;
-  width: 100%;
+  justify-content: flex-start;
 }
 
 #screen-comparativo_anual .ca-filter-row-years {
-  display: grid !important;
-  grid-template-columns: minmax(230px, 280px) minmax(260px, 320px) minmax(300px, 390px);
-  justify-content: start;
-  align-items: center;
-  column-gap: 2rem;
-  row-gap: .75rem;
-  padding-top: .75rem;
+  justify-content: flex-start;
+  padding-top: .25rem;
   border-top: 1px solid rgba(255,255,255,0.06);
-  width: 100%;
 }
 
-#screen-comparativo_anual .ca-filter-field-super,
-#screen-comparativo_anual .ca-filter-field-regional,
-#screen-comparativo_anual .ca-filter-field-package,
-#screen-comparativo_anual .ca-filter-field-year {
-  flex: unset !important;
+#screen-comparativo_anual .ca-filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
 }
 
-#screen-comparativo_anual .ca-filter-field .month-picker {
-  width: 100%;
-}
+#screen-comparativo_anual .ca-filter-field-super { flex: 0 1 390px; }
+#screen-comparativo_anual .ca-filter-field-regional { flex: 0 1 330px; }
+#screen-comparativo_anual .ca-filter-field-year { flex: 0 1 300px; }
+#screen-comparativo_anual .ca-filter-field-package { flex: 1 1 360px; }
 
-#screen-comparativo_anual .ca-filter-field .month-picker-btn {
-  width: 100%;
-}
-
-@media (max-width: 1260px) {
-  #topbar {
-    padding: 0 .8rem;
-    gap: .55rem;
-  }
-  .topbar-brand {
-    min-width: 150px;
-    font-size: .86rem;
-  }
-  .btn-nav {
-    padding: .35rem .72rem;
-    font-size: .78rem;
-  }
-}
-
-@media (max-width: 1050px) {
-  #topbar {
-    height: auto;
-    min-height: 56px;
-    flex-wrap: wrap;
-    padding: .55rem .75rem;
-  }
-  .topbar-brand {
-    flex: 1 1 180px;
-  }
-  .topbar-nav-principal {
-    order: 2;
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: .15rem;
-  }
-  .more-menu-wrap,
-  .perfil-badge,
-  .btn-logout {
-    order: 1;
-  }
-}
-
-@media (max-width: 980px) {
-  .filter-bar-panorama .filter-row-main,
-  #screen-comparativo_anual .ca-filter-row-main,
-  #screen-comparativo_anual .ca-filter-row-years {
-    grid-template-columns: 1fr !important;
-  }
-
-  .filter-bar-panorama .filter-row-time {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: .85rem;
-  }
-
-  .filter-field,
-  .ca-filter-field {
+@media (max-width: 1100px) {
+  #screen-panorama .filter-field,
+  #screen-comparativo_anual .ca-filter-field {
+    flex: 1 1 100%;
     justify-content: space-between;
+  }
+
+  #screen-panorama .month-picker,
+  #screen-comparativo_anual .month-picker {
+    flex: 1;
+  }
+
+  #screen-panorama .month-picker-btn,
+  #screen-comparativo_anual .month-picker-btn {
     width: 100%;
   }
 
-  .filter-field .month-picker,
-  .ca-filter-field .month-picker {
-    flex: 1;
+  #screen-panorama .filter-field-card {
+    justify-content: flex-start;
   }
 }
 
@@ -1231,31 +1047,25 @@ body.perfil-admin .consulta-only {
 <nav id="topbar">
   <span class="topbar-eq">GRUPO</span>
   <div class="topbar-brand">Equatorial &nbsp;·&nbsp; <span>STC</span></div>
-
-  <div class="topbar-nav topbar-nav-principal">
+  <div class="topbar-nav">
     <button class="btn-nav active" id="nav-panorama" onclick="showScreen('panorama')">📊 Panorama</button>
     <button class="btn-nav" id="nav-pac10" onclick="showScreen('pac10')">📈 DRE PAC.10</button>
     <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
-  </div>
 
-  <div class="more-menu-wrap admin-only">
-    <button type="button" class="btn-nav" onclick="toggleMenuMaisOpcoes(event)">☰ Mais opções</button>
-    <div class="more-menu" id="more-menu">
-      <button type="button" id="nav-data" onclick="showScreen('data'); fecharMenusTopbar();">✏️ Inserir Dados</button>
-      <button type="button" id="nav-data_pac10" onclick="showScreen('data_pac10'); fecharMenusTopbar();">📝 Inserir dados DRE PAC10</button>
-      <button type="button" onclick="toggleMenuBackup(); fecharMenuMaisOpcoes();">🔧 Menu Backup</button>
-      <button type="button" onclick="abrirPainelSenhas(event); fecharMenuMaisOpcoes();">🔐 Gerenciar Acessos</button>
+    <div class="more-options-wrap admin-only">
+      <button type="button" class="btn-nav" id="btn-mais-opcoes" onclick="toggleMaisOpcoes(event)">☰ Mais opções</button>
+      <div class="more-options-menu" id="mais-opcoes-menu">
+        <button type="button" id="nav-data" onclick="showScreen('data'); fecharMaisOpcoes();">✏️ Inserir Dados</button>
+        <button type="button" id="nav-data_pac10" onclick="showScreen('data_pac10'); fecharMaisOpcoes();">📝 Inserir dados DRE PAC10</button>
+        <div class="more-options-divider"></div>
+        <span class="more-options-label">Menu Backup</span>
+        <button type="button" onclick="exportarBackup(); fecharMaisOpcoes();">💾 Fazer Backup</button>
+        <button type="button" onclick="restaurarBackup(); fecharMaisOpcoes();">📂 Restaurar Backup</button>
+        <div class="more-options-divider"></div>
+        <button type="button" onclick="abrirPainelSenhas(event); fecharMaisOpcoes();">🔐 Gerenciar Acessos</button>
+      </div>
     </div>
   </div>
-
-  <div class="backup-menu-wrap admin-only compact-backup-menu">
-    <div class="backup-menu" id="backup-menu">
-      <button onclick="exportarBackup()">💾 Fazer Backup</button>
-      <button onclick="restaurarBackup()">📂 Restaurar Backup</button>
-    </div>
-  </div>
-
-  <span class="perfil-badge admin-only" id="perfil-badge-admin">ADMIN</span>
   <span class="perfil-badge consulta-only" id="perfil-badge-consulta">CONSULTA</span>
   <button class="btn-logout" onclick="doLogout()">Sair</button>
 </nav>
@@ -1881,7 +1691,8 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
               <div class="month-grid" id="ca-package-grid"></div>
             </div>
           </div>
-        </div></div>
+        </div>
+      </div>
     </div>
 
     <div class="ca-hero-grid">
@@ -2426,37 +2237,23 @@ document.addEventListener('click', function(event) {
 });
 
 
-
-function toggleMenuMaisOpcoes(event) {
-  if (event) event.stopPropagation();
-  const menu = document.getElementById('more-menu');
-  if (!menu) return;
-  menu.classList.toggle('active');
-  const backupMenu = document.getElementById('backup-menu');
-  if (backupMenu) backupMenu.classList.remove('active');
-  const adminMenu = document.getElementById('admin-access-menu');
-  if (adminMenu) adminMenu.classList.remove('active');
+function toggleMaisOpcoes(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('mais-opcoes-menu');
+    if (!menu) return;
+    menu.classList.toggle('active');
 }
 
-function fecharMenuMaisOpcoes() {
-  const menu = document.getElementById('more-menu');
-  if (menu) menu.classList.remove('active');
-}
-
-function fecharMenusTopbar() {
-  fecharMenuMaisOpcoes();
-  const backupMenu = document.getElementById('backup-menu');
-  if (backupMenu) backupMenu.classList.remove('active');
-  const adminMenu = document.getElementById('admin-access-menu');
-  if (adminMenu) adminMenu.classList.remove('active');
+function fecharMaisOpcoes() {
+    const menu = document.getElementById('mais-opcoes-menu');
+    if (menu) menu.classList.remove('active');
 }
 
 document.addEventListener('click', function(event) {
-  const moreWrap = document.querySelector('.more-menu-wrap');
-  const moreMenu = document.getElementById('more-menu');
-  if (moreWrap && moreMenu && !moreWrap.contains(event.target)) {
-    moreMenu.classList.remove('active');
-  }
+    const wrapper = document.querySelector('.more-options-wrap');
+    const menu = document.getElementById('mais-opcoes-menu');
+    if (!wrapper || !menu) return;
+    if (!wrapper.contains(event.target)) menu.classList.remove('active');
 });
 
 function toggleMenuBackup() {
@@ -2485,7 +2282,7 @@ function marcarBackupPendente(pendente) {
 function atualizarIndicadorBackupPendente() {
     const pendente = localStorage.getItem('eq_stcgyn_backup_pendente') === '1';
     const alerta = document.getElementById('backup-pendente-alerta');
-    const menuBackup = document.querySelector('.more-menu-wrap .btn-nav');
+    const menuBackup = document.querySelector('.backup-menu-wrap .btn-nav');
 
     if (alerta) alerta.classList.remove('active');
 
@@ -2614,7 +2411,6 @@ function restaurarBackup() {
 /* ── SCREENS ── */
 let currentScreen = '';
 function showScreen(name) {
-  fecharMenusTopbar();
   if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10')) {
     alert('Perfil de consulta: acesso permitido apenas para visualização.');
     name = 'panorama';
