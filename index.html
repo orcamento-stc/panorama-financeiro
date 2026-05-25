@@ -3242,8 +3242,8 @@ function renderDRE(pkgIds, hibTotal) {
     return [trP, trR, trV];
   }
 
-  // TOTAL row (always shown)
-  const totalIds = visible.map(p=>p.id);
+  // TOTAL row (respects the current package filter)
+  const totalIds = drePackages.map(p=>p.id);
   const totalLabel = selectedPkg==='total'
     ? `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`
     : `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`;
