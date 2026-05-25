@@ -361,22 +361,6 @@
   table.dre-table td.dv-var-r  { color:var(--red);   font-weight:700; font-size:.72rem; line-height:1.35; background:rgba(239,68,68,0.08); }
   table.dre-table td.dv-var-y  { color:var(--eq-gray); font-weight:700; font-size:.72rem; line-height:1.35; background:rgba(255,255,255,0.04); }
   table.dre-table td.dv-var-n  { color:var(--eq-gray); font-size:.72rem; }
-
-  /* sticky header for DRE tables */
-  table.dre-table thead th {
-    position: sticky;
-    top: 56px;
-    z-index: 6;
-    background: rgba(12,24,72,.98);
-  }
-  table.dre-table thead th.dre-pkg {
-    left: 0;
-    z-index: 8;
-  }
-  table.dre-table thead th.dre-row-type {
-    left: 170px;
-    z-index: 8;
-  }
   /* total row */
   table.dre-table tr.dre-total td { background:rgba(244,121,32,0.08); border-top:2px solid rgba(244,121,32,0.25); }
   table.dre-table tr.dre-total td.dre-pkg,
@@ -3258,10 +3242,11 @@ function renderDRE(pkgIds, hibTotal) {
     return [trP, trR, trV];
   }
 
-  // TOTAL row (shown for the current filter selection)
-  // When a specific package is selected, TOTAL GERAL must represent only that package.
-  const totalIds = drePackages.map(p=>p.id);
-  const totalLabel = `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`;
+  // TOTAL row (always shown)
+  const totalIds = visible.map(p=>p.id);
+  const totalLabel = selectedPkg==='total'
+    ? `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`
+    : `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`;
   buildRows(totalIds, totalLabel, false, true).forEach(r => tbody.appendChild(r));
 
   // Separator
