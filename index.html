@@ -2027,22 +2027,29 @@ function normalizeManualNumber(raw) {
     s = s.slice(1);
   }
 
-  // aceita:
-  // 2443173,62
-  // 1007076,50683853
-  // 1.139.545,89
-  // R$ 1.139.545,89
-  // 1139545.89
+  // Conversão segura para formatos brasileiros e planilhas:
+  // 2443173,62      -> 2443173.62
+  // 1.139.545,89   -> 1139545.89
+  // 1.139.545      -> 1139545
+  // 974.730        -> 974730
+  // 1139545.89     -> 1139545.89
   if (s.includes(',') && s.includes('.')) {
-    // assume formato brasileiro com ponto de milhar e vírgula decimal
+    // formato brasileiro: ponto de milhar e vírgula decimal
     s = s.replace(/\./g, '').replace(',', '.');
   } else if (s.includes(',')) {
     // vírgula decimal
     s = s.replace(',', '.');
-  } else {
-    // sem vírgula; remove eventuais milhares residuais
+  } else if (s.includes('.')) {
     const parts = s.split('.');
-    if (parts.length > 2) {
+    const isThousandsPattern =
+      parts.length > 1 &&
+      parts[0].length >= 1 &&
+      parts[0].length <= 3 &&
+      parts.slice(1).every(p => /^\d{3}$/.test(p));
+
+    if (isThousandsPattern) {
+      s = parts.join('');
+    } else if (parts.length > 2) {
       s = parts.join('');
     }
   }
