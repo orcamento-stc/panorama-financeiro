@@ -3242,11 +3242,9 @@ function renderDRE(pkgIds, hibTotal) {
     return [trP, trR, trV];
   }
 
-  // TOTAL row (respects the current package filter)
-  const totalIds = drePackages.map(p=>p.id);
-  const totalLabel = selectedPkg==='total'
-    ? `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`
-    : `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`;
+  // TOTAL row (always shown) - respeita o filtro de pacote selecionado
+  const totalIds = drePackages.map(p => p.id);
+  const totalLabel = `<strong style="color:var(--eq-orange)">▣ TOTAL GERAL</strong>`;
   buildRows(totalIds, totalLabel, false, true).forEach(r => tbody.appendChild(r));
 
   // Separator
