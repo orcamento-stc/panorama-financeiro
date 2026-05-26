@@ -369,6 +369,30 @@
   /* proj indicator */
   .dre-proj-cell { font-size:.68rem; font-style:italic; color:#c4b5fd; }
 
+
+
+  /* === CABEÇALHO FIXO DRE PANORAMA - SOMENTE MESES === */
+  .dre-panorama-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  #dre-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(12,24,72,.99);
+    box-shadow: 0 2px 0 rgba(255,255,255,0.08), 0 6px 14px rgba(0,0,0,0.18);
+  }
+  #dre-table thead th.dre-pkg {
+    left: 0;
+    z-index: 24;
+  }
+  #dre-table thead th.dre-row-type {
+    left: 170px;
+    z-index: 24;
+  }
+  /* === FIM CABEÇALHO FIXO DRE PANORAMA === */
+
   /* DATA TABLE */
   .data-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem; }
   .data-wrap h2 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; margin-bottom: .4rem; }
@@ -1010,35 +1034,6 @@ body.perfil-admin .consulta-only {
   }
 }
 
-
-/* === DRE PANORAMA: CABEÇALHO DOS MESES FIXO === */
-.dre-panorama-scroll {
-  max-height: 58vh;
-  overflow: auto;
-}
-
-table#dre-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-table#dre-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 6;
-  background: rgba(12,24,72,.98);
-}
-
-table#dre-table thead th.dre-pkg {
-  left: 0;
-  z-index: 9;
-}
-
-table#dre-table thead th.dre-row-type {
-  left: 170px;
-  z-index: 9;
-}
-
 </style>
 </head>
 <body>
@@ -1248,7 +1243,7 @@ table#dre-table thead th.dre-row-type {
           <span class="dre-leg dre-leg-var">Variação</span>
         </div>
       </div>
-      <div class="dre-scroll" dre-panorama-scroll>
+      <div class="dre-scroll dre-panorama-scroll">
         <table class="dre-table" id="dre-table"></table>
       </div>
     </div>
