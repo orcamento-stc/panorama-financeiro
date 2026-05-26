@@ -369,30 +369,6 @@
   /* proj indicator */
   .dre-proj-cell { font-size:.68rem; font-style:italic; color:#c4b5fd; }
 
-
-
-  /* === CABEÇALHO FIXO DRE PANORAMA - SOMENTE MESES === */
-  .dre-panorama-scroll {
-    overflow-x: auto;
-    overflow-y: visible;
-  }
-  #dre-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: rgba(12,24,72,.99);
-    box-shadow: 0 2px 0 rgba(255,255,255,0.08), 0 6px 14px rgba(0,0,0,0.18);
-  }
-  #dre-table thead th.dre-pkg {
-    left: 0;
-    z-index: 24;
-  }
-  #dre-table thead th.dre-row-type {
-    left: 170px;
-    z-index: 24;
-  }
-  /* === FIM CABEÇALHO FIXO DRE PANORAMA === */
-
   /* DATA TABLE */
   .data-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem; }
   .data-wrap h2 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; margin-bottom: .4rem; }
@@ -1033,6 +1009,31 @@ body.perfil-admin .consulta-only {
     justify-content: flex-start;
   }
 }
+
+
+
+  /* DRE PANORAMA — cabeçalho dos meses fixo */
+  .dre-panorama-scroll {
+    max-height: 560px;
+    overflow: auto;
+    position: relative;
+  }
+  .dre-panorama-scroll #dre-table thead th {
+    position: sticky;
+    top: 0;
+    background: rgba(12,24,72,.98);
+    z-index: 7;
+  }
+  .dre-panorama-scroll #dre-table thead th.dre-pkg {
+    left: 0;
+    z-index: 10;
+    background: rgba(12,24,72,.99);
+  }
+  .dre-panorama-scroll #dre-table thead th.dre-row-type {
+    left: 170px;
+    z-index: 10;
+    background: rgba(12,24,72,.99);
+  }
 
 </style>
 </head>
