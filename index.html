@@ -1045,6 +1045,43 @@ body.perfil-admin .consulta-only {
       max-height: clamp(320px, 48vh, 420px);
     }
   }
+
+  /* DRE PAC10 — cabeçalho dos meses fixo */
+  .dre-pac10-scroll {
+    max-height: 560px;
+    overflow: auto;
+    position: relative;
+  }
+  .dre-pac10-scroll #pac10-dre-table thead th {
+    position: sticky;
+    top: 0;
+    background: rgba(12,24,72,.98);
+    z-index: 7;
+  }
+  .dre-pac10-scroll #pac10-dre-table thead th.dre-pkg {
+    left: 0;
+    z-index: 10;
+    background: rgba(12,24,72,.99);
+  }
+  .dre-pac10-scroll #pac10-dre-table thead th.dre-row-type {
+    left: 170px;
+    z-index: 10;
+    background: rgba(12,24,72,.99);
+  }
+
+  /* DRE PAC10 — ajuste de altura para notebook */
+  @media (max-height: 850px), (max-width: 1366px) {
+    .dre-pac10-scroll {
+      max-height: clamp(360px, 52vh, 500px);
+    }
+  }
+
+  @media (max-height: 720px) {
+    .dre-pac10-scroll {
+      max-height: clamp(320px, 48vh, 420px);
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1504,7 +1541,7 @@ body.perfil-admin .consulta-only {
           <span class="dre-leg dre-leg-var">Variação</span>
         </div>
       </div>
-      <div class="dre-scroll">
+      <div class="dre-scroll dre-pac10-scroll">
         <table class="dre-table" id="pac10-dre-table"></table>
       </div>
     </div>
