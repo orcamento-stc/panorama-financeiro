@@ -369,6 +369,28 @@
   /* proj indicator */
   .dre-proj-cell { font-size:.68rem; font-style:italic; color:#c4b5fd; }
 
+
+  /* DRE Panorama: cabeçalho dos meses fixo ao rolar a tabela */
+  .dre-scroll-panorama {
+    max-height: 68vh;
+    overflow: auto;
+    position: relative;
+  }
+  #dre-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    background: rgba(12,24,72,.98);
+  }
+  #dre-table thead th.dre-pkg {
+    left: 0;
+    z-index: 9;
+  }
+  #dre-table thead th.dre-row-type {
+    left: 170px;
+    z-index: 9;
+  }
+
   /* DATA TABLE */
   .data-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem; }
   .data-wrap h2 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; margin-bottom: .4rem; }
@@ -1219,7 +1241,7 @@ body.perfil-admin .consulta-only {
           <span class="dre-leg dre-leg-var">Variação</span>
         </div>
       </div>
-      <div class="dre-scroll">
+      <div class="dre-scroll dre-scroll-panorama">
         <table class="dre-table" id="dre-table"></table>
       </div>
     </div>
