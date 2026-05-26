@@ -1010,8 +1010,6 @@ body.perfil-admin .consulta-only {
   }
 }
 
-
-
   /* DRE PANORAMA — cabeçalho dos meses fixo */
   .dre-panorama-scroll {
     max-height: 560px;
@@ -1035,6 +1033,18 @@ body.perfil-admin .consulta-only {
     background: rgba(12,24,72,.99);
   }
 
+  /* DRE PANORAMA — ajuste de altura para notebook */
+  @media (max-height: 850px), (max-width: 1366px) {
+    .dre-panorama-scroll {
+      max-height: clamp(360px, 52vh, 500px);
+    }
+  }
+
+  @media (max-height: 720px) {
+    .dre-panorama-scroll {
+      max-height: clamp(320px, 48vh, 420px);
+    }
+  }
 </style>
 </head>
 <body>
