@@ -1082,6 +1082,177 @@ body.perfil-admin .consulta-only {
     }
   }
 
+
+/* === REFINAMENTO VISUAL CORPORATIVO 2026 === */
+:root {
+  --eq-blue-deep: #0d1d52;
+  --eq-blue-mid: #24478f;
+  --eq-blue-bright: #4169d8;
+  --eq-orange: #d9874f;
+  --eq-white: #f4f7ff;
+  --eq-gray: #c7d2ea;
+  --green: #43c98d;
+  --green-bg: rgba(67,201,141,0.105);
+  --red: #d96a6a;
+  --red-bg: rgba(217,106,106,0.105);
+  --yellow: #d8bc63;
+  --yellow-bg: rgba(216,188,99,0.11);
+  --card-bg: rgba(255,255,255,0.045);
+  --card-border: rgba(255,255,255,0.085);
+}
+
+html, body {
+  background:
+    radial-gradient(circle at top left, rgba(65,105,216,0.10), transparent 34%),
+    linear-gradient(135deg, #0d1d52 0%, #0b1948 48%, #10255d 100%);
+}
+
+.pkg-card {
+  border-color: rgba(255,255,255,0.085);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+}
+
+.pkg-card::before {
+  height: 2px;
+  opacity: .86;
+}
+
+.pkg-card:hover {
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+}
+
+.pkg-card.selected {
+  border-color: rgba(217,135,79,0.45);
+  box-shadow: 0 0 0 1px rgba(217,135,79,0.22), 0 10px 28px rgba(0,0,0,0.16);
+}
+
+.pkg-card.total-card {
+  border: 1px solid rgba(217,122,92,0.36);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.14);
+}
+
+.pkg-card.total-card::before {
+  background: rgba(217,122,92,0.72) !important;
+  height: 2px;
+}
+
+.status-badge {
+  box-shadow: none;
+}
+
+.s-green { color: #43c98d; background: rgba(67,201,141,0.105); }
+.s-red { color: #d96a6a; background: rgba(217,106,106,0.105); }
+.s-yellow { color: #d8bc63; background: rgba(216,188,99,0.11); }
+
+.dre-section {
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,255,255,0.075);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+}
+
+.dre-leg-plan { background: rgba(217,135,79,0.12); color: #e0a06e; }
+.dre-leg-real { background: rgba(96,165,250,0.13); color: #9fc8f8; }
+.dre-leg-var { background: rgba(255,255,255,0.045); color: #c7d2ea; }
+
+.dre-scroll {
+  border-color: rgba(255,255,255,0.065);
+}
+
+table.dre-table thead tr {
+  background: rgba(65,105,216,0.14);
+}
+
+table.dre-table th {
+  color: #c7d2ea;
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+
+table.dre-table th.dre-pkg,
+table.dre-table th.dre-row-type {
+  background: rgba(13,29,82,.98);
+}
+
+table.dre-table tr.dre-pkg-header td {
+  background: rgba(65,105,216,0.095);
+  border-top-color: rgba(65,105,216,0.24);
+}
+
+table.dre-table td {
+  border-top-color: rgba(255,255,255,0.035);
+}
+
+table.dre-table td.dre-pkg,
+table.dre-table td.dre-row-type {
+  background: rgba(11,25,72,.97);
+}
+
+table.dre-table td.dre-row-type.rt-plan { color: #e0a06e; }
+table.dre-table td.dre-row-type.rt-real { color: #9fc8f8; }
+table.dre-table td.dre-row-type.rt-var { color: #c7d2ea; }
+
+table.dre-table td.dv-plan { color: rgba(224,160,110,0.92); }
+table.dre-table td.dv-real { color: #9fc8f8; }
+table.dre-table td.dv-real-n { color: #c7d2ea; }
+
+table.dre-table td.dv-var-g {
+  color: #43c98d;
+  background: rgba(67,201,141,0.055);
+}
+
+table.dre-table td.dv-var-r {
+  color: #d96a6a;
+  background: rgba(217,106,106,0.055);
+}
+
+table.dre-table td.dv-var-y {
+  color: #d8bc63;
+  background: rgba(216,188,99,0.055);
+}
+
+table.dre-table td.dv-var-n {
+  color: #c7d2ea;
+}
+
+table.dre-table tr.dre-total td {
+  background: rgba(217,135,79,0.055);
+  border-top: 1px solid rgba(217,135,79,0.24);
+}
+
+table.dre-table tr.dre-total td.dre-pkg,
+table.dre-table tr.dre-total td.dre-row-type {
+  background: rgba(14,31,82,.99);
+}
+
+table.dre-table tr.dre-total td.dre-pkg {
+  color: #e0a06e;
+}
+
+.card-val-num[style*="var(--eq-orange)"] {
+  color: #e0a06e !important;
+}
+
+.card-pkg-id,
+.card-pkg-id span[style*="var(--eq-orange)"] {
+  color: #e0a06e !important;
+}
+
+.btn-save,
+.btn-login {
+  box-shadow: 0 8px 22px rgba(217,135,79,0.18);
+}
+
+.saved-toast,
+.import-feedback.success {
+  background: rgba(67,201,141,0.105);
+  color: #43c98d;
+}
+
+.import-feedback.error {
+  background: rgba(217,106,106,0.105);
+  color: #d96a6a;
+}
+
 </style>
 </head>
 <body>
