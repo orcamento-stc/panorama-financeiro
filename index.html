@@ -39,7 +39,7 @@
   .watermark {
     position: fixed; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    pointer-events: none; z-index: 0; opacity: 0.04;
+    pointer-events: none; z-index: 0; opacity: 0.028;
     overflow: hidden;
   }
   .watermark svg { width: min(70vw, 560px); height: auto; }
@@ -266,7 +266,7 @@
     border-top: 1px solid rgba(255,255,255,0.06);
     text-align: center;
   }
-  .card-variation .card-pct { margin-top: .12rem; }
+  .card-variation .card-pct { margin-top: .12rem; font-size: .64rem; font-weight: 600; opacity: .9; }
   .total-card-main { display: contents; }
   .total-card-var {
     grid-column: 1 / -1;
@@ -277,12 +277,12 @@
   /* card detail button */
   .card-detail-btn {
     position:absolute; top:.55rem; right:.55rem;
-    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
-    border-radius:6px; color:var(--eq-gray); font-size:.65rem; font-weight:700;
+    background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.20);
+    border-radius:6px; color:#dbe6ff; font-size:.65rem; font-weight:700;
     padding:.18rem .45rem; cursor:pointer; transition:all .15s; z-index:5; line-height:1.4;
-    font-family:var(--font-body);
+    font-family:var(--font-body); box-shadow:0 3px 10px rgba(0,0,0,0.12);
   }
-  .card-detail-btn:hover { background:rgba(255,255,255,0.2); color:var(--eq-white); }
+  .card-detail-btn:hover { background:rgba(255,255,255,0.18); color:var(--eq-white); border-color:rgba(255,255,255,0.28); }
 
   /* MODAL */
   .modal-overlay {
