@@ -406,8 +406,8 @@
   #screen-comparativo_anual .ca-page-title{
     display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;
   }
-  #screen-comparativo_anual .ca-page-title h1{ font-family:var(--font-head); font-size:1.5rem; font-weight:800; }
-  #screen-comparativo_anual .ca-page-title p{ color:var(--eq-gray); font-size:.88rem; }
+  #screen-comparativo_anual .ca-page-title h1{ font-family:var(--font-head); font-size:1.72rem; font-weight:780; line-height:1.12; }
+  #screen-comparativo_anual .ca-page-title p{ color:rgba(200,212,240,.72); font-size:.72rem; line-height:1.35; }
   #screen-comparativo_anual .ca-filter-bar{
     display:flex; flex-wrap:wrap; gap:.9rem; align-items:center;
     padding:.95rem 1.2rem; background:rgba(255,255,255,.04);
@@ -421,19 +421,22 @@
   }
   #screen-comparativo_anual .ca-picker .ca-chev{ margin-left:auto; opacity:.65; font-size:.66rem; }
   #screen-comparativo_anual .ca-filter-gap{ flex:1; }
-  #screen-comparativo_anual .ca-hero-grid{ display:grid; grid-template-columns:2fr 1.1fr; gap:1rem; margin-bottom:1rem; }
+  #screen-comparativo_anual .ca-hero-grid{ display:grid; grid-template-columns:2fr 1.1fr; gap:1rem; margin-bottom:1rem; align-items:start; }
   #screen-comparativo_anual .ca-card{
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:16px; box-shadow:0 18px 42px rgba(0,0,0,.28);
   }
   #screen-comparativo_anual .ca-hero-card{
-    padding:1.25rem 1.3rem; display:grid; grid-template-columns:1.25fr .75fr; gap:1rem; min-height:220px;
+    padding:1.05rem 1.15rem .95rem; display:block; min-height:auto;
   }
   #screen-comparativo_anual .ca-hero-card h2,
   #screen-comparativo_anual .ca-reading-card h3,
   #screen-comparativo_anual .ca-panel-head h3,
   #screen-comparativo_anual .ca-callout h3{ font-family:var(--font-head); }
   #screen-comparativo_anual .ca-hero-card h2{ font-size:1.15rem; font-weight:800; margin-bottom:.35rem; }
-  #screen-comparativo_anual .ca-hero-card p{ font-size:.86rem; color:var(--eq-gray); line-height:1.65; }
+  #screen-comparativo_anual .ca-hero-card p{ font-size:.82rem; color:var(--eq-gray); line-height:1.55; max-width:720px; }
+  #screen-comparativo_anual .ca-context-highlight{ color:#e0a064; font-weight:760; }
+  #screen-comparativo_anual .ca-scope-note{ margin-top:.65rem; padding-top:.55rem; border-top:1px solid rgba(255,255,255,.06); font-size:.68rem; color:rgba(200,212,240,.68); line-height:1.45; max-width:720px; }
+  #screen-comparativo_anual .ca-scope-note strong{ color:rgba(238,244,255,.78); font-weight:700; }
   #screen-comparativo_anual .ca-hero-badges{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1rem; }
   #screen-comparativo_anual .ca-hero-badges span{
     font-size:.72rem; font-weight:700; border-radius:999px; padding:.3rem .65rem;
@@ -2135,32 +2138,12 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
         <div>
           <h2>Resumo Executivo</h2>
           <p>
-            Considerando a seleção de <strong>Goiânia</strong>, <strong>2025</strong> como ano base,
-            <strong>2026</strong> como ano comparativo e <strong>todos os pacotes</strong>, observa-se
-            crescimento do realizado acumulado, com melhora de aderência ao planejado no segundo semestre
-            e maior pressão concentrada nos pacotes operacionais.
+            Considerando a seleção de <span class="ca-context-highlight">Goiânia</span>, <span class="ca-context-highlight">2025</span> como ano base,
+            <span class="ca-context-highlight">2026</span> como ano comparativo e <span class="ca-context-highlight">todos os pacotes</span>, o painel
+            apresenta leitura executiva baseada nos dados reais importados no Panorama.
           </p>
-          <div class="ca-hero-badges">
-            <span>Comparativo anual</span>
-            <span>Regional sensível ao filtro</span>
-            <span>Pacote sensível ao filtro</span>
-            <span>Leitura executiva</span>
-          </div>
-        </div>
-        <div class="ca-hero-side">
-          <div class="ca-mini">
-            <div class="ca-kicker">Ano base</div>
-            <div class="ca-num">2025</div>
-          </div>
-          <div class="ca-mini">
-            <div class="ca-kicker">Ano comparativo</div>
-            <div class="ca-num">2026</div>
-          </div>
-          <div style="margin-top:.35rem;">
-            <div style="font-size:.74rem; color:var(--eq-gray); line-height:1.5;">
-              <strong style="color:var(--eq-gray); font-weight:700;">Escopo analisado:</strong> Regional + Pacotes<br>
-              O resumo responde aos filtros do topo: regional, ano base, ano comparativo e pacotes.
-            </div>
+          <div class="ca-scope-note">
+            <strong>Escopo analisado:</strong> regional, ano base, ano comparativo e pacote selecionados nos filtros superiores.
           </div>
         </div>
       </div>
@@ -5012,8 +4995,7 @@ function renderComparativoAnual(){
   const adhDiff=(compReal!=null&&compPlan!=null)?compReal-compPlan:null;
   const adhPct=adhDiff!=null?caPct(adhDiff,compPlan):null;
 
-  caSetHTML('#screen-comparativo_anual .ca-hero-card p', `Considerando a seleção de <strong>${regionLabel}</strong>, <strong>${caBaseYear}</strong> como ano base, <strong>${caCompareYear}</strong> como ano comparativo e <strong>${pkgLabel}</strong>, o painel apresenta leitura executiva baseada nos dados reais importados no Panorama.`);
-  const minis=document.querySelectorAll('#screen-comparativo_anual .ca-mini .ca-num'); if(minis[0]) minis[0].textContent=caBaseYear; if(minis[1]) minis[1].textContent=caCompareYear;
+  caSetHTML('#screen-comparativo_anual .ca-hero-card p', `Considerando a seleção de <span class="ca-context-highlight">${regionLabel}</span>, <span class="ca-context-highlight">${caBaseYear}</span> como ano base, <span class="ca-context-highlight">${caCompareYear}</span> como ano comparativo e <span class="ca-context-highlight">${pkgLabel}</span>, o painel apresenta leitura executiva baseada nos dados reais importados no Panorama.`);
   const kpis=document.querySelectorAll('#screen-comparativo_anual .ca-kpi .ca-value');
   if(kpis[0]) kpis[0].textContent=baseReal==null?'—':fmtShort(baseReal);
   if(kpis[1]) kpis[1].textContent=compReal==null?'—':fmtShort(compReal);
