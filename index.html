@@ -460,7 +460,7 @@
   #screen-comparativo_anual .ca-pos{ color:var(--green); font-weight:700; }
   #screen-comparativo_anual .ca-neg{ color:var(--red); font-weight:700; }
   #screen-comparativo_anual .ca-warn{ color:var(--yellow); font-weight:700; }
-  #screen-comparativo_anual .ca-kpi-grid{ display:grid; grid-template-columns:repeat(2,340px); gap:.9rem; margin-bottom:1.1rem; width:max-content; }
+  #screen-comparativo_anual .ca-kpi-grid{ display:grid; grid-template-columns:repeat(2,260px); gap:.9rem; margin-bottom:1.1rem; width:max-content; }
   #screen-comparativo_anual .ca-kpi{ padding:1rem 1rem 1.05rem; position:relative; overflow:hidden; }
   #screen-comparativo_anual .ca-kpi::before{ content:""; position:absolute; top:0; left:0; right:0; height:3px; background:var(--ca-accent, rgba(255,255,255,.15)); }
   #screen-comparativo_anual .ca-kpi .ca-label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--eq-gray); margin-bottom:.45rem; }
@@ -1470,7 +1470,7 @@ table.dre-table td.dv-var-y {
 #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid{
   grid-area:kpis;
   display:grid;
-  grid-template-columns:repeat(2,minmax(220px,340px));
+  grid-template-columns:repeat(2,260px);
   justify-content:start;
   gap:.72rem;
   margin:0;
@@ -1502,12 +1502,45 @@ table.dre-table td.dv-var-y {
       "kpis";
   }
   #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-columns:repeat(2,minmax(220px,260px)); justify-content:start;
   }
 }
 @media (max-width: 720px){
   #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid{
     grid-template-columns:1fr;
+  }
+}
+
+
+/* Ajuste cirúrgico: reduzir somente a largura horizontal dos 4 KPIs do Comparativo Anual. */
+#screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid{
+  grid-template-columns: repeat(2, 260px) !important;
+  justify-content: start !important;
+  width: max-content !important;
+}
+#screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid .ca-kpi{
+  width: 260px !important;
+  max-width: 260px !important;
+}
+@media (max-width: 1180px){
+  #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid{
+    grid-template-columns: repeat(2, minmax(220px, 260px)) !important;
+    justify-content: start !important;
+    width: max-content !important;
+  }
+  #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid .ca-kpi{
+    width: 260px !important;
+    max-width: 260px !important;
+  }
+}
+@media (max-width: 720px){
+  #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid{
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+  #screen-comparativo_anual .ca-hero-grid > .ca-kpi-grid .ca-kpi{
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
