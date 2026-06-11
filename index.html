@@ -1668,10 +1668,10 @@ table.dre-table td.dv-var-y {
     <div class="filter-bar filter-bar-panorama">
       <div class="filter-row filter-row-main">
         <div class="filter-field filter-field-card">
-          <span class="filter-label">CARD:</span>
+          <span class="filter-label">CARD STC:</span>
           <div class="toggle-group">
             <button class="btn-toggle sel" id="tog-all"    onclick="setCardFilter('all')">Todos</button>
-            <button class="btn-toggle"     id="tog-card"   onclick="setCardFilter('card')">CARD</button>
+            <button class="btn-toggle"     id="tog-card"   onclick="setCardFilter('card')">CARD STC</button>
             <button class="btn-toggle"     id="tog-nocard" onclick="setCardFilter('nocard')">Pacotes Operacionais</button>
           </div>
         </div>
@@ -2421,8 +2421,8 @@ const PACKAGES = [
   { id:'07', name:'Gente',                         card:true,  hib:false },
   { id:'08', name:'Despesas Gerais',               card:true,  hib:false },
   { id:'09', name:'Serviços Especializados',       card:true,  hib:false },
-  { id:'10', name:'Serviços Operacionais',         card:false, hib:false },
-  { id:'11', name:'Combate a Perdas',              card:false, hib:false },
+  { id:'10', name:'Serviços Operacionais',         card:true,  hib:false },
+  { id:'11', name:'Combate a Perdas',              card:true,  hib:false },
   { id:'15', name:'Sist. Info. e Telecom',         card:true,  hib:false },
   { id:'16', name:'Arrecadação e Cobrança',        card:true,  hib:false },
   { id:'20', name:'Contingências',                 card:true,  hib:false },
@@ -3393,7 +3393,7 @@ function setCurrentDataYear() {
 }
 
 function getVisiblePkgs() {
-  if (cardFilter==='card')   return PACKAGES.filter(p => ['07','08','09','15','16','20'].includes(p.id));
+  if (cardFilter==='card')   return PACKAGES.filter(p => ['07','08','09','10','11','15','16','20'].includes(p.id));
   if (cardFilter==='nocard') return PACKAGES.filter(p => ['10','11'].includes(p.id));
   return PACKAGES.filter(p => ['07','08','09','10','11','15','16','20'].includes(p.id));
 }
@@ -3471,7 +3471,7 @@ function renderCards() {
   const totAgg = aggForFilter(totMon);
   const tSt = getStatus(totAgg.plan, totAgg.real, false);
   const tCol = SC[tSt];
-  const fn = cardFilter==='card'?'Pacotes CARD':cardFilter==='nocard'?'Pacotes Operacionais':'Todos os Pacotes';
+  const fn = cardFilter==='card'?'Pacotes CARD STC':cardFilter==='nocard'?'Pacotes Operacionais':'Todos os Pacotes';
   const totPct = (totAgg.plan && totAgg.real!=null)
     ? ((totAgg.real-totAgg.plan)/totAgg.plan*100).toFixed(1) : null;
 
@@ -3527,7 +3527,7 @@ function renderCards() {
     card.style.setProperty('--c-accent', col);
     card.innerHTML = `
       <button class="card-detail-btn" title="Ver valores completos">🔍</button>
-      <div class="card-pkg-id">PAC. ${p.id}${p.card?' · <span style="color:var(--eq-orange)">CARD</span>':''}${(['10','11'].includes(p.id)?' · <span style="color:var(--eq-orange);font-size:.58rem">PAC. OPERACIONAIS</span>':'')}${p.hib?' · <span style="color:#60a5fa;font-size:.6rem">RECEITA</span>':''}</div>
+      <div class="card-pkg-id">PAC. ${p.id}${p.card?' · <span style="color:var(--eq-orange)">CARD STC</span>':''}${((['10','11'].includes(p.id) && !p.card)?' · <span style="color:var(--eq-orange);font-size:.58rem">PAC. OPERACIONAIS</span>':'')}${p.hib?' · <span style="color:#60a5fa;font-size:.6rem">RECEITA</span>':''}</div>
       <div class="card-pkg-name">${p.name}</div>
       <div class="card-row">
         <div>
@@ -3973,7 +3973,7 @@ function buildTemplatePkgList() {
   PACKAGES.forEach(p => {
     const div = document.createElement('div');
     div.className = 'template-pkg-item';
-    div.innerHTML = `<code>${p.id}</code><span>${p.name}${p.card?' · CARD':''}${p.hib?' · RECEITA':''}</span>`;
+    div.innerHTML = `<code>${p.id}</code><span>${p.name}${p.card?' · CARD STC':''}${p.hib?' · RECEITA':''}</span>`;
     el.appendChild(div);
   });
 }
