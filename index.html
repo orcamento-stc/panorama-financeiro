@@ -2536,9 +2536,9 @@ const SUPERINTENDENCIAS = {
   'Sul': ['Morrinhos', 'Rio Verde']
 };
 const COST_CENTERS = [
-  { id:'6070029030', name:'Cc Gerência de Serviços Técnicos e Comerciais' },
-  { id:'607002903B', name:'Cc Executivo de Serviços de Rede Norte' },
-  { id:'607002903C', name:'Cc Executivo de Gestão do Grupo A' }
+  { id:'6070029030', name:'Gerência STC' },
+  { id:'607002903B', name:'Executivo Rede Norte' },
+  { id:'607002903C', name:'Executivo Grupo A' }
 ];
 const CURRENT_YEAR = new Date().getFullYear();
 let selectedSuperintendencias = []; // panorama: vazio = todas
@@ -3910,7 +3910,7 @@ function renderChart() {
     pkgIds=[selectedPkg]; label=`Pac. ${pkg.id} — ${pkg.name}`; hib=pkg.hib;
   }
   const dimensionLabel = cardFilter === 'card' ? getCostCenterFilterLabel() : getRegionalFilterLabel();
-  const dimensionTitle = cardFilter === 'card' ? 'Centro de Custo: ' + dimensionLabel : dimensionLabel;
+  const dimensionTitle = dimensionLabel;
   document.getElementById('chart-title').textContent = label + ' — Acumulado · ' + dimensionTitle + ' · Ano ' + selectedYear;
   document.getElementById('dre-title').textContent   = 'DRE — ' + label + ' · ' + dimensionTitle + ' · Ano ' + selectedYear;
 
