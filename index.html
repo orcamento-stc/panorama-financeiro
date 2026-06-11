@@ -951,6 +951,7 @@ body.perfil-admin .consulta-only {
 #screen-panorama .filter-field-card { flex: 1 1 360px; }
 #screen-panorama .filter-field-super { flex: 0 1 330px; margin-right: .45rem; }
 #screen-panorama .filter-field-regional { flex: 0 1 285px; }
+#screen-panorama .filter-field-cost { flex: 1 1 430px; }
 #screen-panorama .filter-field-month { flex: 0 1 270px; }
 #screen-panorama .filter-field-year { flex: 0 1 230px; }
 
@@ -1753,6 +1754,23 @@ table.dre-table td.dv-var-y {
       </div>
 
       <div class="filter-row filter-row-time">
+        <div class="filter-field filter-field-cost">
+          <span class="filter-label">Centro de Custo:</span>
+          <div class="month-picker" id="cost-center-picker">
+            <button class="month-picker-btn" id="cost-center-picker-btn" onclick="toggleCostCenterDropdown(event)" style="min-width:360px">
+              <span id="cost-center-picker-label">Todos os centros de custo</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="cost-center-dropdown" style="min-width:430px;max-width:520px">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplos</span>
+                <button onclick="clearCostCenterSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="cost-center-grid"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="filter-field filter-field-month">
           <span class="filter-label">Mês:</span>
           <!-- Custom multi-month picker -->
@@ -2517,9 +2535,15 @@ const SUPERINTENDENCIAS = {
   'Sudoeste': ['Iporá', 'Montes Belos'],
   'Sul': ['Morrinhos', 'Rio Verde']
 };
+const COST_CENTERS = [
+  { id:'6070029030', name:'Cc Gerência de Serviços Técnicos e Comerciais' },
+  { id:'607002903B', name:'Cc Executivo de Serviços de Rede Norte' },
+  { id:'607002903C', name:'Cc Executivo de Gestão do Grupo A' }
+];
 const CURRENT_YEAR = new Date().getFullYear();
 let selectedSuperintendencias = []; // panorama: vazio = todas
 let selectedRegionals = [];      // panorama: vazio = todas
+let selectedCostCenters = [];    // panorama/card stc: vazio = todos
 let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
 
 let appData = {};
@@ -2534,6 +2558,17 @@ function ensureRegionalStructure(regionName, year = getDefaultYear()) {
   PACKAGES.forEach(p => {
     if (!appData[regionName][year][p.id] || !Array.isArray(appData[regionName][year][p.id])) {
       appData[regionName][year][p.id] = MONTHS.map(() => ({plan:null,real:null}));
+    }
+  });
+}
+
+function ensureCostCenterStructure(costCenterId, year = getDefaultYear()) {
+  if (!appData.__costCenters || Array.isArray(appData.__costCenters)) appData.__costCenters = {};
+  if (!appData.__costCenters[costCenterId] || Array.isArray(appData.__costCenters[costCenterId])) appData.__costCenters[costCenterId] = {};
+  if (!appData.__costCenters[costCenterId][year] || Array.isArray(appData.__costCenters[costCenterId][year])) appData.__costCenters[costCenterId][year] = {};
+  PACKAGES.forEach(p => {
+    if (!appData.__costCenters[costCenterId][year][p.id] || !Array.isArray(appData.__costCenters[costCenterId][year][p.id])) {
+      appData.__costCenters[costCenterId][year][p.id] = MONTHS.map(() => ({plan:null,real:null}));
     }
   });
 }
@@ -2576,6 +2611,13 @@ function normalizeLegacyData() {
     Object.keys(appData[regionName]).forEach(year => ensureRegionalStructure(regionName, year));
     ensureRegionalStructure(regionName, getDefaultYear());
   });
+
+  COST_CENTERS.forEach(cc => {
+    if (appData.__costCenters && appData.__costCenters[cc.id] && typeof appData.__costCenters[cc.id] === 'object' && !Array.isArray(appData.__costCenters[cc.id])) {
+      Object.keys(appData.__costCenters[cc.id]).forEach(year => ensureCostCenterStructure(cc.id, year));
+    }
+    ensureCostCenterStructure(cc.id, getDefaultYear());
+  });
 }
 
 function initData() {
@@ -2589,6 +2631,7 @@ function initData() {
   } catch(e) {}
   appData = {};
   REGIONALS.forEach(r => ensureRegionalStructure(r, getDefaultYear()));
+  COST_CENTERS.forEach(cc => ensureCostCenterStructure(cc.id, getDefaultYear()));
 }
 function saveData() {
   if (currentUserRole !== 'admin') { alert('Perfil de consulta: alteração não permitida.'); return; }
@@ -3214,6 +3257,84 @@ function toggleSuperDropdown(e) {
   document.getElementById('super-dropdown').classList.toggle('open');
 }
 
+/* Centro de Custo picker — usado apenas na leitura do CARD STC */
+function buildCostCenterPicker() {
+  const grid = document.getElementById('cost-center-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (selectedCostCenters.length === 0 ? ' sel' : '');
+  all.textContent = 'Todos os centros de custo';
+  all.onclick = () => { clearCostCenterSel(); };
+  grid.appendChild(all);
+
+  COST_CENTERS.forEach(cc => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (selectedCostCenters.includes(cc.id) ? ' sel' : '');
+    el.textContent = cc.id + ' - ' + cc.name;
+    el.onclick = (e) => toggleCostCenterOpt(cc.id, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  updateCostCenterLabel();
+}
+
+function toggleCostCenterOpt(id, multi) {
+  if (!multi) {
+    if (selectedCostCenters.length === 1 && selectedCostCenters[0] === id) {
+      selectedCostCenters = [];
+    } else {
+      selectedCostCenters = [id];
+    }
+  } else {
+    const pos = selectedCostCenters.indexOf(id);
+    if (pos >= 0) selectedCostCenters.splice(pos, 1);
+    else selectedCostCenters.push(id);
+  }
+
+  buildCostCenterPicker();
+  renderPanorama();
+}
+
+function clearCostCenterSel() {
+  selectedCostCenters = [];
+  buildCostCenterPicker();
+  renderPanorama();
+}
+
+function updateCostCenterLabel() {
+  const lbl = document.getElementById('cost-center-picker-label');
+  if (!lbl) return;
+
+  if (selectedCostCenters.length === 0) {
+    lbl.textContent = 'Todos os centros de custo';
+  } else if (selectedCostCenters.length === 1) {
+    const cc = COST_CENTERS.find(c => c.id === selectedCostCenters[0]);
+    lbl.textContent = cc ? cc.id : selectedCostCenters[0];
+  } else {
+    lbl.textContent = selectedCostCenters.join(', ');
+  }
+}
+
+function toggleCostCenterDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('cost-center-dropdown').classList.toggle('open');
+}
+
+function getSelectedCostCenterIds() {
+  return selectedCostCenters.length ? [...selectedCostCenters] : COST_CENTERS.map(cc => cc.id);
+}
+
+function getCostCenterFilterLabel() {
+  if (selectedCostCenters.length === 0) return 'Todos os centros de custo';
+  if (selectedCostCenters.length === 1) {
+    const cc = COST_CENTERS.find(c => c.id === selectedCostCenters[0]);
+    return cc ? cc.id : selectedCostCenters[0];
+  }
+  return selectedCostCenters.join(', ');
+}
+
 /* Regional picker (visual + estrutura pronta) */
 function buildRegionalPicker() {
   const grid = document.getElementById('regional-grid');
@@ -3381,6 +3502,7 @@ document.addEventListener('click', () => {
   const sd = document.getElementById('super-dropdown');
   const rd = document.getElementById('regional-dropdown');
   const yd = document.getElementById('year-dropdown');
+  const ccd = document.getElementById('cost-center-dropdown');
   const drd = document.getElementById('data-regional-dropdown');
   const dyd = document.getElementById('data-year-dropdown');
   const psd = document.getElementById('pac10-super-dropdown');
@@ -3392,6 +3514,7 @@ document.addEventListener('click', () => {
   if (sd) sd.classList.remove('open');
   if (rd) rd.classList.remove('open');
   if (yd) yd.classList.remove('open');
+  if (ccd) ccd.classList.remove('open');
   if (drd) drd.classList.remove('open');
   if (dyd) dyd.classList.remove('open');
   if (psd) psd.classList.remove('open');
@@ -3404,6 +3527,8 @@ document.getElementById('month-dropdown').addEventListener('click', e => e.stopP
 document.getElementById('super-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('regional-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('year-dropdown').addEventListener('click', e => e.stopPropagation());
+const costCenterDropdown = document.getElementById('cost-center-dropdown');
+if (costCenterDropdown) costCenterDropdown.addEventListener('click', e => e.stopPropagation());
 document.getElementById('data-year-dropdown').addEventListener('click', e => e.stopPropagation());
 const pac10SuperDropdown = document.getElementById('pac10-super-dropdown');
 const pac10RegionalDropdown = document.getElementById('pac10-regional-dropdown');
@@ -3419,9 +3544,17 @@ if (pac10ServiceDropdown) pac10ServiceDropdown.addEventListener('click', e => e.
 
 function getAvailableYears() {
   const years = new Set([CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1]);
-  Object.values(appData || {}).forEach(regionBucket => {
+  Object.entries(appData || {}).forEach(([bucketKey, regionBucket]) => {
+    if (bucketKey === '__costCenters') return;
     if (regionBucket && typeof regionBucket === 'object' && !Array.isArray(regionBucket)) {
       Object.keys(regionBucket).forEach(k => {
+        if (/^\d{4}$/.test(k)) years.add(Number(k));
+      });
+    }
+  });
+  Object.values(appData.__costCenters || {}).forEach(costBucket => {
+    if (costBucket && typeof costBucket === 'object' && !Array.isArray(costBucket)) {
+      Object.keys(costBucket).forEach(k => {
         if (/^\d{4}$/.test(k)) years.add(Number(k));
       });
     }
@@ -3511,8 +3644,28 @@ function getCell(regionName, pkgId, monthIndex, year = String(selectedYear || CU
   return appData[regionName][year][pkgId][monthIndex];
 }
 
+function getCostCenterCell(costCenterId, pkgId, monthIndex, year = String(selectedYear || CURRENT_YEAR)) {
+  ensureCostCenterStructure(costCenterId, year);
+  return appData.__costCenters[costCenterId][year][pkgId][monthIndex];
+}
+
 /* ── AGGREGATION ── */
 function monthlyForPkgs(ids) {
+  if (cardFilter === 'card') {
+    const costCenters = getSelectedCostCenterIds();
+    return MONTHS.map((_,mi) => {
+      let plan=0,real=0,hp=false,hr=false;
+      costCenters.forEach(costCenterId => {
+        ids.forEach(id => {
+          const d = getCostCenterCell(costCenterId, id, mi);
+          if (d?.plan!=null) { plan+=d.plan; hp=true; }
+          if (d?.real!=null) { real+=d.real; hr=true; }
+        });
+      });
+      return { plan:hp?plan:null, real:hr?real:null };
+    });
+  }
+
   const regions = getSelectedRegionalNames();
   return MONTHS.map((_,mi) => {
     let plan=0,real=0,hp=false,hr=false;
@@ -3552,7 +3705,7 @@ function badge(st,hib) {
 }
 
 /* ── RENDER PANORAMA ── */
-function renderPanorama() { buildSuperPicker(); buildRegionalPicker(); buildMonthPicker(); buildYearPicker(); renderCards(); renderChart(); }
+function renderPanorama() { buildSuperPicker(); buildRegionalPicker(); buildCostCenterPicker(); buildMonthPicker(); buildYearPicker(); renderCards(); renderChart(); }
 
 function renderCards() {
   const grid = document.getElementById('cards-grid');
@@ -3685,11 +3838,13 @@ function openModal({ id, name, plan, real, hib }) {
   const mLabel = modalMonths.length === 0 ? 'Acumulado anual'
     : modalMonths.length === 1 ? `Mês: ${MONTHS[modalMonths[0]]}`
     : `Meses: ${modalMonths.map(i=>MONTHS[i]).join(', ')}`;
-  const rLabel = currentScreen === 'panorama' ? getRegionalFilterLabel()
+  const rLabel = currentScreen === 'panorama'
+    ? (cardFilter === 'card' ? getCostCenterFilterLabel() : getRegionalFilterLabel())
     : currentScreen === 'pac10' ? getPac10RegionalFilterLabel()
     : (modalRegionals.length === 0 ? 'Todas as regionais' : modalRegionals.map(i=>REGIONALS[i]).join(', '));
+  const dimensionLabel = currentScreen === 'panorama' && cardFilter === 'card' ? 'Centro de Custo' : 'Regional';
   const yearLabel = currentScreen === 'pac10' ? String(pac10SelectedYear) : String(selectedYear);
-  document.getElementById('modal-period').textContent = `${mLabel} · Regional: ${rLabel} · Ano: ${yearLabel}`;
+  document.getElementById('modal-period').textContent = `${mLabel} · ${dimensionLabel}: ${rLabel} · Ano: ${yearLabel}`;
 
   document.getElementById('card-modal').classList.add('open');
 }
@@ -3712,14 +3867,14 @@ function getProjectionData(pkgIds) {
   // We check raw appData to avoid counting zero-defaults as filled.
   let lastRealIdx = -1;
   MONTHS.forEach((_, mi) => {
-    const regions = getSelectedRegionalNames();
-    const anyReal = regions.some(regionName => pkgIds.some(id => {
-      const v = getCell(regionName, id, mi)?.real;
+    const dimensions = cardFilter === 'card' ? getSelectedCostCenterIds() : getSelectedRegionalNames();
+    const anyReal = dimensions.some(dimName => pkgIds.some(id => {
+      const v = (cardFilter === 'card' ? getCostCenterCell(dimName, id, mi) : getCell(dimName, id, mi))?.real;
       return v != null && v !== 0;
     }));
     // also allow genuine zero if the package had non-zero in prior months
-    const anyRealZero = lastRealIdx >= 0 && regions.some(regionName => pkgIds.some(id => {
-      const c = getCell(regionName, id, mi);
+    const anyRealZero = lastRealIdx >= 0 && dimensions.some(dimName => pkgIds.some(id => {
+      const c = cardFilter === 'card' ? getCostCenterCell(dimName, id, mi) : getCell(dimName, id, mi);
       const v = c?.real;
       return v === 0 && c?.plan != null;
     }));
@@ -3754,9 +3909,10 @@ function renderChart() {
     const pkg=PACKAGES.find(p=>p.id===selectedPkg);
     pkgIds=[selectedPkg]; label=`Pac. ${pkg.id} — ${pkg.name}`; hib=pkg.hib;
   }
-  const regionalLabel = getRegionalFilterLabel();
-  document.getElementById('chart-title').textContent = label + ' — Acumulado · ' + regionalLabel + ' · Ano ' + selectedYear;
-  document.getElementById('dre-title').textContent   = 'DRE — ' + label + ' · ' + regionalLabel + ' · Ano ' + selectedYear;
+  const dimensionLabel = cardFilter === 'card' ? getCostCenterFilterLabel() : getRegionalFilterLabel();
+  const dimensionTitle = cardFilter === 'card' ? 'Centro de Custo: ' + dimensionLabel : dimensionLabel;
+  document.getElementById('chart-title').textContent = label + ' — Acumulado · ' + dimensionTitle + ' · Ano ' + selectedYear;
+  document.getElementById('dre-title').textContent   = 'DRE — ' + label + ' · ' + dimensionTitle + ' · Ano ' + selectedYear;
 
   const { cumPlan, cumReal, cumProj, lastRealIdx } = getProjectionData(pkgIds);
 
