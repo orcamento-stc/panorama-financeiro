@@ -4091,7 +4091,7 @@ function confirmImport() {
     const targetYear = String(row.year || getDefaultYear());
     ensureRegionalStructure(regionName, targetYear);
     row.values.forEach((v, mi) => {
-      if (v !== null) appData[regionName][targetYear][row.pkgId][mi][row.type] = v;
+      appData[regionName][targetYear][row.pkgId][mi][row.type] = v;
     });
   });
   saveData();
@@ -4718,7 +4718,7 @@ function confirmPac10Import() {
     const region = row.regional || getPac10DataEntryRegionalName();
     const targetYear = String(row.year || getPac10DefaultYear());
     ensurePac10RegionalStructure(region, targetYear);
-    row.values.forEach((v,mi)=>{ if(v!==null) pac10Data[region][targetYear][row.service][mi][row.type]=v; });
+    row.values.forEach((v,mi)=>{ pac10Data[region][targetYear][row.service][mi][row.type]=v; });
   });
   savePac10Data(); renderPac10DataTable(); if(currentScreen==='pac10') renderPac10(); cancelPac10Preview(); document.getElementById('paste-pac10-area').value=''; showPac10Feedback('success', `✅ Importação concluída! ${parsedPac10ImportData.length} linha(s) gravadas com sucesso por regional e ano.`); parsedPac10ImportData=null;
 }
