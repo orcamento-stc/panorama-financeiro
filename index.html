@@ -1619,7 +1619,9 @@ table.dre-table td.dv-var-y {
         <button type="button" onclick="exportarBackup(); fecharMaisOpcoes();">💾 Fazer Backup</button>
         <button type="button" onclick="restaurarBackup(); fecharMaisOpcoes();">📂 Restaurar Backup</button>
         <div class="more-options-divider"></div>
+        <span class="more-options-label">Administração</span>
         <button type="button" onclick="abrirPainelSenhas(event); fecharMaisOpcoes();">🔐 Gerenciar Acessos</button>
+        <button type="button" onclick="limparDadosAdministrativo(); fecharMaisOpcoes();">🧹 Limpar Dados</button>
       </div>
     </div>
   </div>
@@ -2950,6 +2952,64 @@ function restaurarBackup() {
     };
 
     input.click();
+}  
+
+function limparDadosAdministrativo() {
+    if (currentUserRole !== 'admin') { alert('Perfil de consulta: limpeza de dados não permitida.'); return; }
+
+    const escolha = prompt(
+        'LIMPAR DADOS\n\n' +
+        'Digite uma das opções abaixo:\n' +
+        '1 - Limpar dados do Panorama\n' +
+        '2 - Limpar dados do PAC.10 Serviços\n' +
+        '3 - Limpar todos os dados\n\n' +
+        'Esta ação não apaga senhas nem acessos.'
+    );
+
+    if (escolha === null) return;
+
+    const opcao = String(escolha).trim();
+
+    if (!['1','2','3'].includes(opcao)) {
+        alert('Opção inválida. Nenhum dado foi apagado.');
+        return;
+    }
+
+    const nomeOpcao = opcao === '1'
+        ? 'dados do Panorama'
+        : opcao === '2'
+            ? 'dados do PAC.10 Serviços'
+            : 'todos os dados do Panorama e do PAC.10 Serviços';
+
+    if (!confirm('Confirmar limpeza de ' + nomeOpcao + '?\n\nAntes de continuar, garanta que o backup foi feito, se necessário.')) {
+        return;
+    }
+
+    if (!confirm('Confirma definitivamente apagar ' + nomeOpcao + '?\n\nEsta ação não poderá ser desfeita sem restaurar um backup.')) {
+        return;
+    }
+
+    if (opcao === '1' || opcao === '3') {
+        localStorage.removeItem('eq_stcgyn_v4');
+        appData = {};
+        initData();
+    }
+
+    if (opcao === '2' || opcao === '3') {
+        localStorage.removeItem('eq_stcgyn_pac10_v1');
+        pac10Data = {};
+        initPac10Data();
+    }
+
+    registrarAlteracaoDados();
+
+    if (currentScreen === 'panorama') renderPanorama();
+    if (currentScreen === 'data') renderDataTable();
+    if (currentScreen === 'pac10') renderPac10();
+    if (currentScreen === 'data_pac10') renderPac10DataTable();
+    if (currentScreen === 'comparativo_anual') renderComparativoAnual();
+
+    alert('Limpeza concluída. O indicador de backup pendente foi ativado.');
 }  
 
 /* ── SCREENS ── */
