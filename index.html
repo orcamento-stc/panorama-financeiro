@@ -954,6 +954,45 @@ body.perfil-admin .consulta-only {
 #screen-panorama .filter-field-month { flex: 0 1 270px; }
 #screen-panorama .filter-field-year { flex: 0 1 230px; }
 
+/* === AJUSTE FILTROS PAC.10 SERVIÇOS === */
+#screen-pac10 .filter-bar-pac10 {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85rem;
+}
+
+#screen-pac10 .filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+}
+
+#screen-pac10 .filter-row-main {
+  gap: .9rem 1.25rem;
+}
+
+#screen-pac10 .filter-row-time {
+  justify-content: flex-end;
+  gap: .9rem 1.2rem;
+  padding-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+#screen-pac10 .filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+
+#screen-pac10 .filter-field-regional { flex: 0 1 285px; }
+#screen-pac10 .filter-field-service { flex: 1 1 360px; }
+#screen-pac10 .filter-field-super { flex: 0 1 330px; }
+#screen-pac10 .filter-field-month { flex: 0 1 270px; }
+#screen-pac10 .filter-field-year { flex: 0 1 230px; }
+
 #screen-comparativo_anual .ca-filter-bar {
   display: flex;
   flex-direction: column;
@@ -1010,17 +1049,20 @@ body.perfil-admin .consulta-only {
 
 @media (max-width: 1100px) {
   #screen-panorama .filter-field,
+  #screen-pac10 .filter-field,
   #screen-comparativo_anual .ca-filter-field {
     flex: 1 1 100%;
     justify-content: space-between;
   }
 
   #screen-panorama .month-picker,
+  #screen-pac10 .month-picker,
   #screen-comparativo_anual .month-picker {
     flex: 1;
   }
 
   #screen-panorama .month-picker-btn,
+  #screen-pac10 .month-picker-btn,
   #screen-comparativo_anual .month-picker-btn {
     width: 100%;
   }
@@ -1938,64 +1980,93 @@ table.dre-table td.dv-var-y {
 <!-- DRE PAC10 -->
 <div id="screen-pac10">
   <div class="section-wrap">
-    <div class="filter-bar">
-      <span class="filter-label">Regional:</span>
-      <div class="month-picker" id="pac10-regional-picker">
-        <button class="month-picker-btn" id="pac10-regional-picker-btn" onclick="togglePac10RegionalDropdown(event)">
-          <span id="pac10-regional-picker-label">Todas as regionais</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="pac10-regional-dropdown">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplas</span>
-            <button onclick="clearPac10RegionalSel()">Limpar</button>
+    <div class="filter-bar filter-bar-pac10">
+      <div class="filter-row filter-row-main">
+        <div class="filter-field filter-field-regional">
+          <span class="filter-label">Regional:</span>
+          <div class="month-picker" id="pac10-regional-picker">
+            <button class="month-picker-btn" id="pac10-regional-picker-btn" onclick="togglePac10RegionalDropdown(event)">
+              <span id="pac10-regional-picker-label">Todas as regionais</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="pac10-regional-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearPac10RegionalSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="pac10-regional-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="pac10-regional-grid"></div>
+        </div>
+
+        <div class="filter-field filter-field-service">
+          <span class="filter-label">Serviços:</span>
+          <div class="month-picker" id="pac10-service-picker">
+            <button class="month-picker-btn" id="pac10-service-picker-btn" onclick="togglePac10ServiceDropdown(event)" style="min-width:280px">
+              <span id="pac10-service-picker-label">Todos os serviços</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="pac10-service-dropdown" style="min-width:360px;max-width:420px">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplos</span>
+                <button onclick="clearPac10ServiceSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="pac10-service-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-super">
+          <span class="filter-label">Superintendência:</span>
+          <div class="month-picker" id="pac10-super-picker">
+            <button class="month-picker-btn" id="pac10-super-picker-btn" onclick="togglePac10SuperDropdown(event)">
+              <span id="pac10-super-picker-label">Todas as superintendências</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="pac10-super-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearPac10SuperSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="pac10-super-grid"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <span class="filter-label">Mês:</span>
-      <div class="month-picker" id="pac10-month-picker">
-        <button class="month-picker-btn" id="pac10-month-picker-btn" onclick="togglePac10MonthDropdown(event)">
-          <span id="pac10-month-picker-label">Todos os meses</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="pac10-month-dropdown">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplos</span>
-            <button onclick="clearPac10MonthSel()">Limpar</button>
+      <div class="filter-row filter-row-time">
+        <div class="filter-field filter-field-month">
+          <span class="filter-label">Mês:</span>
+          <div class="month-picker" id="pac10-month-picker">
+            <button class="month-picker-btn" id="pac10-month-picker-btn" onclick="togglePac10MonthDropdown(event)">
+              <span id="pac10-month-picker-label">Todos os meses</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="pac10-month-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplos</span>
+                <button onclick="clearPac10MonthSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="pac10-month-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="pac10-month-grid"></div>
         </div>
-      </div>
 
-      <span class="filter-label">Ano:</span>
-      <div class="month-picker" id="pac10-year-picker">
-        <button class="month-picker-btn" id="pac10-year-picker-btn" onclick="togglePac10YearDropdown(event)">
-          <span id="pac10-year-picker-label">2026</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="pac10-year-dropdown">
-          <div class="month-dropdown-header">
-            <span>Selecione o ano</span>
-            <button onclick="setCurrentPac10Year()">Ano vigente</button>
+        <div class="filter-field filter-field-year">
+          <span class="filter-label">Ano:</span>
+          <div class="month-picker" id="pac10-year-picker">
+            <button class="month-picker-btn" id="pac10-year-picker-btn" onclick="togglePac10YearDropdown(event)">
+              <span id="pac10-year-picker-label">2026</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="pac10-year-dropdown">
+              <div class="month-dropdown-header">
+                <span>Selecione o ano</span>
+                <button onclick="setCurrentPac10Year()">Ano vigente</button>
+              </div>
+              <div class="month-grid" id="pac10-year-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="pac10-year-grid"></div>
-        </div>
-      </div>
-
-      <span class="filter-label">Serviços:</span>
-      <div class="month-picker" id="pac10-service-picker">
-        <button class="month-picker-btn" id="pac10-service-picker-btn" onclick="togglePac10ServiceDropdown(event)" style="min-width:280px">
-          <span id="pac10-service-picker-label">Todos os serviços</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="pac10-service-dropdown" style="min-width:360px;max-width:420px">
-          <div class="month-dropdown-header">
-            <span>Segure CTRL para múltiplos</span>
-            <button onclick="clearPac10ServiceSel()">Limpar</button>
-          </div>
-          <div class="month-grid" id="pac10-service-grid"></div>
         </div>
       </div>
     </div>
@@ -3312,18 +3383,38 @@ document.addEventListener('click', () => {
   const yd = document.getElementById('year-dropdown');
   const drd = document.getElementById('data-regional-dropdown');
   const dyd = document.getElementById('data-year-dropdown');
+  const psd = document.getElementById('pac10-super-dropdown');
+  const prd = document.getElementById('pac10-regional-dropdown');
+  const pmd = document.getElementById('pac10-month-dropdown');
+  const pyd = document.getElementById('pac10-year-dropdown');
+  const psvd = document.getElementById('pac10-service-dropdown');
   if (md) md.classList.remove('open');
   if (sd) sd.classList.remove('open');
   if (rd) rd.classList.remove('open');
   if (yd) yd.classList.remove('open');
   if (drd) drd.classList.remove('open');
   if (dyd) dyd.classList.remove('open');
+  if (psd) psd.classList.remove('open');
+  if (prd) prd.classList.remove('open');
+  if (pmd) pmd.classList.remove('open');
+  if (pyd) pyd.classList.remove('open');
+  if (psvd) psvd.classList.remove('open');
 });
 document.getElementById('month-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('super-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('regional-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('year-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('data-year-dropdown').addEventListener('click', e => e.stopPropagation());
+const pac10SuperDropdown = document.getElementById('pac10-super-dropdown');
+const pac10RegionalDropdown = document.getElementById('pac10-regional-dropdown');
+const pac10MonthDropdown = document.getElementById('pac10-month-dropdown');
+const pac10YearDropdown = document.getElementById('pac10-year-dropdown');
+const pac10ServiceDropdown = document.getElementById('pac10-service-dropdown');
+if (pac10SuperDropdown) pac10SuperDropdown.addEventListener('click', e => e.stopPropagation());
+if (pac10RegionalDropdown) pac10RegionalDropdown.addEventListener('click', e => e.stopPropagation());
+if (pac10MonthDropdown) pac10MonthDropdown.addEventListener('click', e => e.stopPropagation());
+if (pac10YearDropdown) pac10YearDropdown.addEventListener('click', e => e.stopPropagation());
+if (pac10ServiceDropdown) pac10ServiceDropdown.addEventListener('click', e => e.stopPropagation());
 
 
 function getAvailableYears() {
@@ -3594,9 +3685,10 @@ function openModal({ id, name, plan, real, hib }) {
   const mLabel = modalMonths.length === 0 ? 'Acumulado anual'
     : modalMonths.length === 1 ? `Mês: ${MONTHS[modalMonths[0]]}`
     : `Meses: ${modalMonths.map(i=>MONTHS[i]).join(', ')}`;
-  const rLabel = currentScreen === 'panorama' ? getRegionalFilterLabel() : (modalRegionals.length === 0 ? 'Todas as regionais'
-    : modalRegionals.map(i=>REGIONALS[i]).join(', '));
-  const yearLabel = currentScreen === 'pac10' ? String(CURRENT_YEAR) : String(selectedYear);
+  const rLabel = currentScreen === 'panorama' ? getRegionalFilterLabel()
+    : currentScreen === 'pac10' ? getPac10RegionalFilterLabel()
+    : (modalRegionals.length === 0 ? 'Todas as regionais' : modalRegionals.map(i=>REGIONALS[i]).join(', '));
+  const yearLabel = currentScreen === 'pac10' ? String(pac10SelectedYear) : String(selectedYear);
   document.getElementById('modal-period').textContent = `${mLabel} · Regional: ${rLabel} · Ano: ${yearLabel}`;
 
   document.getElementById('card-modal').classList.add('open');
@@ -4209,6 +4301,7 @@ const PAC10_SERVICES = [
   'WhatsApp'
 ].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 let pac10Data = {};
+let pac10SelectedSuperintendencias = [];
 let pac10SelectedRegionals = [];
 let pac10SelectedMonths = [];
 let pac10SelectedServices = [];
@@ -4271,8 +4364,38 @@ function getPac10Cell(regionName, serviceName, monthIndex, year = getPac10Defaul
   ensurePac10RegionalStructure(regionName, year);
   return pac10Data[regionName][year][serviceName][monthIndex];
 }
+function getPac10RegionalIndicesBySuper() {
+  if (!pac10SelectedSuperintendencias || pac10SelectedSuperintendencias.length === 0) {
+    return REGIONALS.map((_, i) => i);
+  }
+
+  const nomes = new Set();
+  pac10SelectedSuperintendencias.forEach(superNome => {
+    (SUPERINTENDENCIAS[superNome] || []).forEach(regional => nomes.add(regional));
+  });
+
+  return REGIONALS.map((r, i) => nomes.has(r) ? i : -1).filter(i => i >= 0);
+}
+
+function getPac10RegionalFilterLabel() {
+  if (pac10SelectedRegionals.length > 0) {
+    return pac10SelectedRegionals.map(i => REGIONALS[i]).join(', ');
+  }
+  if (pac10SelectedSuperintendencias.length === 1) {
+    return 'Superintendência ' + pac10SelectedSuperintendencias[0];
+  }
+  if (pac10SelectedSuperintendencias.length > 1) {
+    return pac10SelectedSuperintendencias.join(', ');
+  }
+  return 'Todas as regionais';
+}
+
 function getPac10SelectedRegionalNames() {
-  return pac10SelectedRegionals.length ? pac10SelectedRegionals.map(i=>REGIONALS[i]) : [...REGIONALS];
+  const base = getPac10RegionalIndicesBySuper();
+  const idxs = pac10SelectedRegionals.length
+    ? pac10SelectedRegionals.filter(i => base.includes(i))
+    : base;
+  return idxs.map(i => REGIONALS[i]);
 }
 function getVisiblePac10Services() {
   return pac10SelectedServices.length ? pac10SelectedServices.map(i=>PAC10_SERVICES[i]) : [...PAC10_SERVICES];
@@ -4343,23 +4466,103 @@ function getPac10ProjectionData(serviceNames) {
 }
 
 /* ── PAC10 PICKERS ── */
+function buildPac10SuperPicker() {
+  const grid = document.getElementById('pac10-super-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (pac10SelectedSuperintendencias.length === 0 ? ' sel' : '');
+  all.textContent = 'Todas as superintendências';
+  all.onclick = () => { clearPac10SuperSel(); };
+  grid.appendChild(all);
+
+  Object.keys(SUPERINTENDENCIAS).forEach(nome => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (pac10SelectedSuperintendencias.includes(nome) ? ' sel' : '');
+    el.textContent = nome;
+    el.onclick = (e) => togglePac10SuperOpt(nome, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  updatePac10SuperLabel();
+}
+
+function togglePac10SuperOpt(nome, multi) {
+  if (!multi) {
+    if (pac10SelectedSuperintendencias.length === 1 && pac10SelectedSuperintendencias[0] === nome) {
+      pac10SelectedSuperintendencias = [];
+    } else {
+      pac10SelectedSuperintendencias = [nome];
+    }
+  } else {
+    const pos = pac10SelectedSuperintendencias.indexOf(nome);
+    if (pos >= 0) pac10SelectedSuperintendencias.splice(pos, 1);
+    else pac10SelectedSuperintendencias.push(nome);
+  }
+
+  pac10SelectedRegionals = [];
+  buildPac10SuperPicker();
+  buildPac10RegionalPicker();
+  renderPac10();
+}
+
+function clearPac10SuperSel() {
+  pac10SelectedSuperintendencias = [];
+  pac10SelectedRegionals = [];
+  buildPac10SuperPicker();
+  buildPac10RegionalPicker();
+  renderPac10();
+}
+
+function updatePac10SuperLabel() {
+  const lbl = document.getElementById('pac10-super-picker-label');
+  if (!lbl) return;
+
+  if (pac10SelectedSuperintendencias.length === 0) {
+    lbl.textContent = 'Todas as superintendências';
+  } else if (pac10SelectedSuperintendencias.length === 1) {
+    lbl.textContent = pac10SelectedSuperintendencias[0];
+  } else {
+    lbl.textContent = pac10SelectedSuperintendencias.join(', ');
+  }
+}
+
+function togglePac10SuperDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('pac10-super-dropdown').classList.toggle('open');
+}
+
 function buildPac10RegionalPicker() {
   const grid = document.getElementById('pac10-regional-grid');
   if (!grid) return;
   grid.innerHTML = '';
+
   const all = document.createElement('div');
   all.className = 'month-opt-all' + (pac10SelectedRegionals.length===0?' sel':'');
-  all.textContent = 'Todas as regionais';
+  all.textContent = pac10SelectedSuperintendencias.length === 0 ? 'Todas as regionais' : 'Todas da superintendência';
   all.onclick = clearPac10RegionalSel;
   grid.appendChild(all);
-  REGIONALS.forEach((r,i)=>{
+
+  getPac10RegionalIndicesBySuper().forEach(i=>{
+    const r = REGIONALS[i];
     const el = document.createElement('div');
     el.className = 'month-opt' + (pac10SelectedRegionals.includes(i)?' sel':'');
     el.textContent = r;
     el.onclick = (e)=>togglePac10RegionalOpt(i, e.ctrlKey || e.metaKey);
     grid.appendChild(el);
   });
-  document.getElementById('pac10-regional-picker-label').textContent = pac10SelectedRegionals.length===0 ? 'Todas as regionais' : pac10SelectedRegionals.map(i=>REGIONALS[i]).join(', ');
+
+  const lbl = document.getElementById('pac10-regional-picker-label');
+  if (lbl) {
+    if (pac10SelectedRegionals.length === 0) {
+      lbl.textContent = pac10SelectedSuperintendencias.length === 0 ? 'Todas as regionais' : 'Todas da superintendência';
+    } else if (pac10SelectedRegionals.length === 1) {
+      lbl.textContent = REGIONALS[pac10SelectedRegionals[0]];
+    } else {
+      lbl.textContent = pac10SelectedRegionals.map(i=>REGIONALS[i]).join(', ');
+    }
+  }
 }
 function togglePac10RegionalOpt(idx, multi) {
   if (!multi) {
@@ -4452,6 +4655,7 @@ document.addEventListener('click', () => {
 
 /* ── PAC10 RENDER ── */
 function renderPac10() {
+  buildPac10SuperPicker();
   buildPac10RegionalPicker();
   buildPac10MonthPicker();
   buildPac10YearPicker();
@@ -4521,7 +4725,7 @@ function renderPac10Cards() {
 function renderPac10Chart() {
   const services = pac10SelectedCard==='total' ? getVisiblePac10Services() : [pac10SelectedCard];
   const label = pac10SelectedCard==='total' ? 'PAC.10 — Acumulado · Serviços' : `PAC.10 — ${pac10SelectedCard}`;
-  const regionalLabel = pac10SelectedRegionals.length===0 ? 'Todas as regionais' : pac10SelectedRegionals.map(i=>REGIONALS[i]).join(', ');
+  const regionalLabel = getPac10RegionalFilterLabel();
   document.getElementById('pac10-chart-title').textContent = label + ' · ' + regionalLabel + ' · Ano ' + pac10SelectedYear;
   document.getElementById('pac10-dre-title').textContent = 'DRE — ' + (pac10SelectedCard==='total' ? 'Serviços' : pac10SelectedCard) + ' · ' + regionalLabel + ' · Ano ' + pac10SelectedYear;
   const { cumPlan, cumReal, cumProj, lastRealIdx } = getPac10ProjectionData(services);
@@ -5245,6 +5449,7 @@ buildMonthPicker();
 buildYearPicker();
 buildDataRegionalPicker();
 buildDataYearPicker();
+buildPac10SuperPicker();
 buildPac10RegionalPicker();
 buildPac10MonthPicker();
 buildPac10YearPicker();
