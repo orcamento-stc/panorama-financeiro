@@ -1668,10 +1668,9 @@ table.dre-table td.dv-var-y {
     <div class="filter-bar filter-bar-panorama">
       <div class="filter-row filter-row-main">
         <div class="filter-field filter-field-card">
-          <span class="filter-label">CARD STC:</span>
+          <span class="filter-label">FILTROS:</span>
           <div class="toggle-group">
-            <button class="btn-toggle sel" id="tog-all"    onclick="setCardFilter('all')">Todos</button>
-            <button class="btn-toggle"     id="tog-card"   onclick="setCardFilter('card')">CARD STC</button>
+            <button class="btn-toggle sel" id="tog-card"   onclick="setCardFilter('card')">CARD STC</button>
             <button class="btn-toggle"     id="tog-nocard" onclick="setCardFilter('nocard')">Pacotes Operacionais</button>
           </div>
         </div>
@@ -3034,7 +3033,7 @@ function showScreen(name) {
 }
 
 /* ── FILTERS ── */
-let cardFilter  = 'all';
+let cardFilter  = 'card';
 let selectedMonths = []; // empty = all
 let selectedPkg = 'total';
 let selectedYear = CURRENT_YEAR;
@@ -3042,7 +3041,10 @@ let dataSelectedYear = CURRENT_YEAR;
 
 function setCardFilter(v) {
   cardFilter = v;
-  ['all','card','nocard'].forEach(k => document.getElementById('tog-'+k).classList.toggle('sel', k===v));
+  ['card','nocard'].forEach(k => {
+    const btn = document.getElementById('tog-'+k);
+    if (btn) btn.classList.toggle('sel', k===v);
+  });
   renderPanorama();
 }
 
