@@ -2040,10 +2040,11 @@ table.dre-table td.dv-var-y {
           <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo. O sistema detecta automaticamente.</p>
 
           <div class="import-instructions">
-            <strong>Formato esperado:</strong> a primeira coluna acompanha o <strong>Tipo de lançamento</strong> selecionado acima.<br>
-            <strong>Modo CARD STC:</strong> use <code>Centro de Custo</code> → <code>Ano</code> → <code>CódigoPacote</code> → <code>Tipo</code> → 12 valores mensais.<br>
-            <strong>Modo Pacotes Operacionais:</strong> use <code>Regional</code> → <code>Ano</code> → <code>CódigoPacote</code> → <code>Tipo</code> → 12 valores mensais.<br>
+            <strong>Formato esperado:</strong> cada linha deve informar o destino do lançamento na própria planilha:<br>
+            <code>Tipo Lançamento</code> → <code>Centro de Custo</code> → <code>Regional</code> → <code>Ano</code> → <code>Pacote</code> → <code>Tipo</code> → 12 valores mensais<br>
             Também é aceito o formato sem a coluna <code>Ano</code>; nesse caso, o sistema assume automaticamente o ano vigente.<br><br>
+            <strong>Para CARD STC:</strong> preencha <code>Tipo Lançamento</code> como <code>CARD STC</code>, informe o <code>Centro de Custo</code> e deixe <code>Regional</code> em branco.<br>
+            <strong>Para Pacotes Operacionais:</strong> preencha <code>Tipo Lançamento</code> como <code>Pacotes Operacionais</code>, informe a <code>Regional</code> e deixe <code>Centro de Custo</code> em branco.<br>
             <strong>Centro de Custo:</strong> use o código oficial, como <code>6070029030</code>, <code>607002903B</code> ou <code>607002903C</code>.<br>
             <strong>Regional:</strong> use uma das regionais cadastradas, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
             <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
@@ -2051,7 +2052,7 @@ table.dre-table td.dv-var-y {
             <strong>Valores:</strong> podem usar vírgula ou ponto como decimal, com ou sem milhar e até com moeda. Ex: <code>1234,56</code>, <code>1234.56</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>
           </div>
 
-          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo CARD STC com ano:&#10;6070029030	2026	07	Planejado	100000	110000	95000	...&#10;6070029030	2026	07	Realizado	98000	105000	92000	...&#10;&#10;Exemplo Pacotes Operacionais com ano:&#10;Goiânia	2026	10	Planejado	50000	52000	48000	..."></textarea>
+          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo CARD STC com ano:&#10;CARD STC	6070029030		2026	07	Planejado	100000	110000	95000	...&#10;CARD STC	6070029030		2026	07	Realizado	98000	105000	92000	...&#10;&#10;Exemplo Pacotes Operacionais com ano:&#10;Pacotes Operacionais		Goiânia	2026	10	Planejado	50000	52000	48000	...&#10;Pacotes Operacionais		Goiânia	2026	10	Realizado	48000	51000	47000	..."></textarea>
 
           <div class="import-actions">
             <button class="btn-import primary" onclick="parseImport()">🔍 Pré-visualizar</button>
@@ -2063,7 +2064,7 @@ table.dre-table td.dv-var-y {
         <!-- RIGHT: TEMPLATE + PREVIEW -->
         <div class="import-box">
           <h3>📌 Referência dos Pacotes</h3>
-          <p>Use os códigos abaixo na primeira coluna dos dados que você vai colar.</p>
+          <p>Use os códigos dos pacotes abaixo na coluna Pacote. O destino do lançamento será definido pela coluna Tipo Lançamento da planilha.</p>
 
           <div class="template-pkg-list" id="template-pkg-list"></div>
 
@@ -4432,67 +4433,85 @@ function parseImport() {
 
   const normTxt = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const normalizeCostCenterId = value => {
-    const raw = String(value || '').trim().toUpperCase();
-    const found = COST_CENTERS.find(cc => raw === cc.id || raw.startsWith(cc.id) || normTxt(raw).includes(normTxt(cc.name)));
+    const rawValue = String(value || '').trim();
+    const rawUpper = rawValue.toUpperCase();
+    const found = COST_CENTERS.find(cc =>
+      rawUpper === cc.id ||
+      rawUpper.startsWith(cc.id) ||
+      normTxt(rawValue).includes(normTxt(cc.name))
+    );
     return found ? found.id : null;
+  };
+  const normalizeLaunchMode = value => {
+    const v = normTxt(value).replace(/[.\-_]/g,' ').replace(/\s+/g,' ').trim();
+    if (!v) return null;
+    if (v.includes('card') || v.includes('centro de custo') || v.includes('stc')) return 'card';
+    if (v.includes('operacional') || v.includes('regional') || v.includes('pacotes operacionais') || v === 'op') return 'nocard';
+    return null;
   };
 
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
   const result = [];
   const parseErrors = [];
-  const importingCard = dataEntryMode === 'card';
 
   lines.forEach((line, li) => {
     let sep = '\t';
     if (!line.includes('\t')) sep = line.includes(';') ? ';' : ',';
 
     const cols = line.split(sep).map(c => c.trim()).filter((_, idx, arr) => !(idx === arr.length - 1 && arr[idx] === ''));
-
     if (!cols.length) return;
 
     const c0 = normTxt(cols[0]);
     const c1 = normTxt(cols[1]);
     const c2 = normTxt(cols[2]);
+    const c3 = normTxt(cols[3]);
+    const c4 = normTxt(cols[4]);
+
+    // Cabeçalhos aceitos:
+    // Tipo Lançamento | Centro de Custo | Regional | Ano | Pacote | Tipo | Jan...Dez
+    // Tipo Lançamento | Centro de Custo | Regional | Pacote | Tipo | Jan...Dez
     if (
-      (['regional','centro de custo','centro custo','centrodecusto'].includes(c0) && c1 === 'pacote') ||
-      (['regional','centro de custo','centro custo','centrodecusto'].includes(c0) && c1 === 'ano' && c2 === 'pacote') ||
-      (c0 === 'pacote' && c1 === 'tipo')
+      (c0.includes('tipo') && c0.includes('lanc') && c1.includes('centro') && c2.includes('regional')) ||
+      (c0 === 'tipo lancamento' && c1 === 'centro de custo') ||
+      (c0 === 'modo' && c1.includes('centro')) ||
+      (c0 === 'tipo' && c1.includes('centro') && c2 === 'regional')
     ) {
       return;
     }
 
-    let regional = null;
-    let costCenterId = null;
-
-    if (importingCard) {
-      costCenterId = normalizeCostCenterId(cols[0]);
-      if (!costCenterId) {
-        parseErrors.push(`Linha ${li+1}: centro de custo "${cols[0] || ''}" não reconhecido.`);
-        return;
-      }
-    } else {
-      const hasRegionalColumn = REGIONALS.includes(cols[0]);
-      if (!hasRegionalColumn) {
-        parseErrors.push(`Linha ${li+1}: regional "${cols[0] || ''}" não reconhecida.`);
-        return;
-      }
-      regional = cols[0];
+    const mode = normalizeLaunchMode(cols[0]);
+    if (!mode) {
+      parseErrors.push(`Linha ${li+1}: tipo de lançamento "${cols[0] || ''}" inválido. Use "CARD STC" ou "Pacotes Operacionais".`);
+      return;
     }
 
-    const maybeYear = (cols[1] || '').trim();
+    const costCenterId = normalizeCostCenterId(cols[1]);
+    const regional = REGIONALS.includes(cols[2]) ? cols[2] : null;
+
+    if (mode === 'card' && !costCenterId) {
+      parseErrors.push(`Linha ${li+1}: centro de custo "${cols[1] || ''}" não reconhecido para CARD STC.`);
+      return;
+    }
+
+    if (mode === 'nocard' && !regional) {
+      parseErrors.push(`Linha ${li+1}: regional "${cols[2] || ''}" não reconhecida para Pacotes Operacionais.`);
+      return;
+    }
+
+    const maybeYear = (cols[3] || '').trim();
 
     // Aceita:
-    // 1) Centro de Custo/Regional | Ano | Pacote | Tipo | 12 meses
-    // 2) Centro de Custo/Regional | Pacote | Tipo | 12 meses
-    // 3) Centro de Custo/Regional | [Ano em branco] | Pacote | Tipo | 12 meses
+    // 1) Tipo Lançamento | Centro de Custo | Regional | Ano | Pacote | Tipo | 12 meses
+    // 2) Tipo Lançamento | Centro de Custo | Regional | Pacote | Tipo | 12 meses
+    // 3) Tipo Lançamento | Centro de Custo | Regional | [Ano em branco] | Pacote | Tipo | 12 meses
     const secondLooksLikePackage = PACKAGES.some(p => p.id === String(maybeYear).replace(/\D/g,'').padStart(2,'0'));
-    const explicitBlankYearColumn = (maybeYear === '' && cols.length >= 16 && !secondLooksLikePackage);
+    const explicitBlankYearColumn = (maybeYear === '' && cols.length >= 18 && !secondLooksLikePackage);
     const hasYearColumn = /^\d{4}$/.test(maybeYear) || explicitBlankYearColumn;
     const year = /^\d{4}$/.test(maybeYear) ? maybeYear : getDefaultYear();
 
-    const pkgCol = hasYearColumn ? 2 : 1;
-    const typeCol = hasYearColumn ? 3 : 2;
-    const valueStartCol = hasYearColumn ? 4 : 3;
+    const pkgCol = hasYearColumn ? 4 : 3;
+    const typeCol = hasYearColumn ? 5 : 4;
+    const valueStartCol = hasYearColumn ? 6 : 5;
 
     const minCols = valueStartCol + 12;
     if (cols.length < minCols) {
@@ -4509,7 +4528,7 @@ function parseImport() {
 
     const rawType = normTxt(cols[typeCol]);
     let type;
-    if (/^p(lan)?/.test(rawType)) type = 'plan';
+    if (/^p(lan)?/.test(rawType) || rawType.includes('orcado') || rawType.includes('orçado')) type = 'plan';
     else if (/^r(eal)?/.test(rawType)) type = 'real';
     else {
       parseErrors.push(`Linha ${li+1}: tipo "${cols[typeCol]}" inválido. Use "Planejado" ou "Realizado".`);
@@ -4534,10 +4553,12 @@ function parseImport() {
     }
 
     result.push({
-      mode: importingCard ? 'card' : 'nocard',
+      mode,
+      modeLabel: mode === 'card' ? 'CARD STC' : 'Pacotes Operacionais',
       regional,
       costCenterId,
-      dimensionLabel: importingCard ? getCostCenterDisplayName(costCenterId) : regional,
+      costCenterLabel: costCenterId ? getCostCenterDisplayName(costCenterId) : '',
+      dimensionLabel: mode === 'card' ? getCostCenterDisplayName(costCenterId) : regional,
       year,
       pkgId: pkg.id,
       pkgName: pkg.name,
@@ -4568,9 +4589,8 @@ function renderPreview(result, parseErrors) {
 
   tbl.innerHTML = '';
   const thead = document.createElement('thead');
-  const dimensionHeader = dataEntryMode === 'card' ? 'Centro de Custo' : 'Regional';
   thead.innerHTML = `<tr>
-    <th>${dimensionHeader}</th><th>Ano</th><th>Pacote</th><th>Tipo</th>
+    <th>Tipo Lançamento</th><th>Centro de Custo</th><th>Regional</th><th>Ano</th><th>Pacote</th><th>Tipo</th>
     ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
   </tr>`;
   tbl.appendChild(thead);
@@ -4580,7 +4600,7 @@ function renderPreview(result, parseErrors) {
     const tr = document.createElement('tr');
     tr.className = row.type==='plan' ? 'prev-plan' : 'prev-real';
     const typeLabel = row.type==='plan' ? 'Planejado' : 'Realizado';
-    tr.innerHTML = `<td>${row.dimensionLabel ?? '—'}</td><td>${row.year}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
+    tr.innerHTML = `<td>${row.modeLabel}</td><td>${row.costCenterLabel || '—'}</td><td>${row.regional || '—'}</td><td>${row.year}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
     row.values.forEach((v, i) => {
       const td = document.createElement('td');
       if (v === null) {
@@ -4625,14 +4645,17 @@ function confirmImport() {
       });
     }
   });
+
   const linhasImportadas = parsedImportData.length;
-  const modo = parsedImportData?.[0]?.mode === 'card' ? 'centro de custo e ano' : 'regional e ano';
+  const qtdCard = parsedImportData.filter(r => r.mode === 'card').length;
+  const qtdOperacional = parsedImportData.filter(r => r.mode === 'nocard').length;
+
   saveData();
   renderDataTable();
   if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
   document.getElementById('paste-area').value = '';
-  showFeedback('success', `✅ Importação concluída! ${linhasImportadas} linha(s) gravadas com sucesso por ${modo}.`);
+  showFeedback('success', `✅ Importação concluída! ${linhasImportadas} linha(s) gravadas com sucesso. CARD STC: ${qtdCard}. Pacotes Operacionais: ${qtdOperacional}.`);
   parsedImportData = null;
 }
 
@@ -4649,25 +4672,34 @@ function showFeedback(type, msg) {
 }
 
 function downloadTemplate() {
-  const isCardMode = dataEntryMode === 'card';
-  const header = [isCardMode ? 'Centro de Custo' : 'Regional','Ano','Pacote','Tipo',...MONTHS].join(';');
+  const header = ['Tipo Lançamento','Centro de Custo','Regional','Ano','Pacote','Tipo',...MONTHS].join(';');
   const rows = [];
-  const dimensionValue = isCardMode ? getDataEntryCostCenterId() : getDataEntryRegionalName();
-  PACKAGES.forEach(p => {
-    rows.push([dimensionValue,CURRENT_YEAR,p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
-    rows.push([dimensionValue,CURRENT_YEAR,p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
+
+  COST_CENTERS.forEach(cc => {
+    PACKAGES.forEach(p => {
+      rows.push(['CARD STC', cc.id, '', CURRENT_YEAR, p.id, 'Planejado', ...MONTHS.map(()=>'')].join(';'));
+      rows.push(['CARD STC', cc.id, '', CURRENT_YEAR, p.id, 'Realizado', ...MONTHS.map(()=>'')].join(';'));
+    });
   });
+
+  REGIONALS.forEach(regional => {
+    PACKAGES.filter(p => ['10','11'].includes(p.id)).forEach(p => {
+      rows.push(['Pacotes Operacionais', '', regional, CURRENT_YEAR, p.id, 'Planejado', ...MONTHS.map(()=>'')].join(';'));
+      rows.push(['Pacotes Operacionais', '', regional, CURRENT_YEAR, p.id, 'Realizado', ...MONTHS.map(()=>'')].join(';'));
+    });
+  });
+
   const csv = [header, ...rows].join('\r\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = isCardMode ? 'template_stc_card_centro_custo.csv' : 'template_stc_pacotes_regionais.csv';
+  a.download = 'template_panorama_importacao_massiva.csv';
   a.click();
 }
 
 
 
-/* ── PAC10 DATA MODEL ── */
+/* ── PAC10 DATA MODEL ── *//* ── PAC10 DATA MODEL ── */
 const SK_PAC10 = 'eq_stcgyn_pac10_v1';
 function getPac10DefaultYear() {
   return String(CURRENT_YEAR);
