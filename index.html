@@ -56,11 +56,11 @@
       var(--eq-blue-deep);
   }
   #screen-login.active { display: flex; }
-  #screen-panorama, #screen-data, #screen-pac10, #screen-pac11, #screen-data_pac10, #screen-comparativo_anual {
+  #screen-panorama, #screen-data, #screen-pac10, #screen-pac11, #screen-data_pac10, #screen-data_pac11, #screen-comparativo_anual {
     display: none; position: relative; z-index: 1;
     min-height: calc(100vh - 56px); padding-bottom: 4rem;
   }
-  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-pac11.active, #screen-data_pac10.active, #screen-comparativo_anual.active { display: block; }
+  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-pac11.active, #screen-data_pac10.active, #screen-data_pac11.active, #screen-comparativo_anual.active { display: block; }
 
   /* LOGIN */
   .login-box {
@@ -1815,6 +1815,7 @@ table.dre-table td.dv-var-y {
       <div class="more-options-menu" id="mais-opcoes-menu">
         <button type="button" id="nav-data" onclick="showScreen('data'); fecharMaisOpcoes();">✏️ Inserir Dados</button>
         <button type="button" id="nav-data_pac10" onclick="showScreen('data_pac10'); fecharMaisOpcoes();">📝 Inserir dados PAC.10</button>
+        <button type="button" id="nav-data_pac11" onclick="showScreen('data_pac11'); fecharMaisOpcoes();">📝 Inserir dados PAC.11</button>
         <div class="more-options-divider"></div>
         <span class="more-options-label">Menu Backup</span>
         <button type="button" onclick="exportarBackup(); fecharMaisOpcoes();">💾 Fazer Backup</button>
@@ -2563,6 +2564,127 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
   </div>
 </div>
 
+<!-- DATA ENTRY PAC11 -->
+<div id="screen-data_pac11">
+  <div class="data-wrap">
+    <h2>📝 Inserção de Dados PAC.11 Serviços</h2>
+    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A entrada de dados aceita formatos como <code>2443173,62</code>, <code>1.139.545,89</code> e <code>R$ 1.139.545,89</code>.</p>
+
+    <div class="filter-bar" style="margin-bottom:1rem">
+      <span class="filter-label">Regional:</span>
+      <div class="month-picker" id="data-pac11-regional-picker">
+        <button class="month-picker-btn" id="data-pac11-regional-picker-btn" onclick="toggleDataPac11RegionalDropdown(event)">
+          <span id="data-pac11-regional-picker-label">Selecionar regional</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="data-pac11-regional-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione a regional</span>
+            <button onclick="clearDataPac11RegionalSel()">Limpar</button>
+          </div>
+          <div class="month-grid" id="data-pac11-regional-grid"></div>
+        </div>
+      </div>
+
+      <span class="filter-label">Ano:</span>
+      <div class="month-picker" id="data-pac11-year-picker">
+        <button class="month-picker-btn" id="data-pac11-year-picker-btn" onclick="toggleDataPac11YearDropdown(event)">
+          <span id="data-pac11-year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="data-pac11-year-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione o ano</span>
+            <button onclick="setCurrentDataPac11Year()">Ano vigente</button>
+          </div>
+          <div class="month-grid" id="data-pac11-year-grid"></div>
+        </div>
+      </div>
+      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados serão gravados na regional e no ano selecionados para os serviços do PAC.11.</span>
+    </div>
+
+    <div class="data-tabs">
+      <button class="data-tab active" id="tab-pac11-manual" onclick="switchPac11DataTab('manual')">📝 Preenchimento Manual</button>
+      <button class="data-tab" id="tab-pac11-import" onclick="switchPac11DataTab('import')">⚡ Importação Massiva</button>
+    </div>
+
+    <div class="data-tab-panel active" id="panel-pac11-manual">
+      <div class="table-outer">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th class="hpkg">Serviço</th>
+              <th class="htype">Tipo</th>
+              <th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th>
+            </tr>
+          </thead>
+          <tbody id="data-pac11-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="data-tab-panel" id="panel-pac11-import">
+      <div class="import-wrap">
+        <div class="import-box">
+          <h3>📋 Colar dados da planilha</h3>
+          <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo para os serviços do PAC.11.</p>
+          <div class="import-instructions">
+            <strong>Formato esperado:</strong> cada linha pode ter um destes formatos:<br>
+            <code>Regional</code> → <code>Ano</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Ano</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
+            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
+            <strong>Pacote aceito:</strong> <code>PAC.11</code> ou <code>PAC11</code>.<br>
+            <strong>Serviço:</strong> use <code>Recuperação de Energia</code> ou <code>Improdutivas Comercial</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
+          </div>
+          <textarea class="paste-area" id="paste-pac11-area" placeholder="Exemplo com ano:
+Goiânia	2026	Recuperação de Energia	Planejado	1000	1200	...
+Goiânia	2026	PAC.11	Realizado	Improdutivas Comercial	900	1100	...
+
+Exemplo com coluna Ano em branco:
+Goiânia		Recuperação de Energia	Planejado	700	800	...
+
+Exemplo sem coluna Ano:
+Anápolis	Recuperação de Energia	Realizado	900	1100	...
+Anápolis	Improdutivas Comercial	Planejado	800	850	...
+Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
+          <div class="import-actions">
+            <button class="btn-import primary" onclick="parsePac11Import()">🔍 Pré-visualizar</button>
+            <button class="btn-import ghost" onclick="document.getElementById('paste-pac11-area').value=''">Limpar</button>
+          </div>
+          <div class="import-feedback" id="import-pac11-feedback"></div>
+        </div>
+        <div class="import-box">
+          <h3>📌 Referência dos Serviços</h3>
+          <p>Use exatamente os nomes abaixo na coluna Serviço. Para adicionar ou remover serviços no futuro, basta atualizar a lista central de serviços no código.</p>
+          <div class="template-pkg-list" id="template-pac11-service-list"></div>
+          <button class="btn-import ghost" style="width:100%;margin-bottom:1.2rem" onclick="downloadPac11Template()">⬇️ Baixar template CSV</button>
+          <div class="preview-wrap" id="preview-pac11-wrap" style="display:none">
+            <h4>Pré-visualização — <span id="preview-pac11-count"></span></h4>
+            <div class="preview-scroll">
+              <table class="preview-table" id="preview-pac11-table"></table>
+            </div>
+            <div class="import-actions" style="margin-top:1rem">
+              <button class="btn-import green" onclick="confirmPac11Import()">✅ Confirmar e Importar</button>
+              <button class="btn-import ghost" onclick="cancelPac11Preview()">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <div class="save-info">Dados do PAC.11 salvos localmente no navegador e persistem entre sessões.</div>
+    <div class="saved-toast" id="saved-pac11-toast">✓ Salvo!</div>
+    <button class="btn-save" onclick="savePac11Data()">💾 Salvar</button>
+  </div>
+</div>
+
 <!-- COMPARATIVO ANUAL -->
 <div id="screen-comparativo_anual">
   <div class="ca-wrap">
@@ -3094,7 +3216,7 @@ function doLogout() {
   currentUserRole = '';
   document.body.classList.remove('perfil-admin','perfil-consulta');
   document.getElementById('topbar').classList.remove('visible');
-  ['panorama','data','pac10','pac11','data_pac10','comparativo_anual'].forEach(n => {
+  ['panorama','data','pac10','pac11','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
     const el = document.getElementById('screen-'+n);
     if (el) el.classList.remove('active');
   });
@@ -3450,6 +3572,7 @@ function limparDadosAdministrativo() {
     if (currentScreen === 'pac10') renderPac10();
     if (currentScreen === 'pac11') renderPac11();
     if (currentScreen === 'data_pac10') renderPac10DataTable();
+    if (currentScreen === 'data_pac11') renderPac11DataTable();
     if (currentScreen === 'comparativo_anual') renderComparativoAnual();
 
     alert('Limpeza concluída. O indicador de backup pendente foi ativado.');
@@ -3458,12 +3581,12 @@ function limparDadosAdministrativo() {
 /* ── SCREENS ── */
 let currentScreen = '';
 function showScreen(name) {
-  if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10')) {
+  if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10' || name === 'data_pac11')) {
     alert('Perfil de consulta: acesso permitido apenas para visualização.');
     name = 'panorama';
   }
   currentScreen = name;
-  ['panorama','data','pac10','pac11','data_pac10','comparativo_anual'].forEach(n => {
+  ['panorama','data','pac10','pac11','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
     const s = document.getElementById('screen-'+n);
     const b = document.getElementById('nav-'+n);
     if (s) s.classList.toggle('active', n===name);
@@ -3474,6 +3597,7 @@ function showScreen(name) {
   if (name==='pac10') renderPac10();
   if (name==='pac11') renderPac11();
   if (name==='data_pac10') renderPac10DataTable();
+  if (name==='data_pac11') renderPac11DataTable();
   if (name==='comparativo_anual') renderComparativoAnual();
 }
 
@@ -3853,6 +3977,27 @@ function buildDataPac10YearPicker() {
 function toggleDataPac10YearDropdown(e){ e.stopPropagation(); document.getElementById('data-pac10-year-dropdown').classList.toggle('open'); }
 function setCurrentDataPac10Year(){ dataPac10SelectedYear = CURRENT_YEAR; buildDataPac10YearPicker(); renderPac10DataTable(); }
 
+function buildDataPac11YearPicker() {
+  const grid = document.getElementById('data-pac11-year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (dataPac11SelectedYear===year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      dataPac11SelectedYear = year;
+      buildDataPac11YearPicker();
+      renderPac11DataTable();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('data-pac11-year-picker-label');
+  if (lbl) lbl.textContent = String(dataPac11SelectedYear);
+}
+function toggleDataPac11YearDropdown(e){ e.stopPropagation(); document.getElementById('data-pac11-year-dropdown').classList.toggle('open'); }
+function setCurrentDataPac11Year(){ dataPac11SelectedYear = CURRENT_YEAR; buildDataPac11YearPicker(); renderPac11DataTable(); }
+
 document.addEventListener('click', () => {
   const md = document.getElementById('month-dropdown');
   const sd = document.getElementById('super-dropdown');
@@ -3872,6 +4017,8 @@ document.addEventListener('click', () => {
   const p11md = document.getElementById('pac11-month-dropdown');
   const p11yd = document.getElementById('pac11-year-dropdown');
   const p11svd = document.getElementById('pac11-service-dropdown');
+  const dp11rd = document.getElementById('data-pac11-regional-dropdown');
+  const dp11yd = document.getElementById('data-pac11-year-dropdown');
   if (md) md.classList.remove('open');
   if (sd) sd.classList.remove('open');
   if (rd) rd.classList.remove('open');
@@ -3890,6 +4037,8 @@ document.addEventListener('click', () => {
   if (p11md) p11md.classList.remove('open');
   if (p11yd) p11yd.classList.remove('open');
   if (p11svd) p11svd.classList.remove('open');
+  if (dp11rd) dp11rd.classList.remove('open');
+  if (dp11yd) dp11yd.classList.remove('open');
 });
 document.getElementById('month-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('super-dropdown').addEventListener('click', e => e.stopPropagation());
@@ -3910,6 +4059,8 @@ const pac11RegionalDropdown = document.getElementById('pac11-regional-dropdown')
 const pac11MonthDropdown = document.getElementById('pac11-month-dropdown');
 const pac11YearDropdown = document.getElementById('pac11-year-dropdown');
 const pac11ServiceDropdown = document.getElementById('pac11-service-dropdown');
+const dataPac11RegionalDropdown = document.getElementById('data-pac11-regional-dropdown');
+const dataPac11YearDropdown = document.getElementById('data-pac11-year-dropdown');
 if (pac10SuperDropdown) pac10SuperDropdown.addEventListener('click', e => e.stopPropagation());
 if (pac10RegionalDropdown) pac10RegionalDropdown.addEventListener('click', e => e.stopPropagation());
 if (pac10MonthDropdown) pac10MonthDropdown.addEventListener('click', e => e.stopPropagation());
@@ -3920,6 +4071,8 @@ if (pac11RegionalDropdown) pac11RegionalDropdown.addEventListener('click', e => 
 if (pac11MonthDropdown) pac11MonthDropdown.addEventListener('click', e => e.stopPropagation());
 if (pac11YearDropdown) pac11YearDropdown.addEventListener('click', e => e.stopPropagation());
 if (pac11ServiceDropdown) pac11ServiceDropdown.addEventListener('click', e => e.stopPropagation());
+if (dataPac11RegionalDropdown) dataPac11RegionalDropdown.addEventListener('click', e => e.stopPropagation());
+if (dataPac11YearDropdown) dataPac11YearDropdown.addEventListener('click', e => e.stopPropagation());
 
 
 function getAvailableYears() {
@@ -6185,6 +6338,223 @@ function downloadPac10Template() {
 }
 
 
+/* ── PAC11 DATA SCREEN ── */
+function buildDataPac11RegionalPicker() {
+  const grid = document.getElementById('data-pac11-regional-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  REGIONALS.forEach((r,i)=>{
+    const el=document.createElement('div');
+    el.className='month-opt'+(dataPac11SelectedRegional===i?' sel':'');
+    el.textContent=r;
+    el.onclick=()=>{ dataPac11SelectedRegional=(dataPac11SelectedRegional===i?null:i); buildDataPac11RegionalPicker(); renderPac11DataTable(); };
+    grid.appendChild(el);
+  });
+  document.getElementById('data-pac11-regional-picker-label').textContent = dataPac11SelectedRegional==null ? 'Selecionar regional' : REGIONALS[dataPac11SelectedRegional];
+}
+function toggleDataPac11RegionalDropdown(e){ e.stopPropagation(); document.getElementById('data-pac11-regional-dropdown').classList.toggle('open'); }
+function clearDataPac11RegionalSel(){ dataPac11SelectedRegional = REGIONALS.indexOf('Goiânia'); buildDataPac11RegionalPicker(); renderPac11DataTable(); }
+function switchPac11DataTab(name) {
+  ['manual','import'].forEach(n => {
+    document.getElementById('tab-pac11-'+n).classList.toggle('active', n===name);
+    document.getElementById('panel-pac11-'+n).classList.toggle('active', n===name);
+  });
+  if (name==='import') buildTemplatePac11ServiceList();
+}
+function renderPac11DataTable() {
+  buildDataPac11RegionalPicker();
+  buildDataPac11YearPicker();
+  const tbody = document.getElementById('data-pac11-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  PAC11_SERVICES.forEach(svc => {
+    ['plan','real'].forEach(type => {
+      const tr = document.createElement('tr');
+      tr.classList.add(type==='plan' ? 'row-plan' : 'row-real');
+      if (type==='plan') {
+        const tdS = document.createElement('td');
+        tdS.className='tpkg'; tdS.rowSpan=2;
+        tdS.innerHTML = `<strong style="color:var(--eq-orange)">PAC.11</strong> ${svc}`;
+        tr.appendChild(tdS);
+      }
+      const tdT = document.createElement('td'); tdT.className='ttype'; tdT.textContent = type==='plan'?'Planejado':'Realizado'; tdT.style.color = type==='plan'?'#f47920':'#60a5fa'; tr.appendChild(tdT);
+      MONTHS.forEach((_,mi)=>{
+        const td=document.createElement('td'); td.className='tcell';
+        const inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
+        const region=getPac11DataEntryRegionalName();
+        const year=getPac11DataEntryYear();
+        const val=getPac11Cell(region, svc, mi, year)?.[type]; if(val!=null) inp.value=val;
+        inp.addEventListener('input', ()=>{
+          const activeRegion=getPac11DataEntryRegionalName();
+          const activeYear=getPac11DataEntryYear();
+          ensurePac11RegionalStructure(activeRegion, activeYear);
+          const n = normalizeManualNumber(inp.value); pac11Data[activeRegion][activeYear][svc][mi][type]=n;
+          localStorage.setItem(SK_PAC11, JSON.stringify(pac11Data)); savePac11Data();
+          if(currentScreen==='pac11') renderPac11();
+        });
+        inp.addEventListener('blur', ()=>{
+          const n = normalizeManualNumber(inp.value);
+          inp.value = n == null ? '' : String(n);
+        });
+        td.appendChild(inp); tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    const sep=document.createElement('tr'); sep.className='sep'; sep.innerHTML='<td colspan="14"></td>'; tbody.appendChild(sep);
+  });
+}
+function buildTemplatePac11ServiceList() {
+  const el = document.getElementById('template-pac11-service-list');
+  if (!el) return;
+  el.innerHTML='';
+  PAC11_SERVICES.forEach(svc => {
+    const div = document.createElement('div');
+    div.className='template-pkg-item';
+    div.innerHTML = `<code>PAC.11</code><span>${svc}</span>`;
+    el.appendChild(div);
+  });
+}
+function parsePac11Import() {
+  const raw = document.getElementById('paste-pac11-area').value.trim();
+  const fb = document.getElementById('import-pac11-feedback'); fb.style.display='none';
+  document.getElementById('preview-pac11-wrap').style.display='none'; parsedPac11ImportData=null;
+  if (!raw) { showPac11Feedback('error','Cole os dados antes de pré-visualizar.'); return; }
+
+  const normTxt = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const isPac11Token = s => {
+    const t = normTxt(s).replace(/\s+/g,'');
+    return t === 'pac11' || t === 'pac.11' || t === 'pacote11';
+  };
+
+  const lines = raw.split(/\r?\n/).filter(l=>l.trim());
+  const result=[]; const parseErrors=[];
+
+  lines.forEach((line, li) => {
+    let sep='\t'; if(!line.includes('\t')) sep = line.includes(';')?';':',';
+    const cols = line.split(sep).map(c=>c.trim()).filter((_,idx,arr)=>!(idx===arr.length-1&&arr[idx]===''));
+    if(!cols.length) return;
+
+    const n0 = normTxt(cols[0]);
+    const n1 = normTxt(cols[1]);
+    const n2 = normTxt(cols[2]);
+    const n3 = normTxt(cols[3]);
+    const n4 = normTxt(cols[4]);
+
+    if (
+      (n0==='regional' && (n1==='servico' || n1==='serviço')) ||
+      (n0==='regional' && n1==='ano' && (n2==='servico' || n2==='serviço')) ||
+      (n0==='regional' && n1==='pacote' && n2==='tipo' && (n3==='servico' || n3==='serviço')) ||
+      (n0==='regional' && n1==='ano' && n2==='pacote' && n3==='tipo' && (n4==='servico' || n4==='serviço'))
+    ) {
+      return;
+    }
+
+    let regional = cols[0] || '';
+    let serviceRaw = '';
+    let typeRaw = '';
+    let valueStart = 0;
+    let year = getPac11DefaultYear();
+
+    if (!REGIONALS.includes(regional)) {
+      parseErrors.push(`Linha ${li+1}: regional "${regional}" não reconhecida.`);
+      return;
+    }
+
+    const c1 = (cols[1] || '').trim();
+    const hasYearValue = /^\d{4}$/.test(c1);
+    const hasBlankYearCol = c1 === '' && cols.length >= 16;
+    const hasYearColumn = hasYearValue || hasBlankYearCol;
+    const offset = hasYearColumn ? 1 : 0;
+    year = hasYearValue ? c1 : getPac11DefaultYear();
+
+    const tokenAfterYear = cols[1 + offset] || '';
+
+    if (cols.length >= 15 + offset && !isPac11Token(tokenAfterYear)) {
+      serviceRaw = cols[1 + offset] || '';
+      typeRaw = cols[2 + offset] || '';
+      valueStart = 3 + offset;
+    }
+    else if (cols.length >= 16 + offset && isPac11Token(tokenAfterYear)) {
+      serviceRaw = cols[4 + offset] || '';
+      typeRaw = cols[3 + offset] || '';
+      valueStart = 5 + offset;
+    } else {
+      parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Ano + Serviço + Tipo + 12 meses, ou Regional + Ano + PAC.11 + Tipo + Serviço + 12 meses.`);
+      return;
+    }
+
+    const normServiceRaw = normTxt(serviceRaw);
+    let service = PAC11_SERVICES.find(s => normTxt(s) === normServiceRaw);
+    if (!service) { parseErrors.push(`Linha ${li+1}: serviço "${serviceRaw}" não reconhecido.`); return; }
+
+    const typeNorm = normTxt(typeRaw);
+    let type;
+    if(/^p(lan)?/.test(typeNorm)) type='plan';
+    else if(/^r(eal)?/.test(typeNorm)) type='real';
+    else { parseErrors.push(`Linha ${li+1}: tipo "${typeRaw}" inválido.`); return; }
+
+    const minCols = valueStart + 12;
+    if (cols.length < minCols) {
+      parseErrors.push(`Linha ${li+1}: esperado pelo menos ${minCols} colunas, mas vieram ${cols.length}.`);
+      return;
+    }
+
+    const values=[]; const errs=[];
+    for(let m=0;m<12;m++) {
+      const rawVal=(cols[valueStart+m]??'').replace(/R\$\s*/g,'').replace(/\s/g,'');
+      if(rawVal===''||rawVal==='-'||rawVal.toLowerCase()==='null') values.push(null);
+      else {
+        const n = normalizeManualNumber(rawVal);
+        if(n == null){ errs.push(m); values.push(null); }
+        else values.push(n);
+      }
+    }
+    result.push({ regional, year, service, type, values, errs });
+  });
+
+  if (!result.length) {
+    showPac11Feedback('error', parseErrors.length?('Nenhuma linha válida encontrada.<br>'+parseErrors.map(e=>'• '+e).join('<br>')):'Nenhuma linha válida encontrada.');
+    return;
+  }
+  parsedPac11ImportData=result; renderPac11Preview(result, parseErrors);
+}
+function renderPac11Preview(result, parseErrors) {
+  const wrap=document.getElementById('preview-pac11-wrap'); const count=document.getElementById('preview-pac11-count'); const tbl=document.getElementById('preview-pac11-table');
+  count.textContent = `${result.length} linha(s)${parseErrors.length>0?' · ⚠️ '+parseErrors.length+' aviso(s)':''}`;
+  tbl.innerHTML='';
+  const thead=document.createElement('thead'); thead.innerHTML=`<tr><th>Regional</th><th>Ano</th><th>Serviço</th><th>Tipo</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}</tr>`; tbl.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  result.forEach(row=>{ const tr=document.createElement('tr'); tr.className=row.type==='plan'?'prev-plan':'prev-real'; tr.innerHTML=`<td>${row.regional ?? '—'}</td><td>${row.year}</td><td>${row.service}</td><td class="ttype">${row.type==='plan'?'Planejado':'Realizado'}</td>`; row.values.forEach((v,i)=>{ const td=document.createElement('td'); if(v===null){ td.className=row.errs.includes(i)?'val-err':''; td.textContent=row.errs.includes(i)?'⚠️ erro':'—'; } else { td.className='val-ok'; td.textContent=fmtShort(v); td.title=fmtBRL(v); } tr.appendChild(td); }); tbody.appendChild(tr); });
+  tbl.appendChild(tbody); wrap.style.display='block';
+  if(parseErrors.length>0) showPac11Feedback('error','⚠️ Alguns avisos:<br>'+parseErrors.map(e=>'• '+e).join('<br>')); else showPac11Feedback('success',`✓ ${result.length} linha(s) prontas para importar.`);
+}
+function confirmPac11Import() {
+  if (!parsedPac11ImportData) return;
+  parsedPac11ImportData.forEach(row => {
+    const region = row.regional || getPac11DataEntryRegionalName();
+    const targetYear = String(row.year || getPac11DefaultYear());
+    ensurePac11RegionalStructure(region, targetYear);
+    row.values.forEach((v,mi)=>{ pac11Data[region][targetYear][row.service][mi][row.type]=v; });
+  });
+  const importedCount = parsedPac11ImportData.length;
+  savePac11Data();
+  renderPac11DataTable();
+  if(currentScreen==='pac11') renderPac11();
+  document.getElementById('preview-pac11-wrap').style.display='none';
+  document.getElementById('paste-pac11-area').value='';
+  showPac11Feedback('success', `✅ Importação concluída! ${importedCount} linha(s) gravadas com sucesso por regional e ano.`);
+  parsedPac11ImportData=null;
+}
+function cancelPac11Preview(){ document.getElementById('preview-pac11-wrap').style.display='none'; parsedPac11ImportData=null; }
+function showPac11Feedback(type,msg){ const fb=document.getElementById('import-pac11-feedback'); fb.className='import-feedback '+type; fb.innerHTML=msg; fb.style.display='block'; }
+function downloadPac11Template() {
+  const header=['Regional','Ano','Serviço','Tipo',...MONTHS].join(';');
+  const rows=[];
+  PAC11_SERVICES.forEach(svc=>{ rows.push(['Goiânia',CURRENT_YEAR,svc,'Planejado',...MONTHS.map(()=> '0')].join(';')); rows.push(['Goiânia',CURRENT_YEAR,svc,'Realizado',...MONTHS.map(()=> '0')].join(';')); });
+  const csv=[header,...rows].join('\r\n'); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='template_dre_pac11.csv'; a.click();
+}
+
+
 /* ── COMPARATIVO ANUAL ── */
 let comparativoCharts = { compare:null, accum:null, planReal:null };
 
@@ -6649,6 +7019,8 @@ buildPac11YearPicker();
 buildPac11ServicePicker();
 buildDataPac10RegionalPicker();
 buildDataPac10YearPicker();
+buildDataPac11RegionalPicker();
+buildDataPac11YearPicker();
 buildCaRegionalPicker();
 buildCaYearPicker('base');
 buildCaYearPicker('compare');
