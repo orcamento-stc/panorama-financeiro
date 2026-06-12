@@ -1610,6 +1610,72 @@ table.dre-table td.dv-var-y {
   font-weight:400 !important;
 }
 
+
+/* === INSERÇÃO DE DADOS PANORAMA — CENTRO DE CUSTO / TIPO DE LANÇAMENTO === */
+#screen-data .data-filter-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85rem;
+}
+
+#screen-data .data-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  gap: .9rem 1.2rem;
+}
+
+#screen-data .data-filter-row-mode {
+  padding-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+#screen-data .data-filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+
+#screen-data .data-filter-field-regional { flex: 0 1 300px; }
+#screen-data .data-filter-field-cost { flex: 1 1 430px; }
+#screen-data .data-filter-field-year { flex: 0 1 230px; }
+#screen-data .data-filter-field-mode { flex: 1 1 520px; }
+
+#screen-data .data-filter-disabled .filter-label {
+  opacity: .50;
+}
+
+#screen-data .data-filter-disabled .month-picker-btn {
+  opacity: .48;
+  pointer-events: none;
+}
+
+#screen-data .data-filter-disabled .month-picker-btn:hover {
+  border-color: rgba(255,255,255,0.14);
+}
+
+@media (max-width: 1100px) {
+  #screen-data .data-filter-field {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  #screen-data .month-picker {
+    flex: 1;
+  }
+
+  #screen-data .month-picker-btn {
+    width: 100%;
+  }
+
+  #screen-data .data-filter-field-mode {
+    justify-content: flex-start;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1875,38 +1941,69 @@ table.dre-table td.dv-var-y {
     <h2>✏️ Inserção de Dados</h2>
     <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A entrada de dados aceita formatos como <code>2443173,62</code>, <code>1.139.545,89</code> e <code>R$ 1.139.545,89</code>.</p>
 
-    <div class="filter-bar" style="margin-bottom:1rem">
-      <span class="filter-label">Regional:</span>
-      <div class="month-picker" id="data-regional-picker">
-        <button class="month-picker-btn" id="data-regional-picker-btn" onclick="toggleDataRegionalDropdown(event)">
-          <span id="data-regional-picker-label">Selecionar regional</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="data-regional-dropdown">
-          <div class="month-dropdown-header">
-            <span>Selecione a regional</span>
-            <button onclick="clearDataRegionalSel()">Limpar</button>
+    <div class="filter-bar data-filter-bar" style="margin-bottom:1rem">
+      <div class="data-filter-row">
+        <div class="data-filter-field data-filter-field-regional" id="data-filter-regional-field">
+          <span class="filter-label">Regional:</span>
+          <div class="month-picker" id="data-regional-picker">
+            <button class="month-picker-btn" id="data-regional-picker-btn" onclick="toggleDataRegionalDropdown(event)">
+              <span id="data-regional-picker-label">Selecionar regional</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="data-regional-dropdown">
+              <div class="month-dropdown-header">
+                <span>Selecione a regional</span>
+                <button onclick="clearDataRegionalSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="data-regional-grid"></div>
+            </div>
           </div>
-          <div class="month-grid" id="data-regional-grid"></div>
+        </div>
+
+        <div class="data-filter-field data-filter-field-cost" id="data-filter-cost-field">
+          <span class="filter-label">Centro de Custo:</span>
+          <div class="month-picker" id="data-cost-center-picker">
+            <button class="month-picker-btn" id="data-cost-center-picker-btn" onclick="toggleDataCostCenterDropdown(event)" style="min-width:360px">
+              <span id="data-cost-center-picker-label">Selecionar centro de custo</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="data-cost-center-dropdown" style="min-width:430px;max-width:520px">
+              <div class="month-dropdown-header">
+                <span>Selecione o centro de custo</span>
+                <button onclick="clearDataCostCenterSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="data-cost-center-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-filter-field data-filter-field-year">
+          <span class="filter-label">Ano:</span>
+          <div class="month-picker" id="data-year-picker">
+            <button class="month-picker-btn" id="data-year-picker-btn" onclick="toggleDataYearDropdown(event)">
+              <span id="data-year-picker-label">2026</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="data-year-dropdown">
+              <div class="month-dropdown-header">
+                <span>Selecione o ano</span>
+                <button onclick="setCurrentDataYear()">Ano vigente</button>
+              </div>
+              <div class="month-grid" id="data-year-grid"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <span class="filter-label">Ano:</span>
-      <div class="month-picker" id="data-year-picker">
-        <button class="month-picker-btn" id="data-year-picker-btn" onclick="toggleDataYearDropdown(event)">
-          <span id="data-year-picker-label">2026</span>
-          <span class="chevron">▼</span>
-        </button>
-        <div class="month-dropdown" id="data-year-dropdown">
-          <div class="month-dropdown-header">
-            <span>Selecione o ano</span>
-            <button onclick="setCurrentDataYear()">Ano vigente</button>
+      <div class="data-filter-row data-filter-row-mode">
+        <div class="data-filter-field data-filter-field-mode">
+          <span class="filter-label">Tipo de lançamento:</span>
+          <div class="toggle-group">
+            <button class="btn-toggle sel" id="data-mode-card" onclick="setDataEntryMode('card')">CARD STC</button>
+            <button class="btn-toggle" id="data-mode-nocard" onclick="setDataEntryMode('nocard')">Pacotes Operacionais</button>
           </div>
-          <div class="month-grid" id="data-year-grid"></div>
         </div>
       </div>
-
-      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados manualmente serão gravados na regional e no ano selecionados.</span>
     </div>
 
     <!-- TABS -->
@@ -1943,18 +2040,18 @@ table.dre-table td.dv-var-y {
           <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo. O sistema detecta automaticamente.</p>
 
           <div class="import-instructions">
-            <strong>Formato esperado:</strong> cada linha pode ter um destes formatos:<br>
-            <code>Regional</code> &nbsp;→&nbsp; <code>Ano</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br>
-            ou<br>
-            <code>Regional</code> &nbsp;→&nbsp; <code>CódigoPacote</code> &nbsp;→&nbsp; <code>Tipo</code> &nbsp;→&nbsp; 12 valores mensais<br><br>
-            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
-            <strong>Regional:</strong> use uma das regionais cadastradas no sistema, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
+            <strong>Formato esperado:</strong> a primeira coluna acompanha o <strong>Tipo de lançamento</strong> selecionado acima.<br>
+            <strong>Modo CARD STC:</strong> use <code>Centro de Custo</code> → <code>Ano</code> → <code>CódigoPacote</code> → <code>Tipo</code> → 12 valores mensais.<br>
+            <strong>Modo Pacotes Operacionais:</strong> use <code>Regional</code> → <code>Ano</code> → <code>CódigoPacote</code> → <code>Tipo</code> → 12 valores mensais.<br>
+            Também é aceito o formato sem a coluna <code>Ano</code>; nesse caso, o sistema assume automaticamente o ano vigente.<br><br>
+            <strong>Centro de Custo:</strong> use o código oficial, como <code>6070029030</code>, <code>607002903B</code> ou <code>607002903C</code>.<br>
+            <strong>Regional:</strong> use uma das regionais cadastradas, como <code>Goiânia</code>, <code>Anápolis</code>, <code>Rio Verde</code> etc.<br>
             <strong>Tipo:</strong> use <code>P</code> ou <code>Planejado</code> para planejado, <code>R</code> ou <code>Realizado</code> para realizado.<br>
             <strong>Separadores aceitos:</strong> tabulação (padrão do Excel), ponto e vírgula ou vírgula.<br>
             <strong>Valores:</strong> podem usar vírgula ou ponto como decimal, com ou sem milhar e até com moeda. Ex: <code>1234,56</code>, <code>1234.56</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>
           </div>
 
-          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo com ano:&#10;Goiânia	2026	07	Planejado	100000	110000	95000	...&#10;Goiânia	2026	07	Realizado	98000	105000	92000	...&#10;&#10;Exemplo sem ano:&#10;Anápolis	08	P	50000	52000	48000	..."></textarea>
+          <textarea class="paste-area" id="paste-area" placeholder="Cole aqui os dados copiados do Excel...&#10;&#10;Exemplo CARD STC com ano:&#10;6070029030	2026	07	Planejado	100000	110000	95000	...&#10;6070029030	2026	07	Realizado	98000	105000	92000	...&#10;&#10;Exemplo Pacotes Operacionais com ano:&#10;Goiânia	2026	10	Planejado	50000	52000	48000	..."></textarea>
 
           <div class="import-actions">
             <button class="btn-import primary" onclick="parseImport()">🔍 Pré-visualizar</button>
@@ -2545,6 +2642,8 @@ let selectedSuperintendencias = []; // panorama: vazio = todas
 let selectedRegionals = [];      // panorama: vazio = todas
 let selectedCostCenters = [];    // panorama/card stc: vazio = todos
 let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
+let dataSelectedCostCenter = COST_CENTERS[0]?.id || '6070029030'; // dados: um centro de custo por vez
+let dataEntryMode = 'card'; // card = Centro de Custo | nocard = Regional
 
 let appData = {};
 
@@ -3507,6 +3606,7 @@ document.addEventListener('click', () => {
   const yd = document.getElementById('year-dropdown');
   const ccd = document.getElementById('cost-center-dropdown');
   const drd = document.getElementById('data-regional-dropdown');
+  const dccd = document.getElementById('data-cost-center-dropdown');
   const dyd = document.getElementById('data-year-dropdown');
   const psd = document.getElementById('pac10-super-dropdown');
   const prd = document.getElementById('pac10-regional-dropdown');
@@ -3519,6 +3619,7 @@ document.addEventListener('click', () => {
   if (yd) yd.classList.remove('open');
   if (ccd) ccd.classList.remove('open');
   if (drd) drd.classList.remove('open');
+  if (dccd) dccd.classList.remove('open');
   if (dyd) dyd.classList.remove('open');
   if (psd) psd.classList.remove('open');
   if (prd) prd.classList.remove('open');
@@ -3532,6 +3633,8 @@ document.getElementById('regional-dropdown').addEventListener('click', e => e.st
 document.getElementById('year-dropdown').addEventListener('click', e => e.stopPropagation());
 const costCenterDropdown = document.getElementById('cost-center-dropdown');
 if (costCenterDropdown) costCenterDropdown.addEventListener('click', e => e.stopPropagation());
+const dataCostCenterDropdown = document.getElementById('data-cost-center-dropdown');
+if (dataCostCenterDropdown) dataCostCenterDropdown.addEventListener('click', e => e.stopPropagation());
 document.getElementById('data-year-dropdown').addEventListener('click', e => e.stopPropagation());
 const pac10SuperDropdown = document.getElementById('pac10-super-dropdown');
 const pac10RegionalDropdown = document.getElementById('pac10-regional-dropdown');
@@ -3637,6 +3740,9 @@ function getSelectedRegionalNames() {
 
 function getDataEntryRegionalName() {
   return dataSelectedRegional == null ? 'Goiânia' : REGIONALS[dataSelectedRegional];
+}
+function getDataEntryCostCenterId() {
+  return dataSelectedCostCenter || (COST_CENTERS[0]?.id || '6070029030');
 }
 function getDataEntryYear() {
   return String(dataSelectedYear || CURRENT_YEAR);
@@ -4131,7 +4237,10 @@ function switchDataTab(name) {
 /* ── DATA TABLE ── */
 function renderDataTable() {
   buildDataRegionalPicker();
+  buildDataCostCenterPicker();
   buildDataYearPicker();
+  applyDataEntryModeState();
+
   const tbody = document.getElementById('data-tbody');
   tbody.innerHTML = '';
   PACKAGES.forEach(p => {
@@ -4153,17 +4262,26 @@ function renderDataTable() {
         const td = document.createElement('td'); td.className='tcell';
         const inp = document.createElement('input');
         inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
-        const regionName = getDataEntryRegionalName();
         const year = getDataEntryYear();
-        const val = getCell(regionName, p.id, mi, year)?.[type];
+        const val = dataEntryMode === 'card'
+          ? getCostCenterCell(getDataEntryCostCenterId(), p.id, mi, year)?.[type]
+          : getCell(getDataEntryRegionalName(), p.id, mi, year)?.[type];
         if (val!=null) inp.value=val;
         inp.addEventListener('input', ()=>{
-          const activeRegion = getDataEntryRegionalName();
           const activeYear = getDataEntryYear();
-          ensureRegionalStructure(activeRegion, activeYear);
           const n = normalizeManualNumber(inp.value);
           if (currentUserRole !== 'admin') { alert('Perfil de consulta: alteração não permitida.'); return; }
-          appData[activeRegion][activeYear][p.id][mi][type]=n;
+
+          if (dataEntryMode === 'card') {
+            const activeCostCenter = getDataEntryCostCenterId();
+            ensureCostCenterStructure(activeCostCenter, activeYear);
+            appData.__costCenters[activeCostCenter][activeYear][p.id][mi][type]=n;
+          } else {
+            const activeRegion = getDataEntryRegionalName();
+            ensureRegionalStructure(activeRegion, activeYear);
+            appData[activeRegion][activeYear][p.id][mi][type]=n;
+          }
+
           localStorage.setItem(SK,JSON.stringify(appData));
           flashToast();
           if(currentScreen==='panorama') renderPanorama();
@@ -4209,11 +4327,80 @@ function updateDataRegionalLabel() {
 
 function toggleDataRegionalDropdown(e) {
   e.stopPropagation();
+  if (dataEntryMode === 'card') return;
   document.getElementById('data-regional-dropdown').classList.toggle('open');
 }
 function clearDataRegionalSel() {
   dataSelectedRegional = REGIONALS.indexOf('Goiânia');
   buildDataRegionalPicker();
+  renderDataTable();
+}
+
+function setDataEntryMode(mode) {
+  dataEntryMode = mode === 'nocard' ? 'nocard' : 'card';
+  applyDataEntryModeState();
+  renderDataTable();
+}
+
+function applyDataEntryModeState() {
+  const cardBtn = document.getElementById('data-mode-card');
+  const noCardBtn = document.getElementById('data-mode-nocard');
+  if (cardBtn) cardBtn.classList.toggle('sel', dataEntryMode === 'card');
+  if (noCardBtn) noCardBtn.classList.toggle('sel', dataEntryMode === 'nocard');
+
+  const regionalField = document.getElementById('data-filter-regional-field');
+  const costField = document.getElementById('data-filter-cost-field');
+  const regionalBtn = document.getElementById('data-regional-picker-btn');
+  const costBtn = document.getElementById('data-cost-center-picker-btn');
+
+  if (regionalField) regionalField.classList.toggle('data-filter-disabled', dataEntryMode === 'card');
+  if (costField) costField.classList.toggle('data-filter-disabled', dataEntryMode === 'nocard');
+
+  if (regionalBtn) {
+    regionalBtn.disabled = dataEntryMode === 'card';
+    regionalBtn.title = dataEntryMode === 'card' ? 'Ignorado no lançamento CARD STC' : 'Regional utilizada nos Pacotes Operacionais';
+  }
+  if (costBtn) {
+    costBtn.disabled = dataEntryMode === 'nocard';
+    costBtn.title = dataEntryMode === 'nocard' ? 'Ignorado no lançamento de Pacotes Operacionais' : 'Centro de Custo utilizado no CARD STC';
+  }
+}
+
+function buildDataCostCenterPicker() {
+  const grid = document.getElementById('data-cost-center-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  COST_CENTERS.forEach(cc => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (dataSelectedCostCenter === cc.id ? ' sel' : '');
+    el.textContent = getCostCenterDisplayName(cc.id);
+    el.onclick = () => {
+      dataSelectedCostCenter = cc.id;
+      buildDataCostCenterPicker();
+      renderDataTable();
+    };
+    grid.appendChild(el);
+  });
+
+  updateDataCostCenterLabel();
+}
+
+function updateDataCostCenterLabel() {
+  const lbl = document.getElementById('data-cost-center-picker-label');
+  if (!lbl) return;
+  lbl.textContent = getCostCenterDisplayName(getDataEntryCostCenterId());
+}
+
+function toggleDataCostCenterDropdown(e) {
+  e.stopPropagation();
+  if (dataEntryMode === 'nocard') return;
+  document.getElementById('data-cost-center-dropdown').classList.toggle('open');
+}
+
+function clearDataCostCenterSel() {
+  dataSelectedCostCenter = COST_CENTERS[0]?.id || '6070029030';
+  buildDataCostCenterPicker();
   renderDataTable();
 }
 
@@ -4244,9 +4431,16 @@ function parseImport() {
   }
 
   const normTxt = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const normalizeCostCenterId = value => {
+    const raw = String(value || '').trim().toUpperCase();
+    const found = COST_CENTERS.find(cc => raw === cc.id || raw.startsWith(cc.id) || normTxt(raw).includes(normTxt(cc.name)));
+    return found ? found.id : null;
+  };
+
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
   const result = [];
   const parseErrors = [];
+  const importingCard = dataEntryMode === 'card';
 
   lines.forEach((line, li) => {
     let sep = '\t';
@@ -4260,26 +4454,37 @@ function parseImport() {
     const c1 = normTxt(cols[1]);
     const c2 = normTxt(cols[2]);
     if (
-      (c0 === 'regional' && c1 === 'pacote') ||
-      (c0 === 'regional' && c1 === 'ano' && c2 === 'pacote') ||
+      (['regional','centro de custo','centro custo','centrodecusto'].includes(c0) && c1 === 'pacote') ||
+      (['regional','centro de custo','centro custo','centrodecusto'].includes(c0) && c1 === 'ano' && c2 === 'pacote') ||
       (c0 === 'pacote' && c1 === 'tipo')
     ) {
       return;
     }
 
-    const hasRegionalColumn = REGIONALS.includes(cols[0]);
-    if (!hasRegionalColumn) {
-      parseErrors.push(`Linha ${li+1}: regional "${cols[0] || ''}" não reconhecida.`);
-      return;
+    let regional = null;
+    let costCenterId = null;
+
+    if (importingCard) {
+      costCenterId = normalizeCostCenterId(cols[0]);
+      if (!costCenterId) {
+        parseErrors.push(`Linha ${li+1}: centro de custo "${cols[0] || ''}" não reconhecido.`);
+        return;
+      }
+    } else {
+      const hasRegionalColumn = REGIONALS.includes(cols[0]);
+      if (!hasRegionalColumn) {
+        parseErrors.push(`Linha ${li+1}: regional "${cols[0] || ''}" não reconhecida.`);
+        return;
+      }
+      regional = cols[0];
     }
 
-    const regional = cols[0];
     const maybeYear = (cols[1] || '').trim();
 
     // Aceita:
-    // 1) Regional | Ano | Pacote | Tipo | 12 meses
-    // 2) Regional | Pacote | Tipo | 12 meses
-    // 3) Regional | [Ano em branco] | Pacote | Tipo | 12 meses
+    // 1) Centro de Custo/Regional | Ano | Pacote | Tipo | 12 meses
+    // 2) Centro de Custo/Regional | Pacote | Tipo | 12 meses
+    // 3) Centro de Custo/Regional | [Ano em branco] | Pacote | Tipo | 12 meses
     const secondLooksLikePackage = PACKAGES.some(p => p.id === String(maybeYear).replace(/\D/g,'').padStart(2,'0'));
     const explicitBlankYearColumn = (maybeYear === '' && cols.length >= 16 && !secondLooksLikePackage);
     const hasYearColumn = /^\d{4}$/.test(maybeYear) || explicitBlankYearColumn;
@@ -4329,7 +4534,10 @@ function parseImport() {
     }
 
     result.push({
+      mode: importingCard ? 'card' : 'nocard',
       regional,
+      costCenterId,
+      dimensionLabel: importingCard ? getCostCenterDisplayName(costCenterId) : regional,
       year,
       pkgId: pkg.id,
       pkgName: pkg.name,
@@ -4360,8 +4568,9 @@ function renderPreview(result, parseErrors) {
 
   tbl.innerHTML = '';
   const thead = document.createElement('thead');
+  const dimensionHeader = dataEntryMode === 'card' ? 'Centro de Custo' : 'Regional';
   thead.innerHTML = `<tr>
-    <th>Regional</th><th>Ano</th><th>Pacote</th><th>Tipo</th>
+    <th>${dimensionHeader}</th><th>Ano</th><th>Pacote</th><th>Tipo</th>
     ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
   </tr>`;
   tbl.appendChild(thead);
@@ -4371,7 +4580,7 @@ function renderPreview(result, parseErrors) {
     const tr = document.createElement('tr');
     tr.className = row.type==='plan' ? 'prev-plan' : 'prev-real';
     const typeLabel = row.type==='plan' ? 'Planejado' : 'Realizado';
-    tr.innerHTML = `<td>${row.regional ?? '—'}</td><td>${row.year}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
+    tr.innerHTML = `<td>${row.dimensionLabel ?? '—'}</td><td>${row.year}</td><td>${row.pkgId} · ${row.pkgName}</td><td class="ttype">${typeLabel}</td>`;
     row.values.forEach((v, i) => {
       const td = document.createElement('td');
       if (v === null) {
@@ -4400,19 +4609,30 @@ function renderPreview(result, parseErrors) {
 function confirmImport() {
   if (!parsedImportData) return;
   parsedImportData.forEach(row => {
-    const regionName = row.regional || getDataEntryRegionalName();
     const targetYear = String(row.year || getDefaultYear());
-    ensureRegionalStructure(regionName, targetYear);
-    row.values.forEach((v, mi) => {
-      appData[regionName][targetYear][row.pkgId][mi][row.type] = v;
-    });
+
+    if (row.mode === 'card') {
+      const costCenterId = row.costCenterId || getDataEntryCostCenterId();
+      ensureCostCenterStructure(costCenterId, targetYear);
+      row.values.forEach((v, mi) => {
+        appData.__costCenters[costCenterId][targetYear][row.pkgId][mi][row.type] = v;
+      });
+    } else {
+      const regionName = row.regional || getDataEntryRegionalName();
+      ensureRegionalStructure(regionName, targetYear);
+      row.values.forEach((v, mi) => {
+        appData[regionName][targetYear][row.pkgId][mi][row.type] = v;
+      });
+    }
   });
+  const linhasImportadas = parsedImportData.length;
+  const modo = parsedImportData?.[0]?.mode === 'card' ? 'centro de custo e ano' : 'regional e ano';
   saveData();
   renderDataTable();
   if (currentScreen==='panorama') renderPanorama();
   cancelPreview();
   document.getElementById('paste-area').value = '';
-  showFeedback('success', `✅ Importação concluída! ${parsedImportData.length} linha(s) gravadas com sucesso por regional e ano.`);
+  showFeedback('success', `✅ Importação concluída! ${linhasImportadas} linha(s) gravadas com sucesso por ${modo}.`);
   parsedImportData = null;
 }
 
@@ -4429,17 +4649,19 @@ function showFeedback(type, msg) {
 }
 
 function downloadTemplate() {
-  const header = ['Regional','Ano','Pacote','Tipo',...MONTHS].join(';');
+  const isCardMode = dataEntryMode === 'card';
+  const header = [isCardMode ? 'Centro de Custo' : 'Regional','Ano','Pacote','Tipo',...MONTHS].join(';');
   const rows = [];
+  const dimensionValue = isCardMode ? getDataEntryCostCenterId() : getDataEntryRegionalName();
   PACKAGES.forEach(p => {
-    rows.push(['Goiânia',CURRENT_YEAR,p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
-    rows.push(['Goiânia',CURRENT_YEAR,p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push([dimensionValue,CURRENT_YEAR,p.id,'Planejado',...MONTHS.map(()=>'0')].join(';'));
+    rows.push([dimensionValue,CURRENT_YEAR,p.id,'Realizado',...MONTHS.map(()=>'0')].join(';'));
   });
   const csv = [header, ...rows].join('\r\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'template_stc_gyn_regionais.csv';
+  a.download = isCardMode ? 'template_stc_card_centro_custo.csv' : 'template_stc_pacotes_regionais.csv';
   a.click();
 }
 
