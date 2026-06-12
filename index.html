@@ -1068,11 +1068,16 @@ body.perfil-admin .consulta-only {
 /* Barra superior — acomodação do PAC.11 sem ocultar os demais ícones */
 #topbar { gap: .72rem; }
 .topbar-brand { flex: 0 1 auto; min-width: 145px; }
-.topbar-nav { flex: 1 1 auto; justify-content: flex-start; min-width: 0; }
+.topbar-nav {
+  margin-left: auto;
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
 .topbar-nav .btn-nav { padding-left: .78rem; padding-right: .78rem; }
 @media (max-width: 1280px) {
   .topbar-brand { min-width: 120px; font-size: .86rem; }
-  .topbar-nav { gap: .38rem; }
+  .topbar-nav { gap: .38rem; margin-left: auto; justify-content: flex-end; }
   .topbar-nav .btn-nav { font-size: .76rem; padding-left: .56rem; padding-right: .56rem; }
   .btn-logout { font-size: .74rem; padding-left: .6rem; padding-right: .6rem; }
 }
@@ -1806,7 +1811,7 @@ table.dre-table td.dv-var-y {
     <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
 
     <div class="more-options-wrap admin-only">
-      <button type="button" class="btn-nav" id="btn-mais-opcoes" onclick="toggleMaisOpcoes(event)">☰ Mais opções</button>
+      <button type="button" class="btn-nav" id="btn-mais-opcoes" onclick="toggleMaisOpcoes(event)">☰ Mais Opções</button>
       <div class="more-options-menu" id="mais-opcoes-menu">
         <button type="button" id="nav-data" onclick="showScreen('data'); fecharMaisOpcoes();">✏️ Inserir Dados</button>
         <button type="button" id="nav-data_pac10" onclick="showScreen('data_pac10'); fecharMaisOpcoes();">📝 Inserir dados PAC.10</button>
