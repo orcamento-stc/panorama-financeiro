@@ -3303,6 +3303,11 @@ function clearCostCenterSel() {
   renderPanorama();
 }
 
+function formatCostCenterDisplay(id) {
+  const cc = COST_CENTERS.find(c => c.id === id);
+  return cc ? `${cc.id} - ${cc.name}` : id;
+}
+
 function updateCostCenterLabel() {
   const lbl = document.getElementById('cost-center-picker-label');
   if (!lbl) return;
@@ -3310,10 +3315,9 @@ function updateCostCenterLabel() {
   if (selectedCostCenters.length === 0) {
     lbl.textContent = 'Todos os centros de custo';
   } else if (selectedCostCenters.length === 1) {
-    const cc = COST_CENTERS.find(c => c.id === selectedCostCenters[0]);
-    lbl.textContent = cc ? cc.id : selectedCostCenters[0];
+    lbl.textContent = formatCostCenterDisplay(selectedCostCenters[0]);
   } else {
-    lbl.textContent = selectedCostCenters.join(', ');
+    lbl.textContent = selectedCostCenters.map(formatCostCenterDisplay).join(', ');
   }
 }
 
@@ -3329,10 +3333,9 @@ function getSelectedCostCenterIds() {
 function getCostCenterFilterLabel() {
   if (selectedCostCenters.length === 0) return 'Todos os centros de custo';
   if (selectedCostCenters.length === 1) {
-    const cc = COST_CENTERS.find(c => c.id === selectedCostCenters[0]);
-    return cc ? cc.id : selectedCostCenters[0];
+    return formatCostCenterDisplay(selectedCostCenters[0]);
   }
-  return selectedCostCenters.join(', ');
+  return selectedCostCenters.map(formatCostCenterDisplay).join(', ');
 }
 
 /* Regional picker (visual + estrutura pronta) */
