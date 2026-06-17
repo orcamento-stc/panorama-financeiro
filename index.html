@@ -3424,10 +3424,18 @@ function exportarBackup() {
         eq_stcgyn_v4: localStorage.getItem('eq_stcgyn_v4'),
         eq_stcgyn_pac10_v1: localStorage.getItem('eq_stcgyn_pac10_v1'),
         eq_stcgyn_pac11_v1: localStorage.getItem('eq_stcgyn_pac11_v1'),
+        eq_stcgyn_admin_pwd: localStorage.getItem(ADMIN_PWD_KEY),
+        eq_stcgyn_consulta_pwd: localStorage.getItem(CONSULTA_PWD_KEY),
         data_exportacao: new Date().toISOString()
     };
 
-    if (!backup.eq_stcgyn_v4 && !backup.eq_stcgyn_pac10_v1 && !backup.eq_stcgyn_pac11_v1) {
+    if (
+        !backup.eq_stcgyn_v4 &&
+        !backup.eq_stcgyn_pac10_v1 &&
+        !backup.eq_stcgyn_pac11_v1 &&
+        !backup.eq_stcgyn_admin_pwd &&
+        !backup.eq_stcgyn_consulta_pwd
+    ) {
         alert('Nenhum dado encontrado para backup.');
         return;
     }
@@ -3478,8 +3486,10 @@ function restaurarBackup() {
                 const dadosPanorama = backup.eq_stcgyn_v4;
                 const dadosPac10 = backup.eq_stcgyn_pac10_v1;
                 const dadosPac11 = backup.eq_stcgyn_pac11_v1;
+                const senhaAdminBackup = backup.eq_stcgyn_admin_pwd;
+                const senhaConsultaBackup = backup.eq_stcgyn_consulta_pwd;
 
-                if (!dadosPanorama && !dadosPac10 && !dadosPac11) {
+                if (!dadosPanorama && !dadosPac10 && !dadosPac11 && !senhaAdminBackup && !senhaConsultaBackup) {
                     alert('Arquivo de backup inválido. Nenhum dado do Panorama foi encontrado.');
                     return;
                 }
@@ -3490,22 +3500,30 @@ function restaurarBackup() {
 
                 if (dadosPanorama) {
                     localStorage.setItem('eq_stcgyn_v4', typeof dadosPanorama === 'string' ? dadosPanorama : JSON.stringify(dadosPanorama));
-    registrarAlteracaoDados();
+                    registrarAlteracaoDados();
                 }
 
                 if (dadosPac10) {
                     localStorage.setItem('eq_stcgyn_pac10_v1', typeof dadosPac10 === 'string' ? dadosPac10 : JSON.stringify(dadosPac10));
-    registrarAlteracaoDados();
+                    registrarAlteracaoDados();
                 }
 
                 if (dadosPac11) {
                     localStorage.setItem('eq_stcgyn_pac11_v1', typeof dadosPac11 === 'string' ? dadosPac11 : JSON.stringify(dadosPac11));
-    registrarAlteracaoDados();
+                    registrarAlteracaoDados();
+                }
+
+                if (typeof senhaAdminBackup === 'string' && senhaAdminBackup.trim() !== '') {
+                    localStorage.setItem(ADMIN_PWD_KEY, senhaAdminBackup);
+                }
+
+                if (typeof senhaConsultaBackup === 'string' && senhaConsultaBackup.trim() !== '') {
+                    localStorage.setItem(CONSULTA_PWD_KEY, senhaConsultaBackup);
                 }
 
                 alert('Backup restaurado com sucesso. A página será atualizada.');
                 marcarBackupPendente(false);
-                    location.reload();
+                location.reload();
             } catch (erro) {
                 alert('Erro ao restaurar backup. Verifique se o arquivo selecionado é o backup correto.');
                 console.error(erro);
