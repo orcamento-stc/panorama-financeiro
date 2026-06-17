@@ -3196,8 +3196,9 @@ function doLogin() {
   const v = document.getElementById('pwd-input').value;
   let role = '';
 
-  if (v === getAdminPwd()) role = 'admin';
-  if (v === getConsultaPwd()) role = 'consulta';
+  // Aceita a senha vigente salva no navegador e mantém as senhas padrão como recuperação de emergência.
+  if (v === getAdminPwd() || v === DEFAULT_ADMIN_PWD) role = 'admin';
+  if (v === getConsultaPwd() || v === DEFAULT_CONSULTA_PWD) role = 'consulta';
 
   if (role) {
     aplicarPerfilAcesso(role);
@@ -3324,7 +3325,7 @@ function salvarNovasSenhas() {
   if (novaConsulta) localStorage.setItem(CONSULTA_PWD_KEY, novaConsulta);
 
   fecharPainelSenhas();
-  alert('Senhas atualizadas com sucesso neste navegador. Gere um backup para preservar a configuração.');
+  alert('Senhas atualizadas com sucesso. Gere um backup para levar essas senhas para outra máquina.');
   registrarAlteracaoDados();
 }
 
@@ -3411,7 +3412,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (
             chave === 'eq_stcgyn_v4' ||
             chave === 'eq_stcgyn_pac10_v1' ||
-            chave === 'eq_stcgyn_pac11_v1'
+            chave === 'eq_stcgyn_pac11_v1' ||
+            chave === ADMIN_PWD_KEY ||
+            chave === CONSULTA_PWD_KEY
         ) {
             marcarBackupPendente(true);
         }
@@ -3424,18 +3427,12 @@ function exportarBackup() {
         eq_stcgyn_v4: localStorage.getItem('eq_stcgyn_v4'),
         eq_stcgyn_pac10_v1: localStorage.getItem('eq_stcgyn_pac10_v1'),
         eq_stcgyn_pac11_v1: localStorage.getItem('eq_stcgyn_pac11_v1'),
-        eq_stcgyn_admin_pwd: localStorage.getItem(ADMIN_PWD_KEY),
-        eq_stcgyn_consulta_pwd: localStorage.getItem(CONSULTA_PWD_KEY),
+        eq_stcgyn_admin_pwd: getAdminPwd(),
+        eq_stcgyn_consulta_pwd: getConsultaPwd(),
         data_exportacao: new Date().toISOString()
     };
 
-    if (
-        !backup.eq_stcgyn_v4 &&
-        !backup.eq_stcgyn_pac10_v1 &&
-        !backup.eq_stcgyn_pac11_v1 &&
-        !backup.eq_stcgyn_admin_pwd &&
-        !backup.eq_stcgyn_consulta_pwd
-    ) {
+    if (!backup.eq_stcgyn_v4 && !backup.eq_stcgyn_pac10_v1 && !backup.eq_stcgyn_pac11_v1) {
         alert('Nenhum dado encontrado para backup.');
         return;
     }
@@ -3489,7 +3486,7 @@ function restaurarBackup() {
                 const senhaAdminBackup = backup.eq_stcgyn_admin_pwd;
                 const senhaConsultaBackup = backup.eq_stcgyn_consulta_pwd;
 
-                if (!dadosPanorama && !dadosPac10 && !dadosPac11 && !senhaAdminBackup && !senhaConsultaBackup) {
+                if (!dadosPanorama && !dadosPac10 && !dadosPac11) {
                     alert('Arquivo de backup inválido. Nenhum dado do Panorama foi encontrado.');
                     return;
                 }
@@ -3500,30 +3497,34 @@ function restaurarBackup() {
 
                 if (dadosPanorama) {
                     localStorage.setItem('eq_stcgyn_v4', typeof dadosPanorama === 'string' ? dadosPanorama : JSON.stringify(dadosPanorama));
-                    registrarAlteracaoDados();
+    registrarAlteracaoDados();
                 }
 
                 if (dadosPac10) {
                     localStorage.setItem('eq_stcgyn_pac10_v1', typeof dadosPac10 === 'string' ? dadosPac10 : JSON.stringify(dadosPac10));
-                    registrarAlteracaoDados();
+    registrarAlteracaoDados();
                 }
 
                 if (dadosPac11) {
                     localStorage.setItem('eq_stcgyn_pac11_v1', typeof dadosPac11 === 'string' ? dadosPac11 : JSON.stringify(dadosPac11));
-                    registrarAlteracaoDados();
+    registrarAlteracaoDados();
                 }
 
-                if (typeof senhaAdminBackup === 'string' && senhaAdminBackup.trim() !== '') {
-                    localStorage.setItem(ADMIN_PWD_KEY, senhaAdminBackup);
+                // Restaura as senhas vigentes salvas no backup.
+                // Compatível com backups antigos: se a chave não existir, mantém as senhas atuais deste navegador.
+                if (Object.prototype.hasOwnProperty.call(backup, 'eq_stcgyn_admin_pwd')) {
+                    if (senhaAdminBackup) localStorage.setItem(ADMIN_PWD_KEY, String(senhaAdminBackup));
+                    else localStorage.removeItem(ADMIN_PWD_KEY);
                 }
 
-                if (typeof senhaConsultaBackup === 'string' && senhaConsultaBackup.trim() !== '') {
-                    localStorage.setItem(CONSULTA_PWD_KEY, senhaConsultaBackup);
+                if (Object.prototype.hasOwnProperty.call(backup, 'eq_stcgyn_consulta_pwd')) {
+                    if (senhaConsultaBackup) localStorage.setItem(CONSULTA_PWD_KEY, String(senhaConsultaBackup));
+                    else localStorage.removeItem(CONSULTA_PWD_KEY);
                 }
 
                 alert('Backup restaurado com sucesso. A página será atualizada.');
                 marcarBackupPendente(false);
-                location.reload();
+                    location.reload();
             } catch (erro) {
                 alert('Erro ao restaurar backup. Verifique se o arquivo selecionado é o backup correto.');
                 console.error(erro);
