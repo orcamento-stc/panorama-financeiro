@@ -1772,43 +1772,43 @@ table.dre-table td.dv-var-y {
 
 
 /* === AJUSTE FILTROS CAPEX STC === */
-#screen-capex .filter-bar-capex {
+#screen-capex_stc .filter-bar-capex {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: .85rem;
 }
 
-#screen-capex .filter-row {
+#screen-capex_stc .filter-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   width: 100%;
 }
 
-#screen-capex .filter-row-main {
+#screen-capex_stc .filter-row-main {
   gap: .9rem 1.25rem;
 }
 
-#screen-capex .filter-row-time {
+#screen-capex_stc .filter-row-time {
   justify-content: flex-end;
   gap: .9rem 1.2rem;
   padding-top: .25rem;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
-#screen-capex .filter-field {
+#screen-capex_stc .filter-field {
   display: flex;
   align-items: center;
   gap: .55rem;
   min-width: 0;
 }
 
-#screen-capex .filter-field-regional { flex: 0 1 285px; }
-#screen-capex .filter-field-service { flex: 1 1 360px; }
-#screen-capex .filter-field-super { flex: 0 1 330px; }
-#screen-capex .filter-field-month { flex: 0 1 270px; }
-#screen-capex .filter-field-year { flex: 0 1 230px; }
+#screen-capex_stc .filter-field-regional { flex: 0 1 285px; }
+#screen-capex_stc .filter-field-service { flex: 1 1 360px; }
+#screen-capex_stc .filter-field-super { flex: 0 1 330px; }
+#screen-capex_stc .filter-field-month { flex: 0 1 270px; }
+#screen-capex_stc .filter-field-year { flex: 0 1 230px; }
 
 /* DRE CAPEX — cabeçalho dos meses fixo */
 .dre-capex-scroll {
@@ -1909,6 +1909,61 @@ table.dre-table td.dv-var-y {
   #topbar .topbar-nav { gap: .22rem !important; }
   #topbar .topbar-nav .btn-nav { padding-left: .42rem !important; padding-right: .42rem !important; font-size: .69rem !important; }
   #topbar .btn-logout { padding-left: .45rem !important; padding-right: .45rem !important; font-size: .69rem !important; }
+}
+
+
+/* === CORREÇÃO ATIVAÇÃO PLANTÃO — ESTRUTURA INDEPENDENTE === */
+#screen-ativacao_plantao .filter-bar-ativacao {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85rem;
+}
+#screen-ativacao_plantao .filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+}
+#screen-ativacao_plantao .filter-row-main {
+  gap: .9rem 1.25rem;
+}
+#screen-ativacao_plantao .filter-row-time {
+  justify-content: flex-end;
+  gap: .9rem 1.2rem;
+  padding-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+#screen-ativacao_plantao .filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+#screen-ativacao_plantao .filter-field-regional { flex: 0 1 285px; }
+#screen-ativacao_plantao .filter-field-service { flex: 1 1 360px; }
+#screen-ativacao_plantao .filter-field-super { flex: 0 1 330px; }
+#screen-ativacao_plantao .filter-field-month { flex: 0 1 270px; }
+#screen-ativacao_plantao .filter-field-year { flex: 0 1 230px; }
+
+#screen-ativacao_plantao .module-placeholder-wrap {
+  padding-top: 0;
+}
+#screen-ativacao_plantao .module-placeholder-card {
+  margin-top: 1.4rem;
+}
+
+@media (max-width: 1100px) {
+  #screen-ativacao_plantao .filter-field {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+  #screen-ativacao_plantao .month-picker {
+    flex: 1;
+  }
+  #screen-ativacao_plantao .month-picker-btn {
+    width: 100%;
+  }
 }
 
 </style>
@@ -2954,7 +3009,7 @@ Anápolis	Miscelânea Capex	Planejado	800	850	...
 </div>
 
 <!-- DRE CAPEX -->
-<div id="screen-capex">
+<div id="screen-capex_stc">
   <div class="section-wrap">
     <div class="filter-bar filter-bar-capex">
       <div class="filter-row filter-row-main">
@@ -3084,7 +3139,98 @@ Anápolis	Miscelânea Capex	Planejado	800	850	...
 
 <!-- ATIVAÇÃO PLANTÃO -->
 <div id="screen-ativacao_plantao">
-  <div class="module-placeholder-wrap">
+  <div class="section-wrap">
+    <div class="filter-bar filter-bar-ativacao">
+      <div class="filter-row filter-row-main">
+        <div class="filter-field filter-field-regional">
+          <span class="filter-label">Regional:</span>
+          <div class="month-picker" id="ativacao-regional-picker">
+            <button class="month-picker-btn" id="ativacao-regional-picker-btn" onclick="toggleAtivacaoDropdown(event,'ativacao-regional-dropdown')">
+              <span id="ativacao-regional-picker-label">Todas as regionais</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ativacao-regional-dropdown">
+              <div class="month-dropdown-header">
+                <span>Filtro independente</span>
+                <button onclick="clearAtivacaoFilter('regional')">Limpar</button>
+              </div>
+              <div class="month-grid" id="ativacao-regional-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-service">
+          <span class="filter-label">Serviços:</span>
+          <div class="month-picker" id="ativacao-service-picker">
+            <button class="month-picker-btn" id="ativacao-service-picker-btn" onclick="toggleAtivacaoDropdown(event,'ativacao-service-dropdown')" style="min-width:280px">
+              <span id="ativacao-service-picker-label">Todos os serviços</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ativacao-service-dropdown" style="min-width:300px;max-width:380px">
+              <div class="month-dropdown-header">
+                <span>Serviços serão definidos posteriormente</span>
+                <button onclick="clearAtivacaoFilter('service')">Limpar</button>
+              </div>
+              <div class="month-grid" id="ativacao-service-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-super">
+          <span class="filter-label">Superintendência:</span>
+          <div class="month-picker" id="ativacao-super-picker">
+            <button class="month-picker-btn" id="ativacao-super-picker-btn" onclick="toggleAtivacaoDropdown(event,'ativacao-super-dropdown')">
+              <span id="ativacao-super-picker-label">Todas as superintendências</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ativacao-super-dropdown">
+              <div class="month-dropdown-header">
+                <span>Filtro independente</span>
+                <button onclick="clearAtivacaoFilter('super')">Limpar</button>
+              </div>
+              <div class="month-grid" id="ativacao-super-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-row filter-row-time">
+        <div class="filter-field filter-field-month">
+          <span class="filter-label">Mês:</span>
+          <div class="month-picker" id="ativacao-month-picker">
+            <button class="month-picker-btn" id="ativacao-month-picker-btn" onclick="toggleAtivacaoDropdown(event,'ativacao-month-dropdown')">
+              <span id="ativacao-month-picker-label">Todos os meses</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ativacao-month-dropdown">
+              <div class="month-dropdown-header">
+                <span>Filtro independente</span>
+                <button onclick="clearAtivacaoFilter('month')">Limpar</button>
+              </div>
+              <div class="month-grid" id="ativacao-month-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-year">
+          <span class="filter-label">Ano:</span>
+          <div class="month-picker" id="ativacao-year-picker">
+            <button class="month-picker-btn" id="ativacao-year-picker-btn" onclick="toggleAtivacaoDropdown(event,'ativacao-year-dropdown')">
+              <span id="ativacao-year-picker-label">2026</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="ativacao-year-dropdown">
+              <div class="month-dropdown-header">
+                <span>Selecione o ano</span>
+                <button onclick="clearAtivacaoFilter('year')">Ano vigente</button>
+              </div>
+              <div class="month-grid" id="ativacao-year-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="module-placeholder-card">
       <div class="module-placeholder-icon">⚡</div>
       <h2>Ativação Plantão</h2>
@@ -4012,6 +4158,104 @@ function limparDadosAdministrativo() {
 
     alert('Limpeza concluída. O indicador de backup pendente foi ativado.');
 }  
+
+
+/* === FILTROS INDEPENDENTES — ATIVAÇÃO PLANTÃO === */
+const ativacaoFilterState = {
+  regional: '',
+  service: '',
+  super: '',
+  month: '',
+  year: String(CURRENT_YEAR)
+};
+
+function toggleAtivacaoDropdown(event, dropdownId) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const target = document.getElementById(dropdownId);
+  if (!target) return;
+
+  document.querySelectorAll('#screen-ativacao_plantao .month-dropdown').forEach(dd => {
+    if (dd !== target) dd.classList.remove('open');
+  });
+  target.classList.toggle('open');
+}
+
+function setAtivacaoFilter(type, value, label) {
+  ativacaoFilterState[type] = value;
+  const labelEl = document.getElementById(`ativacao-${type}-picker-label`);
+  if (labelEl) labelEl.textContent = label;
+  document.querySelectorAll('#screen-ativacao_plantao .month-dropdown').forEach(dd => dd.classList.remove('open'));
+}
+
+function clearAtivacaoFilter(type) {
+  const defaults = {
+    regional: ['','Todas as regionais'],
+    service: ['','Todos os serviços'],
+    super: ['','Todas as superintendências'],
+    month: ['','Todos os meses'],
+    year: [String(CURRENT_YEAR),String(CURRENT_YEAR)]
+  };
+  const [value,label] = defaults[type];
+  setAtivacaoFilter(type,value,label);
+}
+
+function buildAtivacaoFilterGrid(gridId, type, items) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  items.forEach(item => {
+    const btn = document.createElement('div');
+    btn.className = 'month-opt';
+    btn.textContent = item.label;
+    btn.onclick = () => setAtivacaoFilter(type, item.value, item.label);
+    grid.appendChild(btn);
+  });
+}
+
+function initAtivacaoFilters() {
+  buildAtivacaoFilterGrid(
+    'ativacao-regional-grid',
+    'regional',
+    [{value:'',label:'Todas as regionais'}, ...REGIONALS.map(r => ({value:r,label:r}))]
+  );
+
+  buildAtivacaoFilterGrid(
+    'ativacao-service-grid',
+    'service',
+    [{value:'',label:'Todos os serviços'}]
+  );
+
+  buildAtivacaoFilterGrid(
+    'ativacao-super-grid',
+    'super',
+    [{value:'',label:'Todas as superintendências'}, ...Object.keys(SUPERINTENDENCIAS).map(s => ({value:s,label:s}))]
+  );
+
+  buildAtivacaoFilterGrid(
+    'ativacao-month-grid',
+    'month',
+    [{value:'',label:'Todos os meses'}, ...MONTHS.map((m,i) => ({value:String(i),label:m}))]
+  );
+
+  const years = [];
+  for (let y = CURRENT_YEAR - 3; y <= CURRENT_YEAR + 3; y++) {
+    years.push({value:String(y),label:String(y)});
+  }
+  buildAtivacaoFilterGrid('ativacao-year-grid','year',years);
+}
+
+document.addEventListener('DOMContentLoaded', initAtivacaoFilters);
+
+document.addEventListener('click', function(event) {
+  const screen = document.getElementById('screen-ativacao_plantao');
+  if (!screen || screen.contains(event.target)) return;
+  screen.querySelectorAll('.month-dropdown').forEach(dd => dd.classList.remove('open'));
+});
+
 
 /* ── SCREENS ── */
 let currentScreen = '';
