@@ -56,11 +56,11 @@
       var(--eq-blue-deep);
   }
   #screen-login.active { display: flex; }
-  #screen-panorama, #screen-data, #screen-pac10, #screen-pac11, #screen-data_pac10, #screen-data_pac11, #screen-comparativo_anual {
+  #screen-panorama, #screen-data, #screen-pac10, #screen-pac11, #screen-capex_stc, #screen-ativacao_plantao, #screen-data_pac10, #screen-data_pac11, #screen-comparativo_anual {
     display: none; position: relative; z-index: 1;
     min-height: calc(100vh - 56px); padding-bottom: 4rem;
   }
-  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-pac11.active, #screen-data_pac10.active, #screen-data_pac11.active, #screen-comparativo_anual.active { display: block; }
+  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-pac11.active, #screen-capex_stc.active, #screen-ativacao_plantao.active, #screen-data_pac10.active, #screen-data_pac11.active, #screen-comparativo_anual.active { display: block; }
 
   /* LOGIN */
   .login-box {
@@ -1767,6 +1767,77 @@ table.dre-table td.dv-var-y {
   }
 }
 
+
+/* === ETAPA 1 — NOVAS ABAS DO MENU PRINCIPAL === */
+.module-placeholder-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+.module-placeholder-card {
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: .55rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+}
+.module-placeholder-icon { font-size: 2rem; }
+.module-placeholder-card h2 {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+.module-placeholder-card p {
+  max-width: 560px;
+  color: var(--eq-gray);
+  font-size: .84rem;
+  line-height: 1.55;
+}
+
+/* Acomodação das duas novas abas em uma única linha, preservando o padrão atual. */
+#topbar {
+  gap: .42rem !important;
+  padding-left: .85rem !important;
+  padding-right: .85rem !important;
+}
+#topbar .topbar-eq {
+  padding-left: .42rem;
+  padding-right: .42rem;
+}
+#topbar .topbar-brand {
+  min-width: 108px !important;
+  font-size: .84rem !important;
+  white-space: nowrap;
+}
+#topbar .topbar-nav {
+  gap: .32rem !important;
+  margin-left: auto !important;
+  flex-wrap: nowrap !important;
+}
+#topbar .topbar-nav .btn-nav {
+  padding-left: .58rem !important;
+  padding-right: .58rem !important;
+  font-size: .75rem !important;
+}
+#topbar .btn-logout {
+  padding-left: .58rem !important;
+  padding-right: .58rem !important;
+  font-size: .73rem !important;
+  white-space: nowrap;
+}
+@media (max-width: 1450px) {
+  #topbar { padding-left: .55rem !important; padding-right: .55rem !important; gap: .30rem !important; }
+  #topbar .topbar-brand { min-width: 92px !important; font-size: .77rem !important; }
+  #topbar .topbar-nav { gap: .22rem !important; }
+  #topbar .topbar-nav .btn-nav { padding-left: .42rem !important; padding-right: .42rem !important; font-size: .69rem !important; }
+  #topbar .btn-logout { padding-left: .45rem !important; padding-right: .45rem !important; font-size: .69rem !important; }
+}
+
 </style>
 </head>
 <body>
@@ -1808,6 +1879,8 @@ table.dre-table td.dv-var-y {
     <button class="btn-nav active" id="nav-panorama" onclick="showScreen('panorama')">📊 Panorama</button>
     <button class="btn-nav" id="nav-pac10" onclick="showScreen('pac10')">📈 PAC.10 Serviços</button>
     <button class="btn-nav" id="nav-pac11" onclick="showScreen('pac11')">📈 PAC.11 Serviços</button>
+    <button class="btn-nav" id="nav-capex_stc" onclick="showScreen('capex_stc')">🏗️ Capex STC</button>
+    <button class="btn-nav" id="nav-ativacao_plantao" onclick="showScreen('ativacao_plantao')">⚡ Ativação Plantão</button>
     <button class="btn-nav" id="nav-comparativo_anual" onclick="showScreen('comparativo_anual')">📉 Comparativo Anual</button>
 
     <div class="more-options-wrap admin-only">
@@ -2685,6 +2758,28 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
   </div>
 </div>
 
+<!-- CAPEX STC -->
+<div id="screen-capex_stc">
+  <div class="module-placeholder-wrap">
+    <div class="module-placeholder-card">
+      <div class="module-placeholder-icon">🏗️</div>
+      <h2>Capex STC</h2>
+      <p>Módulo criado. A estrutura e os serviços serão implementados nas próximas etapas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ATIVAÇÃO PLANTÃO -->
+<div id="screen-ativacao_plantao">
+  <div class="module-placeholder-wrap">
+    <div class="module-placeholder-card">
+      <div class="module-placeholder-icon">⚡</div>
+      <h2>Ativação Plantão</h2>
+      <p>Em desenvolvimento.</p>
+    </div>
+  </div>
+</div>
+
 <!-- COMPARATIVO ANUAL -->
 <div id="screen-comparativo_anual">
   <div class="ca-wrap">
@@ -3217,7 +3312,7 @@ function doLogout() {
   currentUserRole = '';
   document.body.classList.remove('perfil-admin','perfil-consulta');
   document.getElementById('topbar').classList.remove('visible');
-  ['panorama','data','pac10','pac11','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
+  ['panorama','data','pac10','pac11','capex_stc','ativacao_plantao','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
     const el = document.getElementById('screen-'+n);
     if (el) el.classList.remove('active');
   });
@@ -3605,7 +3700,7 @@ function showScreen(name) {
     name = 'panorama';
   }
   currentScreen = name;
-  ['panorama','data','pac10','pac11','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
+  ['panorama','data','pac10','pac11','capex_stc','ativacao_plantao','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
     const s = document.getElementById('screen-'+n);
     const b = document.getElementById('nav-'+n);
     if (s) s.classList.toggle('active', n===name);
