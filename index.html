@@ -56,11 +56,11 @@
       var(--eq-blue-deep);
   }
   #screen-login.active { display: flex; }
-  #screen-panorama, #screen-data, #screen-pac10, #screen-pac11, #screen-capex_stc, #screen-ativacao_plantao, #screen-data_pac10, #screen-data_pac11, #screen-comparativo_anual {
+  #screen-panorama, #screen-data, #screen-pac10, #screen-pac11, #screen-capex_stc, #screen-ativacao_plantao, #screen-data_pac10, #screen-data_pac11, #screen-data_capex, #screen-comparativo_anual {
     display: none; position: relative; z-index: 1;
     min-height: calc(100vh - 56px); padding-bottom: 4rem;
   }
-  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-pac11.active, #screen-capex_stc.active, #screen-ativacao_plantao.active, #screen-data_pac10.active, #screen-data_pac11.active, #screen-comparativo_anual.active { display: block; }
+  #screen-panorama.active, #screen-data.active, #screen-pac10.active, #screen-pac11.active, #screen-capex_stc.active, #screen-ativacao_plantao.active, #screen-data_pac10.active, #screen-data_pac11.active, #screen-data_capex.active, #screen-comparativo_anual.active { display: block; }
 
   /* LOGIN */
   .login-box {
@@ -1140,6 +1140,7 @@ body.perfil-admin .consulta-only {
   #screen-panorama .filter-field,
   #screen-pac10 .filter-field,
   #screen-pac11 .filter-field,
+  #screen-capex_stc .filter-field,
   #screen-comparativo_anual .ca-filter-field {
     flex: 1 1 100%;
     justify-content: space-between;
@@ -1148,6 +1149,7 @@ body.perfil-admin .consulta-only {
   #screen-panorama .month-picker,
   #screen-pac10 .month-picker,
   #screen-pac11 .month-picker,
+  #screen-capex_stc .month-picker,
   #screen-comparativo_anual .month-picker {
     flex: 1;
   }
@@ -1155,6 +1157,7 @@ body.perfil-admin .consulta-only {
   #screen-panorama .month-picker-btn,
   #screen-pac10 .month-picker-btn,
   #screen-pac11 .month-picker-btn,
+  #screen-capex_stc .month-picker-btn,
   #screen-comparativo_anual .month-picker-btn {
     width: 100%;
   }
@@ -1768,6 +1771,76 @@ table.dre-table td.dv-var-y {
 }
 
 
+/* === AJUSTE FILTROS CAPEX STC === */
+#screen-capex .filter-bar-capex {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .85rem;
+}
+
+#screen-capex .filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+}
+
+#screen-capex .filter-row-main {
+  gap: .9rem 1.25rem;
+}
+
+#screen-capex .filter-row-time {
+  justify-content: flex-end;
+  gap: .9rem 1.2rem;
+  padding-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+#screen-capex .filter-field {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+
+#screen-capex .filter-field-regional { flex: 0 1 285px; }
+#screen-capex .filter-field-service { flex: 1 1 360px; }
+#screen-capex .filter-field-super { flex: 0 1 330px; }
+#screen-capex .filter-field-month { flex: 0 1 270px; }
+#screen-capex .filter-field-year { flex: 0 1 230px; }
+
+/* DRE CAPEX — cabeçalho dos meses fixo */
+.dre-capex-scroll {
+  max-height: 560px;
+  overflow: auto;
+  position: relative;
+}
+.dre-capex-scroll #capex-dre-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(12,24,72,.98);
+  z-index: 7;
+}
+.dre-capex-scroll #capex-dre-table thead th.dre-pkg {
+  left: 0;
+  z-index: 10;
+  background: rgba(12,24,72,.99);
+}
+.dre-capex-scroll #capex-dre-table thead th.dre-row-type {
+  left: 170px;
+  z-index: 10;
+  background: rgba(12,24,72,.99);
+}
+
+@media (max-height: 850px), (max-width: 1366px) {
+  .dre-capex-scroll { max-height: clamp(360px, 52vh, 500px); }
+}
+@media (max-height: 720px) {
+  .dre-capex-scroll { max-height: clamp(320px, 48vh, 420px); }
+}
+
+
 /* === ETAPA 1 — NOVAS ABAS DO MENU PRINCIPAL === */
 .module-placeholder-wrap {
   max-width: 1400px;
@@ -1889,6 +1962,7 @@ table.dre-table td.dv-var-y {
         <button type="button" id="nav-data" onclick="showScreen('data'); fecharMaisOpcoes();">✏️ Inserir Dados</button>
         <button type="button" id="nav-data_pac10" onclick="showScreen('data_pac10'); fecharMaisOpcoes();">📝 Inserir dados PAC.10</button>
         <button type="button" id="nav-data_pac11" onclick="showScreen('data_pac11'); fecharMaisOpcoes();">📝 Inserir dados PAC.11</button>
+        <button type="button" id="nav-data_capex" onclick="showScreen('data_capex'); fecharMaisOpcoes();">📝 Inserir dados Capex STC</button>
         <div class="more-options-divider"></div>
         <span class="more-options-label">Menu Backup</span>
         <button type="button" onclick="exportarBackup(); fecharMaisOpcoes();">💾 Fazer Backup</button>
@@ -2603,7 +2677,7 @@ Goiânia		MBX	Planejado	700	800	...
 Exemplo sem coluna Ano:
 Anápolis	Atendimento Emergencial	Realizado	900	1100	...
 Anápolis	Miscelânea	Planejado	800	850	...
-Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
+"></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parsePac10Import()">🔍 Pré-visualizar</button>
             <button class="btn-import ghost" onclick="document.getElementById('paste-pac10-area').value=''">Limpar</button>
@@ -2724,7 +2798,7 @@ Goiânia		Recuperação de Energia	Planejado	700	800	...
 Exemplo sem coluna Ano:
 Anápolis	Recuperação de Energia	Realizado	900	1100	...
 Anápolis	Improdutivas Comercial	Planejado	800	850	...
-Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
+"></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parsePac11Import()">🔍 Pré-visualizar</button>
             <button class="btn-import ghost" onclick="document.getElementById('paste-pac11-area').value=''">Limpar</button>
@@ -2758,16 +2832,255 @@ Anápolis	WhatsApp	Realizado	600	650	..."></textarea>
   </div>
 </div>
 
-<!-- CAPEX STC -->
-<div id="screen-capex_stc">
-  <div class="module-placeholder-wrap">
-    <div class="module-placeholder-card">
-      <div class="module-placeholder-icon">🏗️</div>
-      <h2>Capex STC</h2>
-      <p>Módulo criado. A estrutura e os serviços serão implementados nas próximas etapas.</p>
+<!-- DATA ENTRY CAPEX -->
+<div id="screen-data_capex">
+  <div class="data-wrap">
+    <h2>📝 Inserção de Dados CAPEX STC Serviços</h2>
+    <p>Preencha os valores manualmente campo a campo, ou importe tudo de uma vez colando de uma planilha. A entrada de dados aceita formatos como <code>2443173,62</code>, <code>1.139.545,89</code> e <code>R$ 1.139.545,89</code>.</p>
+
+    <div class="filter-bar" style="margin-bottom:1rem">
+      <span class="filter-label">Regional:</span>
+      <div class="month-picker" id="data-capex-regional-picker">
+        <button class="month-picker-btn" id="data-capex-regional-picker-btn" onclick="toggleDataCapexRegionalDropdown(event)">
+          <span id="data-capex-regional-picker-label">Selecionar regional</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="data-capex-regional-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione a regional</span>
+            <button onclick="clearDataCapexRegionalSel()">Limpar</button>
+          </div>
+          <div class="month-grid" id="data-capex-regional-grid"></div>
+        </div>
+      </div>
+
+      <span class="filter-label">Ano:</span>
+      <div class="month-picker" id="data-capex-year-picker">
+        <button class="month-picker-btn" id="data-capex-year-picker-btn" onclick="toggleDataCapexYearDropdown(event)">
+          <span id="data-capex-year-picker-label">2026</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="month-dropdown" id="data-capex-year-dropdown">
+          <div class="month-dropdown-header">
+            <span>Selecione o ano</span>
+            <button onclick="setCurrentDataCapexYear()">Ano vigente</button>
+          </div>
+          <div class="month-grid" id="data-capex-year-grid"></div>
+        </div>
+      </div>
+      <span class="filter-label" style="font-size:.72rem; opacity:.85">Os valores digitados serão gravados na regional e no ano selecionados para os serviços do CAPEX STC.</span>
+    </div>
+
+    <div class="data-tabs">
+      <button class="data-tab active" id="tab-capex-manual" onclick="switchCapexDataTab('manual')">📝 Preenchimento Manual</button>
+      <button class="data-tab" id="tab-capex-import" onclick="switchCapexDataTab('import')">⚡ Importação Massiva</button>
+    </div>
+
+    <div class="data-tab-panel active" id="panel-capex-manual">
+      <div class="table-outer">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th class="hpkg">Serviço</th>
+              <th class="htype">Tipo</th>
+              <th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th>
+            </tr>
+          </thead>
+          <tbody id="data-capex-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="data-tab-panel" id="panel-capex-import">
+      <div class="import-wrap">
+        <div class="import-box">
+          <h3>📋 Colar dados da planilha</h3>
+          <p>Copie as células diretamente do Excel ou Google Sheets e cole abaixo para os serviços do CAPEX STC.</p>
+          <div class="import-instructions">
+            <strong>Formato esperado:</strong> cada linha pode ter um destes formatos:<br>
+            <code>Regional</code> → <code>Ano</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Serviço</code> → <code>Tipo</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Ano</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br>
+            ou<br>
+            <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
+            <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
+            <strong>Pacote aceito:</strong> <code>CAPEX STC</code> ou <code>CAPEX</code>.<br>
+            <strong>Serviço:</strong> use <code>MBX</code> ou <code>Miscelânea Capex</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
+          </div>
+          <textarea class="paste-area" id="paste-capex-area" placeholder="Exemplo com ano:
+Goiânia	2026	MBX	Planejado	1000	1200	...
+Goiânia	2026	CAPEX STC	Realizado	Miscelânea Capex	900	1100	...
+
+Exemplo com coluna Ano em branco:
+Goiânia		MBX	Planejado	700	800	...
+
+Exemplo sem coluna Ano:
+Anápolis	MBX	Realizado	900	1100	...
+Anápolis	Miscelânea Capex	Planejado	800	850	...
+"></textarea>
+          <div class="import-actions">
+            <button class="btn-import primary" onclick="parseCapexImport()">🔍 Pré-visualizar</button>
+            <button class="btn-import ghost" onclick="document.getElementById('paste-capex-area').value=''">Limpar</button>
+          </div>
+          <div class="import-feedback" id="import-capex-feedback"></div>
+        </div>
+        <div class="import-box">
+          <h3>📌 Referência dos Serviços</h3>
+          <p>Use exatamente os nomes abaixo na coluna Serviço. Para adicionar ou remover serviços no futuro, basta atualizar a lista central de serviços no código.</p>
+          <div class="template-pkg-list" id="template-capex-service-list"></div>
+          <button class="btn-import ghost" style="width:100%;margin-bottom:1.2rem" onclick="downloadCapexTemplate()">⬇️ Baixar template CSV</button>
+          <div class="preview-wrap" id="preview-capex-wrap" style="display:none">
+            <h4>Pré-visualização — <span id="preview-capex-count"></span></h4>
+            <div class="preview-scroll">
+              <table class="preview-table" id="preview-capex-table"></table>
+            </div>
+            <div class="import-actions" style="margin-top:1rem">
+              <button class="btn-import green" onclick="confirmCapexImport()">✅ Confirmar e Importar</button>
+              <button class="btn-import ghost" onclick="cancelCapexPreview()">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <div class="save-info">Dados do CAPEX STC salvos localmente no navegador e persistem entre sessões.</div>
+    <div class="saved-toast" id="saved-capex-toast">✓ Salvo!</div>
+    <button class="btn-save" onclick="saveCapexData()">💾 Salvar</button>
+  </div>
+</div>
+
+<!-- DRE CAPEX -->
+<div id="screen-capex">
+  <div class="section-wrap">
+    <div class="filter-bar filter-bar-capex">
+      <div class="filter-row filter-row-main">
+        <div class="filter-field filter-field-regional">
+          <span class="filter-label">Regional:</span>
+          <div class="month-picker" id="capex-regional-picker">
+            <button class="month-picker-btn" id="capex-regional-picker-btn" onclick="toggleCapexRegionalDropdown(event)">
+              <span id="capex-regional-picker-label">Todas as regionais</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="capex-regional-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearCapexRegionalSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="capex-regional-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-service">
+          <span class="filter-label">Serviços:</span>
+          <div class="month-picker" id="capex-service-picker">
+            <button class="month-picker-btn" id="capex-service-picker-btn" onclick="toggleCapexServiceDropdown(event)" style="min-width:280px">
+              <span id="capex-service-picker-label">Todos os serviços</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="capex-service-dropdown" style="min-width:360px;max-width:420px">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplos</span>
+                <button onclick="clearCapexServiceSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="capex-service-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-super">
+          <span class="filter-label">Superintendência:</span>
+          <div class="month-picker" id="capex-super-picker">
+            <button class="month-picker-btn" id="capex-super-picker-btn" onclick="toggleCapexSuperDropdown(event)">
+              <span id="capex-super-picker-label">Todas as superintendências</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="capex-super-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplas</span>
+                <button onclick="clearCapexSuperSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="capex-super-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-row filter-row-time">
+        <div class="filter-field filter-field-month">
+          <span class="filter-label">Mês:</span>
+          <div class="month-picker" id="capex-month-picker">
+            <button class="month-picker-btn" id="capex-month-picker-btn" onclick="toggleCapexMonthDropdown(event)">
+              <span id="capex-month-picker-label">Todos os meses</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="capex-month-dropdown">
+              <div class="month-dropdown-header">
+                <span>Segure CTRL para múltiplos</span>
+                <button onclick="clearCapexMonthSel()">Limpar</button>
+              </div>
+              <div class="month-grid" id="capex-month-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-field filter-field-year">
+          <span class="filter-label">Ano:</span>
+          <div class="month-picker" id="capex-year-picker">
+            <button class="month-picker-btn" id="capex-year-picker-btn" onclick="toggleCapexYearDropdown(event)">
+              <span id="capex-year-picker-label">2026</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="month-dropdown" id="capex-year-dropdown">
+              <div class="month-dropdown-header">
+                <span>Selecione o ano</span>
+                <button onclick="setCurrentCapexYear()">Ano vigente</button>
+              </div>
+              <div class="month-grid" id="capex-year-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards-section-title">Serviços</div>
+    <div class="cards-grid" id="capex-cards-grid"></div>
+
+    <hr class="sep">
+
+    <div class="chart-section">
+      <div class="chart-header">
+        <h3 id="capex-chart-title">CAPEX STC — Acumulado · Serviços</h3>
+        <div class="chart-legend">
+          <div class="leg"><div class="leg-dash" style="border-color:#f47920;border-style:solid"></div>Plan. Acumulado</div>
+          <div class="leg"><div class="leg-dash" style="border-color:#22c55e;border-style:solid"></div>Real. Acumulado</div>
+          <div class="leg"><div class="leg-dash" style="border-color:#a78bfa"></div>Projeção Acum.</div>
+        </div>
+      </div>
+      <div class="proj-warn" id="capex-proj-warn">⚠️ Projeção indica que o realizado acumulado irá <strong>superar o planejado</strong> ao final do período.</div>
+      <div class="chart-wrap"><canvas id="capex-chart"></canvas></div>
+    </div>
+
+    <div class="dre-section">
+      <div class="dre-header">
+        <h3 id="capex-dre-title">DRE — CAPEX STC · Serviços</h3>
+        <div class="dre-legend">
+          <span class="dre-leg dre-leg-plan">Planejado</span>
+          <span class="dre-leg dre-leg-real">Realizado</span>
+          <span class="dre-leg dre-leg-var">Variação</span>
+        </div>
+      </div>
+      <div class="dre-scroll dre-capex-scroll">
+        <table class="dre-table" id="capex-dre-table"></table>
+      </div>
     </div>
   </div>
 </div>
+
 
 <!-- ATIVAÇÃO PLANTÃO -->
 <div id="screen-ativacao_plantao">
@@ -3312,7 +3625,7 @@ function doLogout() {
   currentUserRole = '';
   document.body.classList.remove('perfil-admin','perfil-consulta');
   document.getElementById('topbar').classList.remove('visible');
-  ['panorama','data','pac10','pac11','capex_stc','ativacao_plantao','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
+  ['panorama','data','pac10','pac11','capex_stc','ativacao_plantao','data_pac10','data_pac11','data_capex','comparativo_anual'].forEach(n => {
     const el = document.getElementById('screen-'+n);
     if (el) el.classList.remove('active');
   });
@@ -3508,6 +3821,7 @@ document.addEventListener('DOMContentLoaded', function() {
             chave === 'eq_stcgyn_v4' ||
             chave === 'eq_stcgyn_pac10_v1' ||
             chave === 'eq_stcgyn_pac11_v1' ||
+            chave === 'eq_stcgyn_capex_v1' ||
             chave === ADMIN_PWD_KEY ||
             chave === CONSULTA_PWD_KEY
         ) {
@@ -3522,12 +3836,13 @@ function exportarBackup() {
         eq_stcgyn_v4: localStorage.getItem('eq_stcgyn_v4'),
         eq_stcgyn_pac10_v1: localStorage.getItem('eq_stcgyn_pac10_v1'),
         eq_stcgyn_pac11_v1: localStorage.getItem('eq_stcgyn_pac11_v1'),
+        eq_stcgyn_capex_v1: localStorage.getItem('eq_stcgyn_capex_v1'),
         eq_stcgyn_admin_pwd: getAdminPwd(),
         eq_stcgyn_consulta_pwd: getConsultaPwd(),
         data_exportacao: new Date().toISOString()
     };
 
-    if (!backup.eq_stcgyn_v4 && !backup.eq_stcgyn_pac10_v1 && !backup.eq_stcgyn_pac11_v1) {
+    if (!backup.eq_stcgyn_v4 && !backup.eq_stcgyn_pac10_v1 && !backup.eq_stcgyn_pac11_v1 && !backup.eq_stcgyn_capex_v1) {
         alert('Nenhum dado encontrado para backup.');
         return;
     }
@@ -3578,10 +3893,11 @@ function restaurarBackup() {
                 const dadosPanorama = backup.eq_stcgyn_v4;
                 const dadosPac10 = backup.eq_stcgyn_pac10_v1;
                 const dadosPac11 = backup.eq_stcgyn_pac11_v1;
+                const dadosCapex = backup.eq_stcgyn_capex_v1;
                 const senhaAdminBackup = backup.eq_stcgyn_admin_pwd;
                 const senhaConsultaBackup = backup.eq_stcgyn_consulta_pwd;
 
-                if (!dadosPanorama && !dadosPac10 && !dadosPac11) {
+                if (!dadosPanorama && !dadosPac10 && !dadosPac11 && !dadosCapex) {
                     alert('Arquivo de backup inválido. Nenhum dado do Panorama foi encontrado.');
                     return;
                 }
@@ -3602,6 +3918,11 @@ function restaurarBackup() {
 
                 if (dadosPac11) {
                     localStorage.setItem('eq_stcgyn_pac11_v1', typeof dadosPac11 === 'string' ? dadosPac11 : JSON.stringify(dadosPac11));
+    registrarAlteracaoDados();
+                }
+
+                if (dadosCapex) {
+                    localStorage.setItem('eq_stcgyn_capex_v1', typeof dadosCapex === 'string' ? dadosCapex : JSON.stringify(dadosCapex));
     registrarAlteracaoDados();
                 }
 
@@ -3695,12 +4016,12 @@ function limparDadosAdministrativo() {
 /* ── SCREENS ── */
 let currentScreen = '';
 function showScreen(name) {
-  if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10' || name === 'data_pac11')) {
+  if (currentUserRole === 'consulta' && (name === 'data' || name === 'data_pac10' || name === 'data_pac11' || name === 'data_capex')) {
     alert('Perfil de consulta: acesso permitido apenas para visualização.');
     name = 'panorama';
   }
   currentScreen = name;
-  ['panorama','data','pac10','pac11','capex_stc','ativacao_plantao','data_pac10','data_pac11','comparativo_anual'].forEach(n => {
+  ['panorama','data','pac10','pac11','capex_stc','ativacao_plantao','data_pac10','data_pac11','data_capex','comparativo_anual'].forEach(n => {
     const s = document.getElementById('screen-'+n);
     const b = document.getElementById('nav-'+n);
     if (s) s.classList.toggle('active', n===name);
@@ -3710,8 +4031,10 @@ function showScreen(name) {
   if (name==='data') renderDataTable();
   if (name==='pac10') renderPac10();
   if (name==='pac11') renderPac11();
+  if (name==='capex_stc') renderCapex();
   if (name==='data_pac10') renderPac10DataTable();
   if (name==='data_pac11') renderPac11DataTable();
+  if (name==='data_capex') renderCapexDataTable();
   if (name==='comparativo_anual') renderComparativoAnual();
 }
 
@@ -4070,6 +4393,28 @@ function togglePac11YearDropdown(e){ e.stopPropagation(); document.getElementByI
 function setCurrentPac11Year(){ pac11SelectedYear = CURRENT_YEAR; buildPac11YearPicker(); renderPac11(); }
 
 
+function buildCapexYearPicker() {
+  const grid = document.getElementById('capex-year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (capexSelectedYear===year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      capexSelectedYear = year;
+      buildCapexYearPicker();
+      renderCapex();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('capex-year-picker-label');
+  if (lbl) lbl.textContent = String(capexSelectedYear);
+}
+function toggleCapexYearDropdown(e){ e.stopPropagation(); document.getElementById('capex-year-dropdown').classList.toggle('open'); }
+function setCurrentCapexYear(){ capexSelectedYear = CURRENT_YEAR; buildCapexYearPicker(); renderCapex(); }
+
+
 function buildDataPac10YearPicker() {
   const grid = document.getElementById('data-pac10-year-grid');
   if (!grid) return;
@@ -4102,6 +4447,8 @@ function buildDataPac11YearPicker() {
     el.onclick = () => {
       dataPac11SelectedYear = year;
       buildDataPac11YearPicker();
+buildDataCapexRegionalPicker();
+buildDataCapexYearPicker();
       renderPac11DataTable();
     };
     grid.appendChild(el);
@@ -4111,6 +4458,27 @@ function buildDataPac11YearPicker() {
 }
 function toggleDataPac11YearDropdown(e){ e.stopPropagation(); document.getElementById('data-pac11-year-dropdown').classList.toggle('open'); }
 function setCurrentDataPac11Year(){ dataPac11SelectedYear = CURRENT_YEAR; buildDataPac11YearPicker(); renderPac11DataTable(); }
+
+function buildDataCapexYearPicker() {
+  const grid = document.getElementById('data-capex-year-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  getAvailableYears().forEach(year => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (dataCapexSelectedYear===year ? ' sel' : '');
+    el.textContent = String(year);
+    el.onclick = () => {
+      dataCapexSelectedYear = year;
+      buildDataCapexYearPicker();
+      renderCapexDataTable();
+    };
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('data-capex-year-picker-label');
+  if (lbl) lbl.textContent = String(dataCapexSelectedYear);
+}
+function toggleDataCapexYearDropdown(e){ e.stopPropagation(); document.getElementById('data-capex-year-dropdown').classList.toggle('open'); }
+function setCurrentDataCapexYear(){ dataCapexSelectedYear = CURRENT_YEAR; buildDataCapexYearPicker(); renderCapexDataTable(); }
 
 document.addEventListener('click', () => {
   const md = document.getElementById('month-dropdown');
@@ -4133,6 +4501,13 @@ document.addEventListener('click', () => {
   const p11svd = document.getElementById('pac11-service-dropdown');
   const dp11rd = document.getElementById('data-pac11-regional-dropdown');
   const dp11yd = document.getElementById('data-pac11-year-dropdown');
+  const csd = document.getElementById('capex-super-dropdown');
+  const crd = document.getElementById('capex-regional-dropdown');
+  const cmd = document.getElementById('capex-month-dropdown');
+  const cyd = document.getElementById('capex-year-dropdown');
+  const csvd = document.getElementById('capex-service-dropdown');
+  const dcrd = document.getElementById('data-capex-regional-dropdown');
+  const dcyd = document.getElementById('data-capex-year-dropdown');
   if (md) md.classList.remove('open');
   if (sd) sd.classList.remove('open');
   if (rd) rd.classList.remove('open');
@@ -4153,6 +4528,13 @@ document.addEventListener('click', () => {
   if (p11svd) p11svd.classList.remove('open');
   if (dp11rd) dp11rd.classList.remove('open');
   if (dp11yd) dp11yd.classList.remove('open');
+  if (csd) csd.classList.remove('open');
+  if (crd) crd.classList.remove('open');
+  if (cmd) cmd.classList.remove('open');
+  if (cyd) cyd.classList.remove('open');
+  if (csvd) csvd.classList.remove('open');
+  if (dcrd) dcrd.classList.remove('open');
+  if (dcyd) dcyd.classList.remove('open');
 });
 document.getElementById('month-dropdown').addEventListener('click', e => e.stopPropagation());
 document.getElementById('super-dropdown').addEventListener('click', e => e.stopPropagation());
@@ -6092,7 +6474,12 @@ function togglePac11ServiceOpt(idx, multi) {
     if (pos>=0) pac11SelectedServices.splice(pos,1); else pac11SelectedServices.push(idx);
     pac11SelectedServices.sort((a,b)=>a-b);
   }
-  buildPac11ServicePicker(); renderPac11();
+  buildPac11ServicePicker();
+buildCapexSuperPicker();
+buildCapexRegionalPicker();
+buildCapexMonthPicker();
+buildCapexYearPicker();
+buildCapexServicePicker(); renderPac11();
 }
 function clearPac11ServiceSel(){ pac11SelectedServices=[]; buildPac11ServicePicker(); renderPac11(); }
 function togglePac11ServiceDropdown(e){ e.stopPropagation(); document.getElementById('pac11-service-dropdown').classList.toggle('open'); }
@@ -6669,6 +7056,724 @@ function downloadPac11Template() {
 }
 
 
+/* ── CAPEX DATA MODEL ── */
+const SK_CAPEX = 'eq_stcgyn_capex_v1';
+function getCapexDefaultYear() {
+  return String(CURRENT_YEAR);
+}
+// Serviços da DRE Capex STC
+// Para incluir ou remover serviços no futuro, altere somente esta lista.
+const CAPEX_SERVICES = [
+  'MBX',
+  'Miscelânea Capex'
+].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+let capexData = {};
+let capexSelectedSuperintendencias = [];
+let capexSelectedRegionals = [];
+let capexSelectedMonths = [];
+let capexSelectedServices = [];
+let capexSelectedCard = 'total';
+let capexSelectedYear = CURRENT_YEAR;
+let dataCapexSelectedRegional = REGIONALS.indexOf('Goiânia');
+let dataCapexSelectedYear = CURRENT_YEAR;
+let capexChartInst = null;
+let parsedCapexImportData = null;
+
+function ensureCapexRegionalStructure(regionName, year = getCapexDefaultYear()) {
+  if (!capexData[regionName] || Array.isArray(capexData[regionName])) capexData[regionName] = {};
+  if (!capexData[regionName][year] || Array.isArray(capexData[regionName][year])) capexData[regionName][year] = {};
+  CAPEX_SERVICES.forEach(svc => {
+    if (!capexData[regionName][year][svc] || !Array.isArray(capexData[regionName][year][svc])) {
+      capexData[regionName][year][svc] = MONTHS.map(() => ({plan:null, real:null}));
+    }
+  });
+}
+function normalizeCapexLegacyData() {
+  REGIONALS.forEach(regionName => {
+    if (!capexData[regionName] || Array.isArray(capexData[regionName])) {
+      const oldRegion = capexData[regionName];
+      capexData[regionName] = {};
+      if (oldRegion && !Array.isArray(oldRegion)) {
+        capexData[regionName][getCapexDefaultYear()] = oldRegion;
+      }
+    }
+
+    const regionBucket = capexData[regionName];
+    const hasYearKeys = Object.keys(regionBucket).some(k => /^\d{4}$/.test(k));
+
+    if (!hasYearKeys) {
+      const oldStructure = regionBucket;
+      capexData[regionName] = {};
+      capexData[regionName][getCapexDefaultYear()] = oldStructure;
+    }
+
+    Object.keys(capexData[regionName]).forEach(year => ensureCapexRegionalStructure(regionName, year));
+    ensureCapexRegionalStructure(regionName, getCapexDefaultYear());
+  });
+}
+function initCapexData() {
+  try {
+    const s = localStorage.getItem(SK_CAPEX);
+    if (s) capexData = JSON.parse(s) || {};
+  } catch(e) { capexData = {}; }
+  normalizeCapexLegacyData();
+}
+function saveCapexData() {
+  if (currentUserRole !== 'admin') { alert('Perfil de consulta: alteração não permitida.'); return; }
+  localStorage.setItem(SK_CAPEX, JSON.stringify(capexData));
+  const t = document.getElementById('saved-capex-toast');
+  if (t) {
+    t.classList.add('show'); clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+}
+function getCapexCell(regionName, serviceName, monthIndex, year = getCapexDefaultYear()) {
+  ensureCapexRegionalStructure(regionName, year);
+  return capexData[regionName][year][serviceName][monthIndex];
+}
+function getCapexRegionalIndicesBySuper() {
+  if (!capexSelectedSuperintendencias || capexSelectedSuperintendencias.length === 0) {
+    return REGIONALS.map((_, i) => i);
+  }
+
+  const nomes = new Set();
+  capexSelectedSuperintendencias.forEach(superNome => {
+    (SUPERINTENDENCIAS[superNome] || []).forEach(regional => nomes.add(regional));
+  });
+
+  return REGIONALS.map((r, i) => nomes.has(r) ? i : -1).filter(i => i >= 0);
+}
+
+function getCapexRegionalFilterLabel() {
+  if (capexSelectedRegionals.length > 0) {
+    return capexSelectedRegionals.map(i => REGIONALS[i]).join(', ');
+  }
+  if (capexSelectedSuperintendencias.length === 1) {
+    return 'Superintendência ' + capexSelectedSuperintendencias[0];
+  }
+  if (capexSelectedSuperintendencias.length > 1) {
+    return capexSelectedSuperintendencias.join(', ');
+  }
+  return 'Todas as regionais';
+}
+
+function getCapexSelectedRegionalNames() {
+  const base = getCapexRegionalIndicesBySuper();
+  const idxs = capexSelectedRegionals.length
+    ? capexSelectedRegionals.filter(i => base.includes(i))
+    : base;
+  return idxs.map(i => REGIONALS[i]);
+}
+function getVisibleCapexServices() {
+  return capexSelectedServices.length ? capexSelectedServices.map(i=>CAPEX_SERVICES[i]) : [...CAPEX_SERVICES];
+}
+function getCapexDataEntryRegionalName() {
+  return dataCapexSelectedRegional == null ? 'Goiânia' : REGIONALS[dataCapexSelectedRegional];
+}
+function getCapexDataEntryYear() {
+  return String(dataCapexSelectedYear || CURRENT_YEAR);
+}
+function monthlyForCapexServices(serviceNames) {
+  const regions = getCapexSelectedRegionalNames();
+  return MONTHS.map((_,mi) => {
+    let plan=0, real=0, hp=false, hr=false;
+    regions.forEach(region => {
+      serviceNames.forEach(svc => {
+        const d = getCapexCell(region, svc, mi, String(capexSelectedYear || CURRENT_YEAR));
+        if (d?.plan != null) { plan += d.plan; hp = true; }
+        if (d?.real != null) { real += d.real; hr = true; }
+      });
+    });
+    return { plan: hp?plan:null, real: hr?real:null };
+  });
+}
+function aggCapexForFilter(monthly) {
+  const idxs = capexSelectedMonths.length ? capexSelectedMonths : MONTHS.map((_,i)=>i);
+  let plan=0, real=0, hp=false, hr=false;
+  idxs.forEach(i => {
+    const m = monthly[i];
+    if (m?.plan != null) { plan += m.plan; hp=true; }
+    if (m?.real != null) { real += m.real; hr=true; }
+  });
+  return { plan: hp?plan:null, real: hr?real:null };
+}
+function getCapexProjectionData(serviceNames) {
+  const monthly = monthlyForCapexServices(serviceNames);
+  let lastRealIdx = -1;
+  MONTHS.forEach((_, mi) => {
+    const regions = getCapexSelectedRegionalNames();
+    const anyReal = regions.some(region => serviceNames.some(svc => {
+      const v = getCapexCell(region, svc, mi, String(capexSelectedYear || CURRENT_YEAR))?.real;
+      return v != null && v !== 0;
+    }));
+    const anyRealZero = lastRealIdx >= 0 && regions.some(region => serviceNames.some(svc => {
+      const c = getCapexCell(region, svc, mi, String(capexSelectedYear || CURRENT_YEAR));
+      const v = c?.real;
+      return v === 0 && c?.plan != null;
+    }));
+    if (anyReal || anyRealZero) lastRealIdx = mi;
+  });
+  const realsWD = monthly.filter((m,i)=>i<=lastRealIdx && m.real!=null);
+  const avgReal = realsWD.length ? realsWD.reduce((s,m)=>s+m.real,0)/realsWD.length : 0;
+  let cp=0, cr=0;
+  const cumPlan = monthly.map(m => m.plan!=null ? (cp+=m.plan, cp) : null);
+  const cumReal = monthly.map((m,i) => {
+    if (i>lastRealIdx || m.real==null) return null;
+    cr += m.real; return cr;
+  });
+  const baseProj = lastRealIdx >= 0 ? (cumReal[lastRealIdx] ?? 0) : 0;
+  let cpj = baseProj;
+  const cumProj = monthly.map((m,i) => {
+    if (lastRealIdx < 0) return null;
+    if (i < lastRealIdx) return null;
+    if (i === lastRealIdx) return baseProj;
+    cpj += avgReal; return cpj;
+  });
+  return { monthly, lastRealIdx, avgReal, cumPlan, cumReal, cumProj };
+}
+
+/* ── CAPEX PICKERS ── */
+function buildCapexSuperPicker() {
+  const grid = document.getElementById('capex-super-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (capexSelectedSuperintendencias.length === 0 ? ' sel' : '');
+  all.textContent = 'Todas as superintendências';
+  all.onclick = () => { clearCapexSuperSel(); };
+  grid.appendChild(all);
+
+  Object.keys(SUPERINTENDENCIAS).forEach(nome => {
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (capexSelectedSuperintendencias.includes(nome) ? ' sel' : '');
+    el.textContent = nome;
+    el.onclick = (e) => toggleCapexSuperOpt(nome, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  updateCapexSuperLabel();
+}
+
+function toggleCapexSuperOpt(nome, multi) {
+  if (!multi) {
+    if (capexSelectedSuperintendencias.length === 1 && capexSelectedSuperintendencias[0] === nome) {
+      capexSelectedSuperintendencias = [];
+    } else {
+      capexSelectedSuperintendencias = [nome];
+    }
+  } else {
+    const pos = capexSelectedSuperintendencias.indexOf(nome);
+    if (pos >= 0) capexSelectedSuperintendencias.splice(pos, 1);
+    else capexSelectedSuperintendencias.push(nome);
+  }
+
+  capexSelectedRegionals = [];
+  buildCapexSuperPicker();
+  buildCapexRegionalPicker();
+  renderCapex();
+}
+
+function clearCapexSuperSel() {
+  capexSelectedSuperintendencias = [];
+  capexSelectedRegionals = [];
+  buildCapexSuperPicker();
+  buildCapexRegionalPicker();
+  renderCapex();
+}
+
+function updateCapexSuperLabel() {
+  const lbl = document.getElementById('capex-super-picker-label');
+  if (!lbl) return;
+
+  if (capexSelectedSuperintendencias.length === 0) {
+    lbl.textContent = 'Todas as superintendências';
+  } else if (capexSelectedSuperintendencias.length === 1) {
+    lbl.textContent = capexSelectedSuperintendencias[0];
+  } else {
+    lbl.textContent = capexSelectedSuperintendencias.join(', ');
+  }
+}
+
+function toggleCapexSuperDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('capex-super-dropdown').classList.toggle('open');
+}
+
+function buildCapexRegionalPicker() {
+  const grid = document.getElementById('capex-regional-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (capexSelectedRegionals.length===0?' sel':'');
+  all.textContent = capexSelectedSuperintendencias.length === 0 ? 'Todas as regionais' : 'Todas da superintendência';
+  all.onclick = clearCapexRegionalSel;
+  grid.appendChild(all);
+
+  getCapexRegionalIndicesBySuper().forEach(i=>{
+    const r = REGIONALS[i];
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (capexSelectedRegionals.includes(i)?' sel':'');
+    el.textContent = r;
+    el.onclick = (e)=>toggleCapexRegionalOpt(i, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+
+  const lbl = document.getElementById('capex-regional-picker-label');
+  if (lbl) {
+    if (capexSelectedRegionals.length === 0) {
+      lbl.textContent = capexSelectedSuperintendencias.length === 0 ? 'Todas as regionais' : 'Todas da superintendência';
+    } else if (capexSelectedRegionals.length === 1) {
+      lbl.textContent = REGIONALS[capexSelectedRegionals[0]];
+    } else {
+      lbl.textContent = capexSelectedRegionals.map(i=>REGIONALS[i]).join(', ');
+    }
+  }
+}
+function toggleCapexRegionalOpt(idx, multi) {
+  if (!multi) {
+    if (capexSelectedRegionals.length===1 && capexSelectedRegionals[0]===idx) capexSelectedRegionals = [];
+    else capexSelectedRegionals = [idx];
+  } else {
+    const pos = capexSelectedRegionals.indexOf(idx);
+    if (pos>=0) capexSelectedRegionals.splice(pos,1); else capexSelectedRegionals.push(idx);
+    capexSelectedRegionals.sort((a,b)=>a-b);
+  }
+  buildCapexRegionalPicker(); renderCapex();
+}
+function clearCapexRegionalSel(){ capexSelectedRegionals=[]; buildCapexRegionalPicker(); renderCapex(); }
+function toggleCapexRegionalDropdown(e){ e.stopPropagation(); document.getElementById('capex-regional-dropdown').classList.toggle('open'); }
+
+function buildCapexMonthPicker() {
+  const grid = document.getElementById('capex-month-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (capexSelectedMonths.length===0?' sel':'');
+  all.textContent = 'Todos os meses';
+  all.onclick = clearCapexMonthSel;
+  grid.appendChild(all);
+  MONTHS.forEach((m,i)=>{
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (capexSelectedMonths.includes(i)?' sel':'');
+    el.textContent = m;
+    el.onclick = (e)=>toggleCapexMonthOpt(i, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('capex-month-picker-label');
+  lbl.textContent = capexSelectedMonths.length===0 ? 'Todos os meses' : capexSelectedMonths.map(i=>MONTHS[i]).join(', ');
+}
+function toggleCapexMonthOpt(idx, multi) {
+  if (!multi) {
+    if (capexSelectedMonths.length===1 && capexSelectedMonths[0]===idx) capexSelectedMonths=[];
+    else capexSelectedMonths=[idx];
+  } else {
+    const pos = capexSelectedMonths.indexOf(idx);
+    if (pos>=0) capexSelectedMonths.splice(pos,1); else capexSelectedMonths.push(idx);
+    capexSelectedMonths.sort((a,b)=>a-b);
+  }
+  buildCapexMonthPicker(); renderCapex();
+}
+function clearCapexMonthSel(){ capexSelectedMonths=[]; buildCapexMonthPicker(); renderCapex(); }
+function toggleCapexMonthDropdown(e){ e.stopPropagation(); document.getElementById('capex-month-dropdown').classList.toggle('open'); }
+
+function buildCapexServicePicker() {
+  const grid = document.getElementById('capex-service-grid');
+  if (!grid) return;
+  grid.innerHTML='';
+  const all = document.createElement('div');
+  all.className = 'month-opt-all' + (capexSelectedServices.length===0?' sel':'');
+  all.textContent = 'Todos os serviços';
+  all.onclick = clearCapexServiceSel;
+  grid.appendChild(all);
+  CAPEX_SERVICES.forEach((svc,i)=>{
+    const el = document.createElement('div');
+    el.className = 'month-opt' + (capexSelectedServices.includes(i)?' sel':'');
+    el.textContent = svc;
+    el.onclick = (e)=>toggleCapexServiceOpt(i, e.ctrlKey || e.metaKey);
+    grid.appendChild(el);
+  });
+  const lbl = document.getElementById('capex-service-picker-label');
+  lbl.textContent = capexSelectedServices.length===0 ? 'Todos os serviços' : capexSelectedServices.map(i=>CAPEX_SERVICES[i]).join(', ');
+}
+function toggleCapexServiceOpt(idx, multi) {
+  if (!multi) {
+    if (capexSelectedServices.length===1 && capexSelectedServices[0]===idx) capexSelectedServices=[];
+    else capexSelectedServices=[idx];
+  } else {
+    const pos = capexSelectedServices.indexOf(idx);
+    if (pos>=0) capexSelectedServices.splice(pos,1); else capexSelectedServices.push(idx);
+    capexSelectedServices.sort((a,b)=>a-b);
+  }
+  buildCapexServicePicker(); renderCapex();
+}
+function clearCapexServiceSel(){ capexSelectedServices=[]; buildCapexServicePicker(); renderCapex(); }
+function toggleCapexServiceDropdown(e){ e.stopPropagation(); document.getElementById('capex-service-dropdown').classList.toggle('open'); }
+
+document.addEventListener('click', () => {
+  ['capex-month-dropdown','capex-year-dropdown','capex-regional-dropdown','capex-service-dropdown','data-capex-regional-dropdown','data-capex-year-dropdown'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('open');
+  });
+});
+['capex-month-dropdown','capex-year-dropdown','capex-regional-dropdown','capex-service-dropdown','data-capex-regional-dropdown','data-capex-year-dropdown'].forEach(id => {
+  setTimeout(()=>{ const el=document.getElementById(id); if(el) el.addEventListener('click', e=>e.stopPropagation()); },0);
+});
+
+/* ── CAPEX RENDER ── */
+function renderCapex() {
+  buildCapexSuperPicker();
+  buildCapexRegionalPicker();
+  buildCapexMonthPicker();
+  buildCapexYearPicker();
+  buildCapexServicePicker();
+  renderCapexCards();
+  renderCapexChart();
+}
+function renderCapexCards() {
+  const grid = document.getElementById('capex-cards-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const visible = getVisibleCapexServices();
+  const totMon = monthlyForCapexServices(visible);
+  const totAgg = aggCapexForFilter(totMon);
+  const tSt = getStatus(totAgg.plan, totAgg.real, false);
+  const tCol = SC[tSt];
+  const totPct = (totAgg.plan && totAgg.real!=null) ? ((totAgg.real-totAgg.plan)/totAgg.plan*100).toFixed(1) : null;
+  const totalCard = document.createElement('div');
+  totalCard.className = 'pkg-card total-card' + (capexSelectedCard==='total'?' selected':'');
+  totalCard.style.setProperty('--c-accent', tCol);
+  totalCard.innerHTML = `
+    <button class="card-detail-btn" title="Ver valores completos">🔍 Detalhes</button>
+    <div class="total-card-main">
+      <div>
+        <div class="card-pkg-id">▣ TOTAL GERAL</div>
+        <div class="card-pkg-name">Serviços</div>
+        ${badge(tSt,false)}
+      </div>
+      <div>
+        <div class="card-val-label">Planejado</div>
+        <div class="card-val-num" style="color:var(--eq-orange)">${fmtShort(totAgg.plan)??'—'}</div>
+      </div>
+      <div>
+        <div class="card-val-label">Realizado</div>
+        <div class="card-val-num" style="color:${tCol}">${fmtShort(totAgg.real)??'—'}</div>
+      </div>
+    </div>
+    ${(totAgg.plan!=null && totAgg.real!=null)?`<div class="total-card-var card-variation"><div class="card-pct" style="color:${tCol}">Variação R$: ${fmtSignedShort(totAgg.real-totAgg.plan)}</div><div class="card-pct" style="color:${tCol}">Variação %: ${totPct>0?'+':''}${totPct}%</div></div>`:''}`;
+  totalCard.querySelector('.card-detail-btn').addEventListener('click', e=>{ e.stopPropagation(); openModal({id:'TOTAL', name:'Serviços', plan:totAgg.plan, real:totAgg.real, hib:false}); });
+  totalCard.onclick = ()=>{ capexSelectedCard='total'; renderCapex(); };
+  grid.appendChild(totalCard);
+
+  visible.sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach(svc => {
+    const mon = monthlyForCapexServices([svc]);
+    const agg = aggCapexForFilter(mon);
+    const st = getStatus(agg.plan, agg.real, false);
+    const col = SC[st];
+    const pct = (agg.plan && agg.real!=null) ? ((agg.real-agg.plan)/agg.plan*100).toFixed(1) : null;
+    const card = document.createElement('div');
+    card.className = 'pkg-card' + (capexSelectedCard===svc?' selected':'');
+    card.style.setProperty('--c-accent', col);
+    card.innerHTML = `
+      <button class="card-detail-btn" title="Ver valores completos">🔍</button>
+      <div class="card-pkg-id">CAPEX STC · SERVIÇO</div>
+      <div class="card-pkg-name">${svc}</div>
+      <div class="card-row">
+        <div><div class="card-val-label">Planejado</div><div class="card-val-num">${fmtShort(agg.plan)??'—'}</div></div>
+        <div><div class="card-val-label">Realizado</div><div class="card-val-num" style="color:${col}">${fmtShort(agg.real)??'—'}</div></div>
+      </div>
+      ${badge(st,false)}
+      ${(agg.plan!=null && agg.real!=null)?`<div class="card-variation"><div class="card-pct" style="color:${col}">Variação R$: ${fmtSignedShort(agg.real-agg.plan)}</div><div class="card-pct" style="color:${col}">Variação %: ${pct>0?'+':''}${pct}%</div></div>`:''}`;
+    card.querySelector('.card-detail-btn').addEventListener('click', e=>{ e.stopPropagation(); openModal({id:'CAPEX STC', name:svc, plan:agg.plan, real:agg.real, hib:false}); });
+    card.onclick = ()=>{ capexSelectedCard=svc; renderCapex(); };
+    grid.appendChild(card);
+  });
+}
+function renderCapexChart() {
+  const services = capexSelectedCard==='total' ? getVisibleCapexServices() : [capexSelectedCard];
+  const label = capexSelectedCard==='total' ? 'CAPEX STC — Acumulado · Serviços' : `CAPEX STC — ${capexSelectedCard}`;
+  const regionalLabel = getCapexRegionalFilterLabel();
+  document.getElementById('capex-chart-title').textContent = label + ' · ' + regionalLabel + ' · Ano ' + capexSelectedYear;
+  document.getElementById('capex-dre-title').textContent = 'DRE — ' + (capexSelectedCard==='total' ? 'Serviços' : capexSelectedCard) + ' · ' + regionalLabel + ' · Ano ' + capexSelectedYear;
+  const { cumPlan, cumReal, cumProj, lastRealIdx } = getCapexProjectionData(services);
+  const pw = document.getElementById('capex-proj-warn');
+  const finalPV = cumProj.filter(v=>v!=null);
+  const planEnd = cumPlan[11];
+  pw.style.display = (finalPV.length>0 && planEnd!=null && finalPV[finalPV.length-1]>planEnd) ? 'block' : 'none';
+  if (capexChartInst) { capexChartInst.destroy(); capexChartInst = null; }
+  capexChartInst = new Chart(document.getElementById('capex-chart').getContext('2d'), {
+    type:'line', plugins:[ChartDataLabels],
+    data:{ labels:MONTHS, datasets:[
+      { label:'Plan. Acumulado', data:cumPlan, borderColor:'#f47920', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#f47920', pointBorderColor:'#f47920', tension:.35, fill:false,
+        datalabels:{ display:ctx=>ctx.dataset.data[ctx.dataIndex]!=null, anchor:'top', align:'top', offset:4, color:'rgba(244,121,32,.85)', font:{family:'DM Sans',size:9,weight:'600'}, formatter:v=>v!=null?fmtShort(v):'' } },
+      { label:'Real. Acumulado', data:cumReal, borderColor:'#22c55e', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#22c55e', pointBorderColor:'#22c55e', tension:.35, fill:false,
+        datalabels:{ display:ctx=>ctx.dataset.data[ctx.dataIndex]!=null, anchor:'bottom', align:'bottom', offset:4, color:'rgba(34,197,94,.9)', font:{family:'DM Sans',size:9,weight:'600'}, formatter:v=>v!=null?fmtShort(v):'' } },
+      { label:'Projeção', data:cumProj, borderColor:'#a78bfa', borderWidth:2, borderDash:[6,4], pointRadius:3, pointBackgroundColor:'#a78bfa', pointBorderColor:'#a78bfa', tension:.35, fill:false,
+        datalabels:{ display:ctx=>{ const i=ctx.dataIndex; return cumProj[i]!=null && i>lastRealIdx; }, anchor:'top', align:'top', offset:4, color:'rgba(167,139,250,.85)', font:{family:'DM Sans',size:9,weight:'600',style:'italic'}, formatter:v=>v!=null?'~'+fmtShort(v):'' } }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top:30,bottom:10}}, interaction:{mode:'index', intersect:false},
+      plugins:{ legend:{display:false}, datalabels:{display:false}, tooltip:{ backgroundColor:'rgba(8,18,55,.96)', titleColor:'#f8faff', bodyColor:'#c8d4f0', borderColor:'rgba(255,255,255,.1)', borderWidth:1,
+        callbacks:{ label(ctx){ const v=ctx.raw; if(v==null) return null; const isProj = ctx.datasetIndex===2 && ctx.dataIndex>lastRealIdx; return `  ${isProj?'📊 ':''} ${ctx.dataset.label}: ${fmtBRL(Number(v))}`; } } } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#c8d4f0',font:{family:'DM Sans',size:11}}}, y:{ position:'left', grid:{color:'rgba(255,255,255,.06)'}, ticks:{color:'#c8d4f0',font:{family:'DM Sans',size:11}, callback:v=>fmtShort(v)}} }
+    }
+  });
+  renderCapexDRE(services);
+}
+function renderCapexDRE(selectedServices) {
+  const tbl = document.getElementById('capex-dre-table');
+  if (!tbl) return;
+  tbl.innerHTML = '';
+  const thead = document.createElement('thead');
+  thead.innerHTML = `<tr><th class="dre-pkg">Serviço</th><th class="dre-row-type">Linha</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}<th>Total Ano</th></tr>`;
+  tbl.appendChild(thead);
+  const tbody = document.createElement('tbody');
+
+  function buildRows(serviceNames, label, isTotal) {
+    const monthly = monthlyForCapexServices(serviceNames);
+    const { lastRealIdx, avgReal } = getCapexProjectionData(serviceNames);
+    const annualPlan = monthly.reduce((s,m)=>s+(m.plan??0),0);
+    const realsSum = monthly.reduce((s,m,i)=>i<=lastRealIdx&&m.real!=null?s+m.real:s,0);
+    const annualVar = (annualPlan && realsSum) ? realsSum - annualPlan : null;
+    const annualPct = (annualPlan && realsSum) ? ((realsSum-annualPlan)/annualPlan*100) : null;
+    const trP = document.createElement('tr'); if (isTotal) trP.classList.add('dre-total');
+    trP.innerHTML = `<td class="dre-pkg" rowspan="3">${label}</td><td class="dre-row-type rt-plan">Planejado</td>${MONTHS.map((_,i)=>`<td class="dv-plan">${monthly[i].plan!=null?fmtBRL(monthly[i].plan):'—'}</td>`).join('')}<td class="dv-plan" style="font-weight:700">${fmtBRL(annualPlan||null)}</td>`;
+    const trR = document.createElement('tr'); if (isTotal) trR.classList.add('dre-total');
+    trR.innerHTML = `<td class="dre-row-type rt-real">Realizado</td>${MONTHS.map((_,i)=>{ const m=monthly[i]; const isProj=i>lastRealIdx && lastRealIdx>=0; if(isProj) return `<td class="dre-proj-cell">~${fmtShort(avgReal)}</td>`; if(m.real==null) return `<td class="dv-real-n">—</td>`; return `<td class="dv-real">${fmtBRL(m.real)}</td>`; }).join('')}<td style="font-weight:700;color:var(--eq-gray)">${lastRealIdx>=0?fmtBRL(realsSum):'—'}</td>`;
+    const trV = document.createElement('tr'); if (isTotal) trV.classList.add('dre-total');
+    trV.innerHTML = `<td class="dre-row-type rt-var">Variação</td>${MONTHS.map((_,i)=>{ const m=monthly[i]; const isProj=i>lastRealIdx && lastRealIdx>=0; if(isProj || m.real==null || m.plan==null) return `<td class="dv-var-n">—</td>`; const diff=m.real-m.plan; const pct=(diff/m.plan*100); const st=getStatus(m.plan,m.real,false); const sign=diff>0?'+':''; return `<td class="dv-var-${st[0]}">${sign}${fmtShort(diff)}<br>${sign}${pct.toFixed(1)}%</td>`; }).join('')}<td class="dv-var-${annualVar==null?'n':(annualVar<0?'g':annualVar>0?'r':'y')}" style="font-weight:700">${annualVar!=null?`${annualVar>0?'+':''}${fmtShort(annualVar)}<br>${annualPct>0?'+':''}${annualPct.toFixed(1)}%`:'—'}</td>`;
+    return [trP,trR,trV];
+  }
+
+  buildRows(selectedServices, '<strong style="color:var(--eq-orange)">TOTAL GERAL</strong>', true).forEach(r=>tbody.appendChild(r));
+  const sep = document.createElement('tr'); sep.innerHTML = `<td colspan="16" style="height:6px;background:rgba(40,86,212,.15);padding:0"></td>`; tbody.appendChild(sep);
+  if (capexSelectedCard === 'total') {
+    [...selectedServices].sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach((svc, idx, arr)=>{
+      buildRows([svc], svc, false).forEach(r=>tbody.appendChild(r));
+      if (idx < arr.length-1) { const s=document.createElement('tr'); s.innerHTML=`<td colspan="16" style="height:3px;background:rgba(255,255,255,.03);padding:0"></td>`; tbody.appendChild(s); }
+    });
+  }
+  tbl.appendChild(tbody);
+}
+
+
+/* ── CAPEX DATA SCREEN ── */
+function buildDataCapexRegionalPicker() {
+  const grid = document.getElementById('data-capex-regional-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  REGIONALS.forEach((r,i)=>{
+    const el=document.createElement('div');
+    el.className='month-opt'+(dataCapexSelectedRegional===i?' sel':'');
+    el.textContent=r;
+    el.onclick=()=>{ dataCapexSelectedRegional=(dataCapexSelectedRegional===i?null:i); buildDataCapexRegionalPicker(); renderCapexDataTable(); };
+    grid.appendChild(el);
+  });
+  document.getElementById('data-capex-regional-picker-label').textContent = dataCapexSelectedRegional==null ? 'Selecionar regional' : REGIONALS[dataCapexSelectedRegional];
+}
+function toggleDataCapexRegionalDropdown(e){ e.stopPropagation(); document.getElementById('data-capex-regional-dropdown').classList.toggle('open'); }
+function clearDataCapexRegionalSel(){ dataCapexSelectedRegional = REGIONALS.indexOf('Goiânia'); buildDataCapexRegionalPicker(); renderCapexDataTable(); }
+function switchCapexDataTab(name) {
+  ['manual','import'].forEach(n => {
+    document.getElementById('tab-capex-'+n).classList.toggle('active', n===name);
+    document.getElementById('panel-capex-'+n).classList.toggle('active', n===name);
+  });
+  if (name==='import') buildTemplateCapexServiceList();
+}
+function renderCapexDataTable() {
+  buildDataCapexRegionalPicker();
+  buildDataCapexYearPicker();
+  const tbody = document.getElementById('data-capex-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  CAPEX_SERVICES.forEach(svc => {
+    ['plan','real'].forEach(type => {
+      const tr = document.createElement('tr');
+      tr.classList.add(type==='plan' ? 'row-plan' : 'row-real');
+      if (type==='plan') {
+        const tdS = document.createElement('td');
+        tdS.className='tpkg'; tdS.rowSpan=2;
+        tdS.innerHTML = `<strong style="color:var(--eq-orange)">CAPEX STC</strong> ${svc}`;
+        tr.appendChild(tdS);
+      }
+      const tdT = document.createElement('td'); tdT.className='ttype'; tdT.textContent = type==='plan'?'Planejado':'Realizado'; tdT.style.color = type==='plan'?'#f47920':'#60a5fa'; tr.appendChild(tdT);
+      MONTHS.forEach((_,mi)=>{
+        const td=document.createElement('td'); td.className='tcell';
+        const inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal'; inp.placeholder='0';
+        const region=getCapexDataEntryRegionalName();
+        const year=getCapexDataEntryYear();
+        const val=getCapexCell(region, svc, mi, year)?.[type]; if(val!=null) inp.value=val;
+        inp.addEventListener('input', ()=>{
+          const activeRegion=getCapexDataEntryRegionalName();
+          const activeYear=getCapexDataEntryYear();
+          ensureCapexRegionalStructure(activeRegion, activeYear);
+          const n = normalizeManualNumber(inp.value); capexData[activeRegion][activeYear][svc][mi][type]=n;
+          localStorage.setItem(SK_CAPEX, JSON.stringify(capexData)); saveCapexData();
+          if(currentScreen==='capex') renderCapex();
+        });
+        inp.addEventListener('blur', ()=>{
+          const n = normalizeManualNumber(inp.value);
+          inp.value = n == null ? '' : String(n);
+        });
+        td.appendChild(inp); tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    const sep=document.createElement('tr'); sep.className='sep'; sep.innerHTML='<td colspan="14"></td>'; tbody.appendChild(sep);
+  });
+}
+function buildTemplateCapexServiceList() {
+  const el = document.getElementById('template-capex-service-list');
+  if (!el) return;
+  el.innerHTML='';
+  CAPEX_SERVICES.forEach(svc => {
+    const div = document.createElement('div');
+    div.className='template-pkg-item';
+    div.innerHTML = `<code>CAPEX STC</code><span>${svc}</span>`;
+    el.appendChild(div);
+  });
+}
+function parseCapexImport() {
+  const raw = document.getElementById('paste-capex-area').value.trim();
+  const fb = document.getElementById('import-capex-feedback'); fb.style.display='none';
+  document.getElementById('preview-capex-wrap').style.display='none'; parsedCapexImportData=null;
+  if (!raw) { showCapexFeedback('error','Cole os dados antes de pré-visualizar.'); return; }
+
+  const normTxt = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const isCapexToken = s => {
+    const t = normTxt(s).replace(/\s+/g,'');
+    return t === 'capex' || t === 'capexstc' || t === 'capex.stc';
+  };
+
+  const lines = raw.split(/\r?\n/).filter(l=>l.trim());
+  const result=[]; const parseErrors=[];
+
+  lines.forEach((line, li) => {
+    let sep='\t'; if(!line.includes('\t')) sep = line.includes(';')?';':',';
+    const cols = line.split(sep).map(c=>c.trim()).filter((_,idx,arr)=>!(idx===arr.length-1&&arr[idx]===''));
+    if(!cols.length) return;
+
+    const n0 = normTxt(cols[0]);
+    const n1 = normTxt(cols[1]);
+    const n2 = normTxt(cols[2]);
+    const n3 = normTxt(cols[3]);
+    const n4 = normTxt(cols[4]);
+
+    if (
+      (n0==='regional' && (n1==='servico' || n1==='serviço')) ||
+      (n0==='regional' && n1==='ano' && (n2==='servico' || n2==='serviço')) ||
+      (n0==='regional' && n1==='pacote' && n2==='tipo' && (n3==='servico' || n3==='serviço')) ||
+      (n0==='regional' && n1==='ano' && n2==='pacote' && n3==='tipo' && (n4==='servico' || n4==='serviço'))
+    ) {
+      return;
+    }
+
+    let regional = cols[0] || '';
+    let serviceRaw = '';
+    let typeRaw = '';
+    let valueStart = 0;
+    let year = getCapexDefaultYear();
+
+    if (!REGIONALS.includes(regional)) {
+      parseErrors.push(`Linha ${li+1}: regional "${regional}" não reconhecida.`);
+      return;
+    }
+
+    const c1 = (cols[1] || '').trim();
+    const hasYearValue = /^\d{4}$/.test(c1);
+    const hasBlankYearCol = c1 === '' && cols.length >= 16;
+    const hasYearColumn = hasYearValue || hasBlankYearCol;
+    const offset = hasYearColumn ? 1 : 0;
+    year = hasYearValue ? c1 : getCapexDefaultYear();
+
+    const tokenAfterYear = cols[1 + offset] || '';
+
+    if (cols.length >= 15 + offset && !isCapexToken(tokenAfterYear)) {
+      serviceRaw = cols[1 + offset] || '';
+      typeRaw = cols[2 + offset] || '';
+      valueStart = 3 + offset;
+    }
+    else if (cols.length >= 16 + offset && isCapexToken(tokenAfterYear)) {
+      serviceRaw = cols[4 + offset] || '';
+      typeRaw = cols[3 + offset] || '';
+      valueStart = 5 + offset;
+    } else {
+      parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Ano + Serviço + Tipo + 12 meses, ou Regional + Ano + CAPEX STC + Tipo + Serviço + 12 meses.`);
+      return;
+    }
+
+    const normServiceRaw = normTxt(serviceRaw);
+    let service = CAPEX_SERVICES.find(s => normTxt(s) === normServiceRaw);
+    if (!service) { parseErrors.push(`Linha ${li+1}: serviço "${serviceRaw}" não reconhecido.`); return; }
+
+    const typeNorm = normTxt(typeRaw);
+    let type;
+    if(/^p(lan)?/.test(typeNorm)) type='plan';
+    else if(/^r(eal)?/.test(typeNorm)) type='real';
+    else { parseErrors.push(`Linha ${li+1}: tipo "${typeRaw}" inválido.`); return; }
+
+    const minCols = valueStart + 12;
+    if (cols.length < minCols) {
+      parseErrors.push(`Linha ${li+1}: esperado pelo menos ${minCols} colunas, mas vieram ${cols.length}.`);
+      return;
+    }
+
+    const values=[]; const errs=[];
+    for(let m=0;m<12;m++) {
+      const rawVal=(cols[valueStart+m]??'').replace(/R\$\s*/g,'').replace(/\s/g,'');
+      if(rawVal===''||rawVal==='-'||rawVal.toLowerCase()==='null') values.push(null);
+      else {
+        const n = normalizeManualNumber(rawVal);
+        if(n == null){ errs.push(m); values.push(null); }
+        else values.push(n);
+      }
+    }
+    result.push({ regional, year, service, type, values, errs });
+  });
+
+  if (!result.length) {
+    showCapexFeedback('error', parseErrors.length?('Nenhuma linha válida encontrada.<br>'+parseErrors.map(e=>'• '+e).join('<br>')):'Nenhuma linha válida encontrada.');
+    return;
+  }
+  parsedCapexImportData=result; renderCapexPreview(result, parseErrors);
+}
+function renderCapexPreview(result, parseErrors) {
+  const wrap=document.getElementById('preview-capex-wrap'); const count=document.getElementById('preview-capex-count'); const tbl=document.getElementById('preview-capex-table');
+  count.textContent = `${result.length} linha(s)${parseErrors.length>0?' · ⚠️ '+parseErrors.length+' aviso(s)':''}`;
+  tbl.innerHTML='';
+  const thead=document.createElement('thead'); thead.innerHTML=`<tr><th>Regional</th><th>Ano</th><th>Serviço</th><th>Tipo</th>${MONTHS.map(m=>`<th>${m}</th>`).join('')}</tr>`; tbl.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  result.forEach(row=>{ const tr=document.createElement('tr'); tr.className=row.type==='plan'?'prev-plan':'prev-real'; tr.innerHTML=`<td>${row.regional ?? '—'}</td><td>${row.year}</td><td>${row.service}</td><td class="ttype">${row.type==='plan'?'Planejado':'Realizado'}</td>`; row.values.forEach((v,i)=>{ const td=document.createElement('td'); if(v===null){ td.className=row.errs.includes(i)?'val-err':''; td.textContent=row.errs.includes(i)?'⚠️ erro':'—'; } else { td.className='val-ok'; td.textContent=fmtShort(v); td.title=fmtBRL(v); } tr.appendChild(td); }); tbody.appendChild(tr); });
+  tbl.appendChild(tbody); wrap.style.display='block';
+  if(parseErrors.length>0) showCapexFeedback('error','⚠️ Alguns avisos:<br>'+parseErrors.map(e=>'• '+e).join('<br>')); else showCapexFeedback('success',`✓ ${result.length} linha(s) prontas para importar.`);
+}
+function confirmCapexImport() {
+  if (!parsedCapexImportData) return;
+  parsedCapexImportData.forEach(row => {
+    const region = row.regional || getCapexDataEntryRegionalName();
+    const targetYear = String(row.year || getCapexDefaultYear());
+    ensureCapexRegionalStructure(region, targetYear);
+    row.values.forEach((v,mi)=>{ capexData[region][targetYear][row.service][mi][row.type]=v; });
+  });
+  const importedCount = parsedCapexImportData.length;
+  saveCapexData();
+  renderCapexDataTable();
+  if(currentScreen==='capex') renderCapex();
+  document.getElementById('preview-capex-wrap').style.display='none';
+  document.getElementById('paste-capex-area').value='';
+  showCapexFeedback('success', `✅ Importação concluída! ${importedCount} linha(s) gravadas com sucesso por regional e ano.`);
+  parsedCapexImportData=null;
+}
+function cancelCapexPreview(){ document.getElementById('preview-capex-wrap').style.display='none'; parsedCapexImportData=null; }
+function showCapexFeedback(type,msg){ const fb=document.getElementById('import-capex-feedback'); fb.className='import-feedback '+type; fb.innerHTML=msg; fb.style.display='block'; }
+function downloadCapexTemplate() {
+  const header=['Regional','Ano','Serviço','Tipo',...MONTHS].join(';');
+  const rows=[];
+  CAPEX_SERVICES.forEach(svc=>{ rows.push(['Goiânia',CURRENT_YEAR,svc,'Planejado',...MONTHS.map(()=> '0')].join(';')); rows.push(['Goiânia',CURRENT_YEAR,svc,'Realizado',...MONTHS.map(()=> '0')].join(';')); });
+  const csv=[header,...rows].join('\r\n'); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='template_dre_capex_stc.csv'; a.click();
+}
+
+
+
 /* ── COMPARATIVO ANUAL ── */
 let comparativoCharts = { compare:null, accum:null, planReal:null };
 
@@ -7116,6 +8221,7 @@ function renderComparativoAnual(){
 initData();
 initPac10Data();
 initPac11Data();
+initCapexData();
 buildRegionalPicker();
 buildMonthPicker();
 buildYearPicker();
