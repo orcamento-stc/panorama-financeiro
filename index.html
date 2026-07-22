@@ -1966,6 +1966,79 @@ table.dre-table td.dv-var-y {
   }
 }
 
+
+/* === JANELA LIMPAR DADOS === */
+.clean-data-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.62);
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.clean-data-modal-backdrop.active { display: flex; }
+.clean-data-modal {
+  width: 100%;
+  max-width: 520px;
+  background: #0b1a4e;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.45);
+  padding: 1.4rem;
+  color: #fff;
+}
+.clean-data-modal h3 {
+  margin: 0 0 .45rem 0;
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+}
+.clean-data-modal p {
+  margin: 0 0 1rem 0;
+  color: var(--eq-gray);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.clean-data-options {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+.clean-data-option {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .72rem .8rem;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  font-size: .85rem;
+  color: var(--eq-white);
+}
+.clean-data-option:hover { background: rgba(255,255,255,0.08); }
+.clean-data-option input { accent-color: var(--eq-orange); }
+.clean-data-modal-actions {
+  display: flex;
+  gap: .7rem;
+  justify-content: flex-end;
+  margin-top: 1.1rem;
+}
+.clean-data-modal-actions button {
+  padding: .55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  cursor: pointer;
+  font-weight: 800;
+}
+.clean-data-modal-cancel { background: transparent; color: var(--eq-gray); }
+.clean-data-modal-confirm {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red) !important;
+}
+
 </style>
 </head>
 <body>
@@ -2061,6 +2134,28 @@ table.dre-table td.dv-var-y {
     <div class="password-modal-actions">
       <button class="password-modal-cancel" onclick="fecharPainelSenhas()">Cancelar</button>
       <button class="password-modal-save" onclick="salvarNovasSenhas()">Salvar senhas</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL LIMPAR DADOS -->
+<div class="clean-data-modal-backdrop" id="clean-data-modal-backdrop">
+  <div class="clean-data-modal" role="dialog" aria-modal="true" aria-labelledby="clean-data-modal-title">
+    <h3 id="clean-data-modal-title">Limpar Dados</h3>
+    <p>Escolha quais dados deseja apagar. Senhas e acessos não serão removidos.</p>
+
+    <div class="clean-data-options">
+      <label class="clean-data-option"><input type="radio" name="clean-data-choice" value="panorama"> Limpar dados do Panorama</label>
+      <label class="clean-data-option"><input type="radio" name="clean-data-choice" value="pac10"> Limpar dados do PAC.10 Serviços</label>
+      <label class="clean-data-option"><input type="radio" name="clean-data-choice" value="pac11"> Limpar dados do PAC.11 Serviços</label>
+      <label class="clean-data-option"><input type="radio" name="clean-data-choice" value="capex"> Limpar dados do Capex STC</label>
+      <label class="clean-data-option"><input type="radio" name="clean-data-choice" value="todos"> Limpar todos os dados</label>
+    </div>
+
+    <div class="clean-data-modal-actions">
+      <button type="button" class="clean-data-modal-cancel" onclick="fecharJanelaLimparDados()">Cancelar</button>
+      <button type="button" class="clean-data-modal-confirm" onclick="confirmarLimpezaDados()">Continuar</button>
     </div>
   </div>
 </div>
@@ -4100,60 +4195,85 @@ function restaurarBackup() {
 }  
 
 function limparDadosAdministrativo() {
-    if (currentUserRole !== 'admin') { alert('Perfil de consulta: limpeza de dados não permitida.'); return; }
-
-    const escolha = prompt(
-        'LIMPAR DADOS\n\n' +
-        'Digite uma das opções abaixo:\n' +
-        '1 - Limpar dados do Panorama\n' +
-        '2 - Limpar dados do PAC.10 Serviços\n' +
-        '3 - Limpar todos os dados\n\n' +
-        'Esta ação não apaga senhas nem acessos.'
-    );
-
-    if (escolha === null) return;
-
-    const opcao = String(escolha).trim();
-
-    if (!['1','2','3'].includes(opcao)) {
-        alert('Opção inválida. Nenhum dado foi apagado.');
+    if (currentUserRole !== 'admin') {
+        alert('Perfil de consulta: limpeza de dados não permitida.');
         return;
     }
 
-    const nomeOpcao = opcao === '1'
-        ? 'dados do Panorama'
-        : opcao === '2'
-            ? 'dados do PAC.10 Serviços'
-            : 'todos os dados do Panorama e do PAC.10 Serviços';
+    const modal = document.getElementById('clean-data-modal-backdrop');
+    if (!modal) return;
 
-    if (!confirm('Confirmar limpeza de ' + nomeOpcao + '?\n\nAntes de continuar, garanta que o backup foi feito, se necessário.')) {
+    document.querySelectorAll('input[name="clean-data-choice"]').forEach(input => {
+        input.checked = false;
+    });
+
+    modal.classList.add('active');
+}
+
+function fecharJanelaLimparDados() {
+    const modal = document.getElementById('clean-data-modal-backdrop');
+    if (modal) modal.classList.remove('active');
+}
+
+function confirmarLimpezaDados() {
+    if (currentUserRole !== 'admin') return;
+
+    const selecionada = document.querySelector('input[name="clean-data-choice"]:checked');
+    if (!selecionada) {
+        alert('Selecione uma opção para continuar.');
         return;
     }
 
-    if (!confirm('Confirma definitivamente apagar ' + nomeOpcao + '?\n\nEsta ação não poderá ser desfeita sem restaurar um backup.')) {
+    const opcao = selecionada.value;
+    const nomes = {
+        panorama: 'os dados do Panorama',
+        pac10: 'os dados do PAC.10 Serviços',
+        pac11: 'os dados do PAC.11 Serviços',
+        capex: 'os dados do Capex STC',
+        todos: 'todos os dados do Panorama, PAC.10 Serviços, PAC.11 Serviços e Capex STC'
+    };
+
+    if (!confirm('Confirmar a exclusão de ' + nomes[opcao] + '?
+
+Esta ação não poderá ser desfeita sem restaurar um backup.')) {
         return;
     }
 
-    if (opcao === '1' || opcao === '3') {
+    if (opcao === 'panorama' || opcao === 'todos') {
         localStorage.removeItem('eq_stcgyn_v4');
         appData = {};
         initData();
     }
 
-    if (opcao === '2' || opcao === '3') {
+    if (opcao === 'pac10' || opcao === 'todos') {
         localStorage.removeItem('eq_stcgyn_pac10_v1');
         pac10Data = {};
         initPac10Data();
     }
 
+    if (opcao === 'pac11' || opcao === 'todos') {
+        localStorage.removeItem('eq_stcgyn_pac11_v1');
+        pac11Data = {};
+        initPac11Data();
+    }
+
+    if (opcao === 'capex' || opcao === 'todos') {
+        localStorage.removeItem('eq_stcgyn_capex_v1');
+        capexData = {};
+        initCapexData();
+    }
+
     registrarAlteracaoDados();
+    fecharJanelaLimparDados();
 
     if (currentScreen === 'panorama') renderPanorama();
     if (currentScreen === 'data') renderDataTable();
     if (currentScreen === 'pac10') renderPac10();
     if (currentScreen === 'pac11') renderPac11();
+    if (currentScreen === 'capex_stc') renderCapex();
     if (currentScreen === 'data_pac10') renderPac10DataTable();
     if (currentScreen === 'data_pac11') renderPac11DataTable();
+    if (currentScreen === 'data_capex') renderCapexDataTable();
     if (currentScreen === 'comparativo_anual') renderComparativoAnual();
 
     alert('Limpeza concluída. O indicador de backup pendente foi ativado.');
