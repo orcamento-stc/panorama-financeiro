@@ -1966,6 +1966,54 @@ table.dre-table td.dv-var-y {
   }
 }
 
+
+
+/* === ETAPA 6 - PADRONIZAÇÃO DOS VALORES DOS CARDS ===
+   Aplicação restrita aos cards do Panorama, PAC.10, PAC.11 e CAPEX STC. */
+#screen-panorama .card-row,
+#screen-pac10 .card-row,
+#screen-pac11 .card-row,
+#screen-capex_stc .card-row {
+  align-items: flex-end;
+}
+
+#screen-panorama .card-row > div,
+#screen-pac10 .card-row > div,
+#screen-pac11 .card-row > div,
+#screen-capex_stc .card-row > div,
+#screen-panorama .total-card-main > div:nth-child(2),
+#screen-panorama .total-card-main > div:nth-child(3),
+#screen-pac10 .total-card-main > div:nth-child(2),
+#screen-pac10 .total-card-main > div:nth-child(3),
+#screen-pac11 .total-card-main > div:nth-child(2),
+#screen-pac11 .total-card-main > div:nth-child(3),
+#screen-capex_stc .total-card-main > div:nth-child(2),
+#screen-capex_stc .total-card-main > div:nth-child(3) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+#screen-panorama .card-val-num,
+#screen-pac10 .card-val-num,
+#screen-pac11 .card-val-num,
+#screen-capex_stc .card-val-num {
+  font-size: .82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#card-modal .modal-row-val {
+  font-family: var(--font-body);
+  font-size: .92rem;
+  font-weight: 700;
+  font-stretch: normal;
+  font-style: normal;
+  letter-spacing: normal;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
 </style>
 </head>
 <body>
