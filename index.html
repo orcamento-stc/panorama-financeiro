@@ -1967,53 +1967,82 @@ table.dre-table td.dv-var-y {
 }
 
 
+/* === ETAPA 6 – PADRONIZAÇÃO DOS VALORES DOS CARDS ===
+   Aplicação restrita aos cards de Panorama, PAC.10, PAC.11 e CAPEX STC.
+   Ajuste exclusivamente visual; sem alteração de regras, filtros, gráficos ou lógica. */
 
-/* === ETAPA 6 - PADRONIZAÇÃO DOS VALORES DOS CARDS ===
-   Aplicação restrita aos cards do Panorama, PAC.10, PAC.11 e CAPEX STC. */
-#screen-panorama .card-row,
-#screen-pac10 .card-row,
-#screen-pac11 .card-row,
-#screen-capex_stc .card-row {
+/* Valores Planejado e Realizado com a mesma tipografia e linha de base */
+#screen-panorama .pkg-card .card-val-num,
+#screen-pac10 .pkg-card .card-val-num,
+#screen-pac11 .pkg-card .card-val-num,
+#screen-capex_stc .pkg-card .card-val-num {
+  font-family: var(--font-head);
+  font-size: .82rem;
+  font-weight: 700;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+#screen-panorama .pkg-card .card-row,
+#screen-pac10 .pkg-card .card-row,
+#screen-pac11 .pkg-card .card-row,
+#screen-capex_stc .pkg-card .card-row {
   align-items: flex-end;
 }
 
-#screen-panorama .card-row > div,
-#screen-pac10 .card-row > div,
-#screen-pac11 .card-row > div,
-#screen-capex_stc .card-row > div,
-#screen-panorama .total-card-main > div:nth-child(2),
-#screen-panorama .total-card-main > div:nth-child(3),
-#screen-pac10 .total-card-main > div:nth-child(2),
-#screen-pac10 .total-card-main > div:nth-child(3),
-#screen-pac11 .total-card-main > div:nth-child(2),
-#screen-pac11 .total-card-main > div:nth-child(3),
-#screen-capex_stc .total-card-main > div:nth-child(2),
-#screen-capex_stc .total-card-main > div:nth-child(3) {
+#screen-panorama .pkg-card .card-row > div,
+#screen-pac10 .pkg-card .card-row > div,
+#screen-pac11 .pkg-card .card-row > div,
+#screen-capex_stc .pkg-card .card-row > div {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-#screen-panorama .card-val-num,
-#screen-pac10 .card-val-num,
-#screen-pac11 .card-val-num,
-#screen-capex_stc .card-val-num {
-  font-size: .82rem;
-  font-weight: 700;
-  line-height: 1.2;
+#screen-panorama .pkg-card .card-row > div:last-child .card-val-num,
+#screen-pac10 .pkg-card .card-row > div:last-child .card-val-num,
+#screen-pac11 .pkg-card .card-row > div:last-child .card-val-num,
+#screen-capex_stc .pkg-card .card-row > div:last-child .card-val-num {
+  justify-content: flex-end;
 }
 
-#card-modal .modal-row-val {
+/* Mantém Planejado e Realizado do card Total Geral nivelados */
+#screen-panorama .pkg-card.total-card .total-card-main > div:nth-child(2),
+#screen-panorama .pkg-card.total-card .total-card-main > div:nth-child(3),
+#screen-pac10 .pkg-card.total-card .total-card-main > div:nth-child(2),
+#screen-pac10 .pkg-card.total-card .total-card-main > div:nth-child(3),
+#screen-pac11 .pkg-card.total-card .total-card-main > div:nth-child(2),
+#screen-pac11 .pkg-card.total-card .total-card-main > div:nth-child(3),
+#screen-capex_stc .pkg-card.total-card .total-card-main > div:nth-child(2),
+#screen-capex_stc .pkg-card.total-card .total-card-main > div:nth-child(3) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Janela da lupa: números com aparência normal, sem aspecto achatado */
+#card-modal .modal-row-val,
+#card-modal .modal-var-box .var-values {
   font-family: var(--font-body);
-  font-size: .92rem;
-  font-weight: 700;
-  font-stretch: normal;
   font-style: normal;
-  letter-spacing: normal;
-  line-height: 1.3;
+  font-stretch: normal;
+  letter-spacing: 0;
+  line-height: 1.35;
   font-variant-numeric: tabular-nums;
 }
 
+#card-modal .modal-row-val {
+  font-size: .92rem;
+  font-weight: 700;
+}
+
+#card-modal .modal-var-box .var-values {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
 </style>
 </head>
 <body>
@@ -3795,21 +3824,12 @@ function aplicarPerfilAcesso(role) {
 }
 
 function doLogin() {
-  const v = document.getElementById('pwd-input').value.normalize('NFKC').trim();
+  const v = document.getElementById('pwd-input').value;
   let role = '';
 
-  // Garante o acesso pela senha padrão do administrador e corrige eventual senha inválida salva no navegador.
-  if (v === DEFAULT_ADMIN_PWD) {
-    localStorage.setItem(ADMIN_PWD_KEY, DEFAULT_ADMIN_PWD);
-    role = 'admin';
-  } else if (v === getAdminPwd()) {
-    role = 'admin';
-  } else if (v === DEFAULT_CONSULTA_PWD) {
-    localStorage.setItem(CONSULTA_PWD_KEY, DEFAULT_CONSULTA_PWD);
-    role = 'consulta';
-  } else if (v === getConsultaPwd()) {
-    role = 'consulta';
-  }
+  // Aceita a senha vigente salva no navegador e mantém as senhas padrão como recuperação de emergência.
+  if (v === getAdminPwd() || v === DEFAULT_ADMIN_PWD) role = 'admin';
+  if (v === getConsultaPwd() || v === DEFAULT_CONSULTA_PWD) role = 'consulta';
 
   if (role) {
     aplicarPerfilAcesso(role);
