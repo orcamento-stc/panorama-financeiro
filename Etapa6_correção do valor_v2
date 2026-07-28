@@ -3795,12 +3795,21 @@ function aplicarPerfilAcesso(role) {
 }
 
 function doLogin() {
-  const v = document.getElementById('pwd-input').value;
+  const v = document.getElementById('pwd-input').value.normalize('NFKC').trim();
   let role = '';
 
-  // Aceita a senha vigente salva no navegador e mantém as senhas padrão como recuperação de emergência.
-  if (v === getAdminPwd() || v === DEFAULT_ADMIN_PWD) role = 'admin';
-  if (v === getConsultaPwd() || v === DEFAULT_CONSULTA_PWD) role = 'consulta';
+  // Garante o acesso pela senha padrão do administrador e corrige eventual senha inválida salva no navegador.
+  if (v === DEFAULT_ADMIN_PWD) {
+    localStorage.setItem(ADMIN_PWD_KEY, DEFAULT_ADMIN_PWD);
+    role = 'admin';
+  } else if (v === getAdminPwd()) {
+    role = 'admin';
+  } else if (v === DEFAULT_CONSULTA_PWD) {
+    localStorage.setItem(CONSULTA_PWD_KEY, DEFAULT_CONSULTA_PWD);
+    role = 'consulta';
+  } else if (v === getConsultaPwd()) {
+    role = 'consulta';
+  }
 
   if (role) {
     aplicarPerfilAcesso(role);
