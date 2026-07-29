@@ -3050,7 +3050,7 @@ Anápolis	Improdutivas Comercial	Planejado	800	850	...
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
             <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
             <strong>Pacote aceito:</strong> <code>CAPEX STC</code> ou <code>CAPEX</code>.<br>
-            <strong>Serviço:</strong> use <code>MBX</code> ou <code>Miscelânea Capex</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
+            <strong>Serviço:</strong> use <code>MBX</code>, <code>Miscelânea Capex</code>, <code>Capex Emergência</code> ou <code>Melhoria da Medição</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
           </div>
           <textarea class="paste-area" id="paste-capex-area" placeholder="Exemplo com ano:
 Goiânia	2026	MBX	Planejado	1000	1200	...
@@ -3062,6 +3062,8 @@ Goiânia		MBX	Planejado	700	800	...
 Exemplo sem coluna Ano:
 Anápolis	MBX	Realizado	900	1100	...
 Anápolis	Miscelânea Capex	Planejado	800	850	...
+Anápolis	Capex Emergência	Planejado	700	780	...
+Anápolis	Melhoria da Medição	Realizado	650	720	...
 "></textarea>
           <div class="import-actions">
             <button class="btn-import primary" onclick="parseCapexImport()">🔍 Pré-visualizar</button>
@@ -7427,12 +7429,9 @@ const CAPEX_SERVICES = [
   'Capex Emergência'
 ].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 
-// ETAPA 7: nesta fase, a Inserção de Dados permanece restrita aos serviços já existentes.
-// Os dois novos serviços participam somente da aba CAPEX STC, filtros, cards, gráficos e cálculos.
-const CAPEX_ENTRY_SERVICES = [
-  'MBX',
-  'Miscelânea Capex'
-].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+// ETAPA 8: todos os serviços do CAPEX STC seguem as mesmas regras de inserção,
+// salvamento, carregamento, importação e utilização pelos demais componentes.
+const CAPEX_ENTRY_SERVICES = [...CAPEX_SERVICES];
 let capexData = {};
 let capexSelectedSuperintendencias = [];
 let capexSelectedRegionals = [];
