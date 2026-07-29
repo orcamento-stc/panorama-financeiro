@@ -1968,48 +1968,55 @@ table.dre-table td.dv-var-y {
 
 
 /* === ETAPA 6 – PADRONIZAÇÃO DOS VALORES DOS CARDS ===
-   Aplicação restrita aos cards de Panorama, PAC.10, PAC.11 e CAPEX STC.
-   Ajuste exclusivamente visual; sem alteração de regras, filtros, gráficos ou lógica. */
+   Escopo exclusivo: cards do Panorama, PAC.10, PAC.11 e CAPEX STC.
+   Alteração somente visual; sem mudanças em regras, filtros, gráficos ou lógica. */
 
-/* Valores Planejado e Realizado com a mesma tipografia e linha de base */
+/* Planejado e Realizado: mesma fonte, tamanho, peso e linha de base. */
 #screen-panorama .pkg-card .card-val-num,
 #screen-pac10 .pkg-card .card-val-num,
 #screen-pac11 .pkg-card .card-val-num,
 #screen-capex_stc .pkg-card .card-val-num {
-  font-family: var(--font-head);
-  font-size: .82rem;
-  font-weight: 700;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: 1.2;
-  letter-spacing: normal;
+  font-family: var(--font-body) !important;
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  font-stretch: normal !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-synthesis: none;
 }
 
-#screen-panorama .pkg-card .card-row,
-#screen-pac10 .pkg-card .card-row,
-#screen-pac11 .pkg-card .card-row,
-#screen-capex_stc .pkg-card .card-row {
-  align-items: flex-end;
+/* Cards individuais: rótulos e valores ficam nivelados verticalmente. */
+#screen-panorama .pkg-card:not(.total-card) .card-row,
+#screen-pac10 .pkg-card:not(.total-card) .card-row,
+#screen-pac11 .pkg-card:not(.total-card) .card-row,
+#screen-capex_stc .pkg-card:not(.total-card) .card-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end !important;
+  column-gap: .4rem;
 }
 
-#screen-panorama .pkg-card .card-row > div,
-#screen-pac10 .pkg-card .card-row > div,
-#screen-pac11 .pkg-card .card-row > div,
-#screen-capex_stc .pkg-card .card-row > div {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+#screen-panorama .pkg-card:not(.total-card) .card-row > div,
+#screen-pac10 .pkg-card:not(.total-card) .card-row > div,
+#screen-pac11 .pkg-card:not(.total-card) .card-row > div,
+#screen-capex_stc .pkg-card:not(.total-card) .card-row > div {
+  display: grid !important;
+  grid-template-rows: auto auto;
+  align-content: end;
+  min-width: 0;
 }
 
-#screen-panorama .pkg-card .card-row > div:last-child .card-val-num,
-#screen-pac10 .pkg-card .card-row > div:last-child .card-val-num,
-#screen-pac11 .pkg-card .card-row > div:last-child .card-val-num,
-#screen-capex_stc .pkg-card .card-row > div:last-child .card-val-num {
-  justify-content: flex-end;
+#screen-panorama .pkg-card:not(.total-card) .card-row > div:last-child,
+#screen-pac10 .pkg-card:not(.total-card) .card-row > div:last-child,
+#screen-pac11 .pkg-card:not(.total-card) .card-row > div:last-child,
+#screen-capex_stc .pkg-card:not(.total-card) .card-row > div:last-child {
+  text-align: right;
 }
 
-/* Mantém Planejado e Realizado do card Total Geral nivelados */
+/* Card Total Geral: Planejado e Realizado centralizados na mesma altura. */
 #screen-panorama .pkg-card.total-card .total-card-main > div:nth-child(2),
 #screen-panorama .pkg-card.total-card .total-card-main > div:nth-child(3),
 #screen-pac10 .pkg-card.total-card .total-card-main > div:nth-child(2),
@@ -2018,30 +2025,34 @@ table.dre-table td.dv-var-y {
 #screen-pac11 .pkg-card.total-card .total-card-main > div:nth-child(3),
 #screen-capex_stc .pkg-card.total-card .total-card-main > div:nth-child(2),
 #screen-capex_stc .pkg-card.total-card .total-card-main > div:nth-child(3) {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid !important;
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-self: center;
+  min-width: 0;
 }
 
-/* Janela da lupa: números com aparência normal, sem aspecto achatado */
+/* Detalhamento pela lupa: números com aparência normal, sem achatamento. */
 #card-modal .modal-row-val,
 #card-modal .modal-var-box .var-values {
-  font-family: var(--font-body);
-  font-style: normal;
-  font-stretch: normal;
-  letter-spacing: 0;
-  line-height: 1.35;
+  font-family: var(--font-body) !important;
+  font-style: normal !important;
+  font-stretch: normal !important;
+  letter-spacing: 0 !important;
+  line-height: 1.35 !important;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-synthesis: none;
 }
 
 #card-modal .modal-row-val {
-  font-size: .92rem;
-  font-weight: 700;
+  font-size: .92rem !important;
+  font-weight: 700 !important;
 }
 
 #card-modal .modal-var-box .var-values {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
 }
 </style>
 </head>
