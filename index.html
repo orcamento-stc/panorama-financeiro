@@ -2808,12 +2808,10 @@ table.dre-table td.dv-var-y {
             <code>Regional</code> → <code>Pacote</code> → <code>Tipo</code> → <code>Serviço</code> → 12 valores mensais<br><br>
             <strong>Ano:</strong> se informado, o sistema grava no ano da linha. Se não informado, ou se a coluna Ano vier em branco, assume automaticamente o ano vigente.<br>
             <strong>Pacote aceito:</strong> <code>PAC.10</code> ou <code>PAC10</code>.<br>
-            <strong>Serviço:</strong> use <code>Atendimento Emergencial</code>, <code>Ligação ou Miscelânea Não Executada STC</code>, <code>Miscelânea OPEX</code> ou <code>WhatsApp</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
+            <strong>Serviço:</strong> use <code>Atendimento Emergencial</code>, <code>Miscelânea OPEX</code> ou <code>WhatsApp</code>.<br><strong>Valores:</strong> podem ser colados como <code>2443173,62</code>, <code>1.139.545,89</code> ou <code>R$ 1.139.545,89</code>.
           </div>
           <textarea class="paste-area" id="paste-pac10-area" placeholder="Exemplo com ano:
 Goiânia	2026	Atendimento Emergencial	Planejado	1000	1200	...
-Goiânia	2026	PAC.10	Realizado	Ligação ou Miscelânea Não Executada STC	900	1100	...
-
 Exemplo com coluna Ano em branco:
 Goiânia		Miscelânea OPEX	Planejado	700	800	...
 
@@ -5984,7 +5982,6 @@ function getPac10DefaultYear() {
 // Para incluir ou remover serviços no futuro, altere somente esta lista.
 const PAC10_SERVICES = [
   'Atendimento Emergencial',
-  'Ligação ou Miscelânea Não Executada STC',
   'Miscelânea OPEX',
   'WhatsApp'
 ].sort((a,b)=>a.localeCompare(b,'pt-BR'));
