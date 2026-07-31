@@ -5263,13 +5263,7 @@ function getProjectionData(pkgIds) {
       const v = (cardFilter === 'card' ? getCostCenterCell(dimName, id, mi) : getCell(dimName, id, mi))?.real;
       return v != null && v !== 0;
     }));
-    // also allow genuine zero if the package had non-zero in prior months
-    const anyRealZero = lastRealIdx >= 0 && dimensions.some(dimName => pkgIds.some(id => {
-      const c = cardFilter === 'card' ? getCostCenterCell(dimName, id, mi) : getCell(dimName, id, mi);
-      const v = c?.real;
-      return v === 0 && c?.plan != null;
-    }));
-    if (anyReal || anyRealZero) lastRealIdx = mi;
+    if (anyReal) lastRealIdx = mi;
   });
 
   const realsWD = monthly.filter((m,i) => i <= lastRealIdx && m.real != null);
@@ -6142,12 +6136,7 @@ function getPac10ProjectionData(serviceNames) {
       const v = getPac10Cell(region, svc, mi, String(pac10SelectedYear || CURRENT_YEAR))?.real;
       return v != null && v !== 0;
     }));
-    const anyRealZero = lastRealIdx >= 0 && regions.some(region => serviceNames.some(svc => {
-      const c = getPac10Cell(region, svc, mi, String(pac10SelectedYear || CURRENT_YEAR));
-      const v = c?.real;
-      return v === 0 && c?.plan != null;
-    }));
-    if (anyReal || anyRealZero) lastRealIdx = mi;
+    if (anyReal) lastRealIdx = mi;
   });
   const realsWD = monthly.filter((m,i)=>i<=lastRealIdx && m.real!=null);
   const avgReal = realsWD.length ? realsWD.reduce((s,m)=>s+m.real,0)/realsWD.length : 0;
@@ -6641,12 +6630,7 @@ function getPac11ProjectionData(serviceNames) {
       const v = getPac11Cell(region, svc, mi, String(pac11SelectedYear || CURRENT_YEAR))?.real;
       return v != null && v !== 0;
     }));
-    const anyRealZero = lastRealIdx >= 0 && regions.some(region => serviceNames.some(svc => {
-      const c = getPac11Cell(region, svc, mi, String(pac11SelectedYear || CURRENT_YEAR));
-      const v = c?.real;
-      return v === 0 && c?.plan != null;
-    }));
-    if (anyReal || anyRealZero) lastRealIdx = mi;
+    if (anyReal) lastRealIdx = mi;
   });
   const realsWD = monthly.filter((m,i)=>i<=lastRealIdx && m.real!=null);
   const avgReal = realsWD.length ? realsWD.reduce((s,m)=>s+m.real,0)/realsWD.length : 0;
@@ -7579,12 +7563,7 @@ function getCapexProjectionData(serviceNames) {
       const v = getCapexCell(region, svc, mi, String(capexSelectedYear || CURRENT_YEAR))?.real;
       return v != null && v !== 0;
     }));
-    const anyRealZero = lastRealIdx >= 0 && regions.some(region => serviceNames.some(svc => {
-      const c = getCapexCell(region, svc, mi, String(capexSelectedYear || CURRENT_YEAR));
-      const v = c?.real;
-      return v === 0 && c?.plan != null;
-    }));
-    if (anyReal || anyRealZero) lastRealIdx = mi;
+    if (anyReal) lastRealIdx = mi;
   });
   const realsWD = monthly.filter((m,i)=>i<=lastRealIdx && m.real!=null);
   const avgReal = realsWD.length ? realsWD.reduce((s,m)=>s+m.real,0)/realsWD.length : 0;
