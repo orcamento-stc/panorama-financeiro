@@ -3630,6 +3630,13 @@ let selectedCostCenters = [];    // panorama/card stc: vazio = todos
 let dataSelectedRegional = REGIONALS.indexOf('Goiânia'); // dados: uma regional por vez
 let dataSelectedCostCenter = COST_CENTERS[0]?.id || '6070029030'; // dados: um centro de custo por vez
 let dataEntryMode = 'card'; // card = Centro de Custo | nocard = Regional
+const OPERATIONAL_PACKAGE_IDS = ['10','11'];
+
+function getDataEntryPackages(mode = dataEntryMode) {
+  return mode === 'nocard'
+    ? PACKAGES.filter(p => OPERATIONAL_PACKAGE_IDS.includes(p.id))
+    : PACKAGES;
+}
 
 let appData = {};
 
@@ -5518,7 +5525,7 @@ function renderDataTable() {
 
   const tbody = document.getElementById('data-tbody');
   tbody.innerHTML = '';
-  PACKAGES.forEach(p => {
+  getDataEntryPackages().forEach(p => {
     ['plan','real'].forEach(type => {
       const tr = document.createElement('tr');
       tr.classList.add(type==='plan' ? 'row-plan' : 'row-real');
@@ -5685,7 +5692,7 @@ let parsedImportData = null; // holds preview result
 function buildTemplatePkgList() {
   const el = document.getElementById('template-pkg-list');
   el.innerHTML = '';
-  PACKAGES.forEach(p => {
+  getDataEntryPackages().forEach(p => {
     const div = document.createElement('div');
     div.className = 'template-pkg-item';
     div.innerHTML = `<code>${p.id}</code><span>${p.name}${p.card?' · CARD STC':''}${p.hib?' · RECEITA':''}</span>`;
@@ -5797,6 +5804,10 @@ function parseImport() {
     const pkg = PACKAGES.find(p => p.id === rawId);
     if (!pkg) {
       parseErrors.push(`Linha ${li+1}: pacote "${cols[pkgCol]}" não reconhecido.`);
+      return;
+    }
+    if (mode === 'nocard' && !OPERATIONAL_PACKAGE_IDS.includes(pkg.id)) {
+      parseErrors.push(`Linha ${li+1}: o pacote "${cols[pkgCol]}" não pertence aos Pacotes Operacionais. Use somente PAC.10 ou PAC.11.`);
       return;
     }
 
