@@ -8016,6 +8016,7 @@ function parseCapexImport() {
     const t = normTxt(s).replace(/\s+/g,'');
     return t === 'capex' || t === 'capexstc' || t === 'capex.stc';
   };
+  const findService = s => CAPEX_ENTRY_SERVICES.find(service => normTxt(service) === normTxt(s));
 
   const lines = raw.split(/\r?\n/).filter(l=>l.trim());
   const result=[]; const parseErrors=[];
@@ -8032,6 +8033,7 @@ function parseCapexImport() {
     const n4 = normTxt(cols[4]);
 
     if (
+      ((n0==='servico' || n0==='serviço') && n1==='tipo') ||
       (n0==='regional' && (n1==='servico' || n1==='serviço')) ||
       (n0==='regional' && n1==='ano' && (n2==='servico' || n2==='serviço')) ||
       (n0==='regional' && n1==='pacote' && n2==='tipo' && (n3==='servico' || n3==='serviço')) ||
@@ -8040,42 +8042,54 @@ function parseCapexImport() {
       return;
     }
 
-    let regional = cols[0] || '';
+    let regional = '';
     let serviceRaw = '';
     let typeRaw = '';
     let valueStart = 0;
     let year = getCapexDefaultYear();
 
-    if (!REGIONALS.includes(regional)) {
-      parseErrors.push(`Linha ${li+1}: regional "${regional}" não reconhecida.`);
-      return;
-    }
+    const serviceInFirstColumn = findService(cols[0]);
+    const typeInSecondColumn = /^(p|plan|planejado|r|real|realizado)/.test(normTxt(cols[1]));
 
-    const c1 = (cols[1] || '').trim();
-    const hasYearValue = /^\d{4}$/.test(c1);
-    const hasBlankYearCol = c1 === '' && cols.length >= 16;
-    const hasYearColumn = hasYearValue || hasBlankYearCol;
-    const offset = hasYearColumn ? 1 : 0;
-    year = hasYearValue ? c1 : getCapexDefaultYear();
-
-    const tokenAfterYear = cols[1 + offset] || '';
-
-    if (cols.length >= 15 + offset && !isCapexToken(tokenAfterYear)) {
-      serviceRaw = cols[1 + offset] || '';
-      typeRaw = cols[2 + offset] || '';
-      valueStart = 3 + offset;
-    }
-    else if (cols.length >= 16 + offset && isCapexToken(tokenAfterYear)) {
-      serviceRaw = cols[4 + offset] || '';
-      typeRaw = cols[3 + offset] || '';
-      valueStart = 5 + offset;
+    if (serviceInFirstColumn && typeInSecondColumn && cols.length >= 14) {
+      regional = getCapexDataEntryRegionalName();
+      year = getCapexDefaultYear();
+      serviceRaw = cols[0] || '';
+      typeRaw = cols[1] || '';
+      valueStart = 2;
     } else {
-      parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Ano + Serviço + Tipo + 12 meses, ou Regional + Ano + CAPEX STC + Tipo + Serviço + 12 meses.`);
-      return;
+      regional = cols[0] || '';
+
+      if (!REGIONALS.includes(regional)) {
+        parseErrors.push(`Linha ${li+1}: regional "${regional}" não reconhecida.`);
+        return;
+      }
+
+      const c1 = (cols[1] || '').trim();
+      const hasYearValue = /^\d{4}$/.test(c1);
+      const hasBlankYearCol = c1 === '' && cols.length >= 16;
+      const hasYearColumn = hasYearValue || hasBlankYearCol;
+      const offset = hasYearColumn ? 1 : 0;
+      year = hasYearValue ? c1 : getCapexDefaultYear();
+
+      const tokenAfterYear = cols[1 + offset] || '';
+
+      if (cols.length >= 15 + offset && !isCapexToken(tokenAfterYear)) {
+        serviceRaw = cols[1 + offset] || '';
+        typeRaw = cols[2 + offset] || '';
+        valueStart = 3 + offset;
+      }
+      else if (cols.length >= 16 + offset && isCapexToken(tokenAfterYear)) {
+        serviceRaw = cols[4 + offset] || '';
+        typeRaw = cols[3 + offset] || '';
+        valueStart = 5 + offset;
+      } else {
+        parseErrors.push(`Linha ${li+1}: formato inválido. Use Regional + Ano + Serviço + Tipo + 12 meses, Regional + Ano + CAPEX STC + Tipo + Serviço + 12 meses, ou Serviço + Tipo + 12 meses.`);
+        return;
+      }
     }
 
-    const normServiceRaw = normTxt(serviceRaw);
-    let service = CAPEX_ENTRY_SERVICES.find(s => normTxt(s) === normServiceRaw);
+    const service = findService(serviceRaw);
     if (!service) { parseErrors.push(`Linha ${li+1}: serviço "${serviceRaw}" não reconhecido.`); return; }
 
     const typeNorm = normTxt(typeRaw);
